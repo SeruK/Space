@@ -1,0 +1,300 @@
+fileFormatVersion: 2
+guid: 79e44465d6e232d4795ca8daa56a60a5
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: artifact
+    21300002: artifact_s02
+    21300004: artifact_s03
+    21300006: artifact_s04
+    21300008: artifact_s05
+    21300010: artifact_s06
+    21300012: artifact_s07
+    21300014: artifact_s08
+    21300016: artifact_s09
+    21300018: new_life_form
+    21300020: new_life_form_s11
+    21300022: new_life_form_s12
+    21300024: new_life_form_s13
+    21300026: new_life_form_s14
+    21300028: new_life_form_s15
+    21300030: new_life_form_s16
+    21300032: new_life_form_s17
+    21300034: new_life_form_s18
+    21300036: new_life_form_s19
+    21300038: new_life_form_s20
+    21300040: new_life_form_s21
+    21300042: new_life_form_s22
+    21300044: new_life_form_s23
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 4096
+  textureSettings:
+    filterMode: -1
+    aniso: 1
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: artifact
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 53
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .555555582, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: artifact_s02
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 44
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .555555582, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: artifact_s03
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 43
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .555555582, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: artifact_s04
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 42
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .555555582, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: artifact_s05
+      rect:
+        serializedVersion: 2
+        x: 14
+        y: 54
+        width: 10
+        height: 8
+      alignment: 9
+      pivot: {x: .5, y: .625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: artifact_s06
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 55
+        width: 10
+        height: 7
+      alignment: 9
+      pivot: {x: .5, y: .571428597}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: artifact_s07
+      rect:
+        serializedVersion: 2
+        x: 49
+        y: 53
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .444444448, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: artifact_s08
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 53
+        width: 10
+        height: 9
+      alignment: 9
+      pivot: {x: .5, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: artifact_s09
+      rect:
+        serializedVersion: 2
+        x: 37
+        y: 42
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .444444448, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 24
+        width: 8
+        height: 6
+      alignment: 9
+      pivot: {x: .5, y: .833333313}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s11
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 24
+        width: 8
+        height: 7
+      alignment: 9
+      pivot: {x: .5, y: .714285731}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s12
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 25
+        width: 7
+        height: 7
+      alignment: 9
+      pivot: {x: .571428597, y: .714285731}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s13
+      rect:
+        serializedVersion: 2
+        x: 55
+        y: 25
+        width: 7
+        height: 7
+      alignment: 9
+      pivot: {x: .571428597, y: .714285731}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s14
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 22
+        width: 7
+        height: 7
+      alignment: 9
+      pivot: {x: .571428597, y: .714285731}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s15
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 34
+        width: 8
+        height: 9
+      alignment: 9
+      pivot: {x: .5, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s16
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 21
+        width: 7
+        height: 8
+      alignment: 9
+      pivot: {x: .428571433, y: .625}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s17
+      rect:
+        serializedVersion: 2
+        x: 25
+        y: 33
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .555555582, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s18
+      rect:
+        serializedVersion: 2
+        x: 36
+        y: 31
+        width: 8
+        height: 9
+      alignment: 9
+      pivot: {x: .5, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s19
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 32
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .444444448, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s20
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 22
+        width: 7
+        height: 7
+      alignment: 9
+      pivot: {x: .571428597, y: .714285731}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s21
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 31
+        width: 9
+        height: 9
+      alignment: 9
+      pivot: {x: .555555582, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s22
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 45
+        width: 9
+        height: 6
+      alignment: 9
+      pivot: {x: .555555582, y: .833333313}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: new_life_form_s23
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 10
+        width: 6
+        height: 9
+      alignment: 9
+      pivot: {x: .333333343, y: .555555582}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 
