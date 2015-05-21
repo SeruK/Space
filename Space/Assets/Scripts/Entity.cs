@@ -90,7 +90,7 @@ public class Entity : MonoBehaviour {
 		} /* else if( !RequestedJump && velocity.y > 0.0f ) {
 			velocity.y = 0.0f;
 		} */
-		scaleY = Mathf.Lerp( spriteTransform.localScale.x, scaleY, 0.01f );
+		scaleY = Mathf.Lerp( spriteTransform.localScale.y, scaleY, 0.01f );
 		spriteTransform.localScale = new Vector3( spriteTransform.localScale.x, scaleY, spriteTransform.localScale.z );
 		
 

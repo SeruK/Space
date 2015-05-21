@@ -179,20 +179,20 @@ public class CharacterController2D : MonoBehaviour
 
 
 	#region Monobehaviour
-
-	void Awake()
+	
+	void OnEnable()
 	{
-		// add our one-way platforms to our normal platform mask so that we can land on them from above
-		platformMask |= oneWayPlatformMask;
-
 		// cache some components
 		transform = GetComponent<Transform>();
 		boxCollider = GetComponent<BoxCollider2D>();
 		rigidBody2D = GetComponent<Rigidbody2D>();
 
+		// add our one-way platforms to our normal platform mask so that we can land on them from above
+		platformMask |= oneWayPlatformMask;
+		
 		// here, we trigger our properties that have setters with bodies
 		skinWidth = _skinWidth;
-
+		
 		// we want to set our CC2D to ignore all collision layers except what is in our triggerMask
 		for( var i = 0; i < 32; i++ )
 		{
@@ -201,7 +201,6 @@ public class CharacterController2D : MonoBehaviour
 				Physics2D.IgnoreLayerCollision( gameObject.layer, i );
 		}
 	}
-
 
 	public void OnTriggerEnter2D( Collider2D col )
 	{
