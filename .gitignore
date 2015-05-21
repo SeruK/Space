@@ -1,0 +1,39 @@
+#############
+## Unity junk
+#############
+
+Space/Library
+Space/Obj
+Space/Temp
+Space/*.suo
+Space/*.user
+Space/*.pidb
+Space/*.userprefs
+Space/*.csproj
+Space/*.unityproj
+Space/*.sln
+
+#############
+## Blender crap
+#############
+*.blend1
+*.blend1.meta
+*.blend2
+*.blend2.meta
+
+#############
+## OS detritus
+#############
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac crap
+.DS_Store

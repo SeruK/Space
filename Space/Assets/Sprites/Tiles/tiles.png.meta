@@ -1,0 +1,345 @@
+fileFormatVersion: 2
+guid: 1137a88a6f9b6524aa8ee850191c6925
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: tiles
+    21300002: BACKGROUND
+    21300004: BACKGROUND_s07
+    21300006: BACKGROUND_s08
+    21300008: BACKGROUND_s09
+    21300010: CAVERN
+    21300012: CAVERN_s02
+    21300014: CAVERN_s03
+    21300016: CAVERN_s04
+    21300018: CAVERN_s05
+    21300020: s01
+    21300022: s02
+    21300024: s03
+    21300026: s04
+    21300028: s05
+    21300030: s06
+    21300032: s07
+    21300034: s08
+    21300036: ship_1
+    21300038: ship_10
+    21300040: ship_2
+    21300042: ship_3
+    21300044: ship_4
+    21300046: ship_5
+    21300048: ship_6
+    21300050: ship_7
+    21300052: ship_8
+    21300054: ship_9
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  seamlessCubemap: 0
+  textureFormat: -1
+  maxTextureSize: 4096
+  textureSettings:
+    filterMode: 0
+    aniso: 1
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 10
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: BACKGROUND
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 234
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: BACKGROUND_s07
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 234
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: BACKGROUND_s08
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 234
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: BACKGROUND_s09
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 234
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: CAVERN
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 234
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: CAVERN_s02
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 212
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: CAVERN_s03
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 212
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: CAVERN_s04
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 212
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: CAVERN_s05
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 212
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: s01
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 212
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: s02
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 190
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: s03
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 190
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: s04
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 190
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: s05
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 190
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: s06
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 190
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: s07
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 168
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: s08
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 168
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_1
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 168
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_10
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 168
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_2
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 168
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_3
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 146
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_4
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 146
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_5
+      rect:
+        serializedVersion: 2
+        x: 46
+        y: 146
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_6
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 146
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_7
+      rect:
+        serializedVersion: 2
+        x: 90
+        y: 146
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_8
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 124
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: ship_9
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 124
+        width: 20
+        height: 20
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 

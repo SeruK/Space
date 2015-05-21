@@ -1,0 +1,37 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# Sprite sheet: tiles.png (128 x 256)
+# $TexturePacker:SmartUpdate:7f651c5761c7bf0b9e5af15f29ce658b:f72b87ab113e2b8b5bfed8dbcaee300e:3bac8801286e6fbd2e0d331bbbe42dfb$
+#
+
+BACKGROUND;2;234;20;20;0.5;0.5
+BACKGROUND_s07;24;234;20;20;0.5;0.5
+BACKGROUND_s08;46;234;20;20;0.5;0.5
+BACKGROUND_s09;68;234;20;20;0.5;0.5
+CAVERN;90;234;20;20;0.5;0.5
+CAVERN_s02;2;212;20;20;0.5;0.5
+CAVERN_s03;24;212;20;20;0.5;0.5
+CAVERN_s04;46;212;20;20;0.5;0.5
+CAVERN_s05;68;212;20;20;0.5;0.5
+s01;90;212;20;20;0.5;0.5
+s02;2;190;20;20;0.5;0.5
+s03;24;190;20;20;0.5;0.5
+s04;46;190;20;20;0.5;0.5
+s05;68;190;20;20;0.5;0.5
+s06;90;190;20;20;0.5;0.5
+s07;2;168;20;20;0.5;0.5
+s08;24;168;20;20;0.5;0.5
+ship_1;46;168;20;20;0.5;0.5
+ship_10;68;168;20;20;0.5;0.5
+ship_2;90;168;20;20;0.5;0.5
+ship_3;2;146;20;20;0.5;0.5
+ship_4;24;146;20;20;0.5;0.5
+ship_5;46;146;20;20;0.5;0.5
+ship_6;68;146;20;20;0.5;0.5
+ship_7;90;146;20;20;0.5;0.5
+ship_8;2;124;20;20;0.5;0.5
+ship_9;24;124;20;20;0.5;0.5
