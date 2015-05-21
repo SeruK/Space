@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class Entity : MonoBehaviour {
+	// TODO: Make private + serialize
 	public float Gravity = -25f;
 	public float RunSpeed = 8f;
 	public float GroundDamping = 20f; // how fast do we change direction? higher means faster
@@ -20,6 +21,10 @@ public class Entity : MonoBehaviour {
 	public bool  RequestedJump;
 	[HideInInspector]
 	public bool  RequestedDuck;
+
+	public CharacterController2D CharController {
+		get { return charController; }
+	}
 
 	private bool didJump;
 

@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 9d481ae571a13e94d82870453af37220
+guid: 1ba6219f48e108141a076ecc41ff8d45
 TextureImporter:
   fileIDToRecycleName:
-    21300000: inventory
+    21300000: spike_1
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -25,7 +25,7 @@ TextureImporter:
   textureFormat: -1
   maxTextureSize: 4096
   textureSettings:
-    filterMode: -1
+    filterMode: 0
     aniso: 1
     mipBias: -1
     wrapMode: 1
@@ -38,21 +38,21 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 10
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: inventory
+    - name: spike_1
       rect:
         serializedVersion: 2
         x: 2
-        y: 113
-        width: 144
-        height: 141
-      alignment: 9
-      pivot: {x: .5, y: .510638297}
+        y: 2
+        width: 7
+        height: 4
+      alignment: 0
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

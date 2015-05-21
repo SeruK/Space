@@ -4,35 +4,30 @@ using System.Collections;
 public class Game : MonoBehaviour {
 	public Entity Player;
 	public SmoothFollow CameraController;
+	public TextDisplay TextDisplay;
 
-	public GUIText  DisplayText;
-	public float    DisplayTextWait;
-	public Material DisplayTextGlitchMaterial;
-	public float    DisplayTextGlitchDuration;
-	public Vector2  DisplayTextGlitchRandom;
-	public float    DisplayTextGlitchOffset;
-
-	public string TextToDisplay;
-	private string lastTextToDisplay;
-	private int currentTextLength;
-	private float nextTextCharIn;
-	private Material displayTextNormalMaterial;
-	private float nextTextGlitchIn;
-	private float currentTextGlitchTimer;
-	private Vector2 currentTextGlitchOffset;
+	// TODO: This nicer
+	public GameObject OrbPrefab;
 
 	protected void OnEnable() {
-		if( DisplayText != null ) {
-			displayTextNormalMaterial = DisplayText.material;
+		if( Player != null ) {		
+			Player.CharController.onControllerCollidedEvent += OnPlayerCollided;
+			Player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
+		}
+	}
+
+	protected void OnDisable() {
+		if( Player != null ) {
+			Player.CharController.onControllerCollidedEvent -= OnPlayerCollided;
+			Player.CharController.onTriggerEnterEvent -= OnPlayerEnteredTrigger;
 		}
 	}
 
 	protected void Update() {
-		InputPlayer();
-		UpdateDisplayText();
+		UpdateInput();
 	}
 
-	protected void InputPlayer() {
+	protected void UpdateInput() {
 		if( Player == null ) {
 			return;
 		}
@@ -47,69 +42,29 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	protected void UpdateDisplayText() {
-		if( DisplayText == null ) {
-			return;
-		}
-
-		DisplayText.pixelOffset = new Vector2( Screen.width / 2.0f, Screen.height - 40.0f ) + currentTextGlitchOffset;
-		
-		if( lastTextToDisplay != TextToDisplay ) {
-			currentTextLength = 0;
-		}
-		
-		lastTextToDisplay = TextToDisplay;
-
-		if( DisplayTextGlitchMaterial != null ) {
-			if( currentTextGlitchTimer > 0.0f ) {
-				currentTextGlitchTimer -= Time.deltaTime;
-
-				// Reset to normal
-				if( currentTextGlitchTimer < 0.0f ) {
-					DisplayText.material = displayTextNormalMaterial;
-					currentTextGlitchOffset = Vector2.zero;
-				}
-			} else {
-				DisplayText.material = displayTextNormalMaterial;
-
-				if( nextTextGlitchIn <= 0.0f ) {
-					nextTextGlitchIn = Random.Range( DisplayTextGlitchRandom.x, DisplayTextGlitchRandom.y );
-				}
-
-				if( nextTextGlitchIn > 0.0f ) {
-					nextTextGlitchIn -= Time.deltaTime;
-
-					if( nextTextGlitchIn < 0.0f ) {
-						currentTextGlitchTimer = DisplayTextGlitchDuration;
-						DisplayText.material = DisplayTextGlitchMaterial;
-						currentTextGlitchOffset = Random.insideUnitCircle * DisplayTextGlitchOffset;
-					}
-				}
-			}
-		} else {
-			DisplayText.material = displayTextNormalMaterial;
-		}
-		
-		if( string.IsNullOrEmpty( TextToDisplay ) ) {
-			DisplayText.text = "";
-		} else {
-			if( currentTextLength < TextToDisplay.Length ) {
-				if( nextTextCharIn > 0.0f ) {
-					nextTextCharIn -= Time.deltaTime;
-				}
-				
-				if( nextTextCharIn <= 0.0f ) {
-					do {
-						++currentTextLength;
-						char c = TextToDisplay[ currentTextLength - 1 ];
-						if( !char.IsWhiteSpace( c )) {
-							break;
-						}
-					} while ( currentTextLength <= TextToDisplay.Length );
-					nextTextCharIn = Mathf.Max( 0.0f, DisplayTextWait );
-					DisplayText.text = TextToDisplay.Substring( 0, currentTextLength );
-				}
+	protected void OnPlayerCollided( RaycastHit2D hit ) {
+		var obstacle = hit.collider.GetComponentInChildren<Obstacle>();
+		if( obstacle != null ) {
+			if( obstacle.KnockForce > 0.0f ) {
+				Vector3 force = hit.normal * obstacle.KnockForce;
+				Player.CharController.move( force );
 			}
 		}
+	}
+
+	protected void OnPlayerEnteredTrigger( Collider2D collider ) {
+		var pickup = collider.GetComponentInChildren<Pickup>();
+		if( pickup != null ) {
+			if( TextDisplay != null ) {
+				TextDisplay.TypeTextThenDisplayFor( "Picked up a " + pickup.DisplayName, 3.0f );
+			}
+			DestroyPickup( pickup );
+		}
+	}
+
+	// Pickups
+
+	private void DestroyPickup( Pickup pickup ) {
+		Destroy( pickup.gameObject );
 	}
 }

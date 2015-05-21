@@ -1,0 +1,11 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# Sprite sheet: obstacles.png (16 x 8)
+# $TexturePacker:SmartUpdate:b7adcf387b9041567dd05c19d35ef78e:63685a3c62e495e43f262f11fb29e8c3:f377055f06199d4aa8911a0ef3294a7f$
+#
+
+spike_1;2;2;7;4;0.5;0.5
