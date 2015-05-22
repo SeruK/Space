@@ -3,8 +3,8 @@ using System.Collections;
 
 public class Pickup : MonoBehaviour {
 	public string DisplayName {
-		get { return name; }
+		get { return displayName; }
 	}
 
-	private string name = "none";
+	private string displayName = "none";
 }

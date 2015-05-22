@@ -1,0 +1,15 @@
+#
+# Sprite sheet data for Unity.
+#
+# To import these sprites into your Unity project, download "TexturePackerImporter":
+# http://www.codeandweb.com/texturepacker/unity
+#
+# Sprite sheet: aliens.png (64 x 64)
+# $TexturePacker:SmartUpdate:0c06690c3695a244cade4d3eeb7e6af6:c85491ec2678db96962701dc449f49d8:215dc2aabdd09598f6ea16d55ab670f2$
+#
+
+alien_c_s01;24;47;16;15;0.53125;0.8333333333333334
+alien_c_s02;19;25;17;16;0.5588235294117647;0.78125
+alien_c_s03;2;2;16;18;0.53125;0.6944444444444444
+alien_c_s04;2;43;20;19;0.575;0.6578947368421053
+alien_c_s05;2;22;15;19;0.5;0.6578947368421053

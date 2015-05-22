@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[RequireComponent( typeof(CharacterController2D) )]
 public class Entity : MonoBehaviour {
 	// TODO: Make private + serialize
 	public float Gravity = -25f;
@@ -32,6 +33,20 @@ public class Entity : MonoBehaviour {
 	private Animator animator;
 	private Transform spriteTransform;
 
+	public int Direction {
+		get { return spriteTransform.localScale.x < 0 ? -1 : 1; }
+		set {
+			if( value == 0 ) return;
+			Vector3 ls = spriteTransform.localScale;
+			if( value > 0 && ls.x < 0 ) {
+				ls.x = -ls.x;
+			} else if ( value < 0 && ls.x > 0 ) {
+				ls.x = -ls.x;
+			}
+			spriteTransform.localScale = ls;
+		}
+	}
+
 	protected void OnEnable() {
 		if (charController == null) {
 			charController = GetComponentInChildren<CharacterController2D>();
@@ -47,7 +62,7 @@ public class Entity : MonoBehaviour {
 		}
 	}
 
-	public void Update() {
+	protected void Update() {
 		if( charController == null || animator == null ) {
 			return;
 		}
@@ -65,21 +80,21 @@ public class Entity : MonoBehaviour {
 		if( Mathf.Approximately( RequestedHorizontalSpeed, 0.0f ) ) {
 			normalizedHorizontalSpeed = 0;
 			if( charController.isGrounded )
-				animator.Play( Animator.StringToHash( IdleAnimationName ) );
+				PlayAnimation( IdleAnimationName );
 		} else if( RequestedHorizontalSpeed > 0.0f ) {
 			normalizedHorizontalSpeed = 1;
 			if( spriteTransform.localScale.x < 0f )
 				spriteTransform.localScale = new Vector3( -spriteTransform.localScale.x, spriteTransform.localScale.y, spriteTransform.localScale.z );
 			
 			if( charController.isGrounded )
-				animator.Play( Animator.StringToHash( WalkAnimationName ) );
+				PlayAnimation( WalkAnimationName );
 		} else {
 			normalizedHorizontalSpeed = -1;
 			if( spriteTransform.localScale.x > 0f )
 				spriteTransform.localScale = new Vector3( -spriteTransform.localScale.x, spriteTransform.localScale.y, spriteTransform.localScale.z );
 			
 			if( charController.isGrounded )
-				animator.Play( Animator.StringToHash( WalkAnimationName ) );
+				PlayAnimation( WalkAnimationName );
 		}
 
 		float scaleY = 1.0f;
@@ -114,7 +129,14 @@ public class Entity : MonoBehaviour {
 			if( velocity.y > 0.0f && didJump ) {
 				anim = JumpAnimationName;
 			}
-			animator.Play( Animator.StringToHash( anim ) );
+			PlayAnimation( anim );
 		}
+	}
+
+	private void PlayAnimation( string anim ) {
+		if( string.IsNullOrEmpty( anim ) ) {
+			return;
+		}
+		animator.Play( Animator.StringToHash( anim ) );
 	}
 }
