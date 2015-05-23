@@ -11,6 +11,7 @@ GameObject:
   - 114: {fileID: 11400002}
   - 132: {fileID: 13200000}
   - 114: {fileID: 11400000}
+  - 114: {fileID: 11420576}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -63,7 +64,19 @@ MonoBehaviour:
   Player: {fileID: 0}
   CameraController: {fileID: 0}
   TextDisplay: {fileID: 11400000}
+  Inventory: {fileID: 11420576}
   OrbPrefab: {fileID: 0}
+--- !u!114 &11420576
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4efa03c5b70c7da40b9e98175debe7bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!132 &13200000
 GUIText:
   m_ObjectHideFlags: 1

@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class Unit : MonoBehaviour {
-	public int   Faction;
-	public float HealthPoints;
+	public string DisplayName;
+	public int    Faction;
+	public float  HealthPoints;
 }

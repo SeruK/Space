@@ -207,6 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a668d9da64a16704a94fde770cc4da5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DisplayName: Goombalien
   Faction: 1
   HealthPoints: 0
 --- !u!212 &21222044
