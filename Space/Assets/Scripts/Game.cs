@@ -9,11 +9,19 @@ public class Game : MonoBehaviour {
 	public SmoothFollow CameraController;
 	public TextDisplay TextDisplay;
 	public Inventory Inventory;
+	private Localization localization;
 
 	// TODO: This nicer
 	public GameObject OrbPrefab;
 
+	protected void Awake() {
+		localization = gameObject.AddComponent<Localization>();
+		localization.Load();
+	}
+
 	protected void OnEnable() {
+		localization.Load();
+
 		if( Player != null ) {		
 			Player.CharController.onControllerCollidedEvent += OnPlayerCollided;
 			Player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
