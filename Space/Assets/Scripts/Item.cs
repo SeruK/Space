@@ -11,4 +11,12 @@ public static class Item {
 		AlienMeat,
 		DataDisc
 	}
+
+	public static string LocalizedNameId( ItemType itemType ) {
+		return "item_" + System.Enum.GetName( typeof( ItemType ), itemType );
+	}
+
+	public static string FallbackName( ItemType itemType ) {
+		return System.Enum.GetName( typeof( ItemType ), itemType );
+	}
 }

@@ -25,7 +25,7 @@ public class Localization : MonoBehaviour {
 	}
 
 	private bool ReadCSVLine( string source, out string id, out string val ) {
-		// TODO: Allow for tab chars in read lines
+		// TODO: Allow for embedded \"\"
 
 		id = val = null;
 		string comment = null;
@@ -58,20 +58,21 @@ public class Localization : MonoBehaviour {
 		}
 
 		val = val.Substring( 1, val.Length - 2 );
+		val = val.Replace( "\\n", System.Environment.NewLine );
 
-		string debugString = string.Format( "Read Line: [{0}] = \"{1}\" ({2})", id, val, comment == null ? "No comment" : comment);
-		DebugUtil.Log( debugString );
+		DebugUtil.Log( string.Format( "Read Line: [{0}] = \"{1}\" ({2})", id, val, comment == null ? "No comment" : comment) );
 
 		return true;
 	}
 
 	public string Get( string id ) {
 		if( lines == null ) {
-			return "Loc not loaded";
+			DebugUtil.LogError( "Localization not loaded" );
+			return null;
 		}
 
 		if( string.IsNullOrEmpty( id ) ) {
-			return "Bad id (null or empty)";
+			return null;
 		}
 
 		string res;
@@ -79,6 +80,6 @@ public class Localization : MonoBehaviour {
 			return res;
 		}
 
-		return "Bad id (does not exist)";
+		return null;
 	}
 }

@@ -13,13 +13,11 @@ public class Game : MonoBehaviour {
 
 	// TODO: This nicer
 	public GameObject OrbPrefab;
-
-	protected void Awake() {
-		localization = gameObject.AddComponent<Localization>();
-		localization.Load();
-	}
-
+	
 	protected void OnEnable() {
+		if( localization == null ) {
+			localization = gameObject.AddComponent<Localization>();
+		}
 		localization.Load();
 
 		if( Player != null ) {		
@@ -78,7 +76,16 @@ public class Game : MonoBehaviour {
 		var pickup = collider.GetComponentInChildren<Pickup>();
 		if( pickup != null ) {
 			if( TextDisplay != null ) {
-				TextDisplay.TypeTextThenDisplayFor( "Picked up " + pickup.DisplayName, 3.0f );
+				string lineToDisplay = localization.Get( pickup.LocalizedLineId );
+
+				if( lineToDisplay == null && pickup.ItemType != Item.ItemType.None ) {
+					string localizedLine = localization.Get( Item.LocalizedNameId( pickup.ItemType ) );
+					lineToDisplay = "Picked up a " + ( localizedLine != null ? localizedLine : Item.FallbackName( pickup.ItemType ) );
+				}
+
+				if( !string.IsNullOrEmpty( lineToDisplay ) ) {
+					TextDisplay.TypeTextThenDisplayFor( lineToDisplay, 3.0f );
+				}
 			}
 
 			if( Inventory != null ) {

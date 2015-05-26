@@ -5,14 +5,14 @@ using ItemType = Item.ItemType;
 public class Pickup : MonoBehaviour {
 	[SerializeField]
 	private ItemType itemType;
+	[SerializeField]
+	private string localizedLineId;
 
 	public ItemType ItemType {
 		get { return itemType; }
 	}
 
-	public string DisplayName {
-		get { return System.Enum.GetName( typeof(ItemType), itemType ); }
+	public string LocalizedLineId {
+		get  { return localizedLineId; }
 	}
-
-	private string displayName = "none";
 }
