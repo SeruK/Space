@@ -1,5 +1,5 @@
 using UnityEngine;
-namespace SausageAssassins
+namespace SA
 {
 	static class MathUtil
 	{
