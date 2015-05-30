@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="20" tileheight="20" backgroundcolor="#ffaaff" nextobjectid="5">
+ <tileset firstgid="1" source="../../../../../../Desktop/tiles.tsx"/>
+ <layer name="Tile Layer 1" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt1TEKACAMBMHk/5+2FiQWwtnMgIWQKlukCgDe9eVPVtfeoIdHxqnJaYac2771yJt2rkfedCf0+MctBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICMBfRdABw=
+  </data>
+ </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="1" x="182.04" y="118" width="110" height="91">
+   <properties>
+    <property name="dick" value="butt"/>
+   </properties>
+  </object>
+  <object id="3" x="252" y="162"/>
+  <object id="4" x="337" y="230"/>
+ </objectgroup>
+ <layer name="Tile Layer 2" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt0bENADAMwzCv+f/hrvkgRkECukAJAACwzYpbEz+aeNHFjy5eAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPzlAaopAIg=
+  </data>
+ </layer>
+</map>
