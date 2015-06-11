@@ -158,7 +158,7 @@ public class MeshTiles : MonoBehaviour
 		int[] triangles = new int[numTriangles];
 		Vector2[] uvs = new Vector2[numVertices];
 		
-		Debug.Log("Tris: "+numTriangles/3u);
+//		Debug.Log("Tris: "+numTriangles/3u);
 		
 		float fullMeshHeight = meshSize * height;
 		

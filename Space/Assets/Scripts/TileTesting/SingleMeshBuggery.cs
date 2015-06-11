@@ -4,7 +4,12 @@ using SausageAssassins;
 
 public class SingleMeshBuggery : MonoBehaviour {
 	
-	public MeshTiles meshTiles;
+	private MeshTiles[] allMeshTiles;
+
+	[SerializeField]
+	private Texture2D[] textures;
+	[SerializeField]
+	private Material wholeTextureMaterial;
 	
 	private uint width = 50;
 	private uint height = 50;
@@ -21,14 +26,27 @@ public class SingleMeshBuggery : MonoBehaviour {
 	// Use this for initialization
 	void OnEnable () 
 	{
-		meshTiles.Width = width;
-		meshTiles.Height = height;
-		meshTiles.TextureIndexForTile = (x, y) => {
-			return simplexAt(x, y) < 0.3f ? 0u : 1u;
-		};
-		meshTiles.StartGeneratingMeshes();
-		
-		doLighten();
+		allMeshTiles = new MeshTiles[4];
+		for( uint i = 0; i < 4; ++i ) {
+			var dummyGO = new GameObject( "MeshTiles", typeof(MeshTiles) );
+			dummyGO.transform.parent = this.transform;
+			var meshTiles = dummyGO.GetComponent<MeshTiles>();
+			allMeshTiles[ i ] = meshTiles;
+
+			meshTiles.Textures = textures;
+			meshTiles.wholeTextureMaterial = wholeTextureMaterial;
+
+			dummyGO.transform.position = this.transform.position + new Vector3( meshTiles.TileSize * (float)( i * width ), 0.0f, 0.0f );
+
+			meshTiles.Width = width;
+			meshTiles.Height = height;
+			meshTiles.TextureIndexForTile = (x, y) => {
+				return simplexAt(x + i * width, y) < 0.3f ? 0u : 1u;
+			};
+			meshTiles.StartGeneratingMeshes();
+
+			doLighten( new Vector2i( (int)i, 0 ) );
+		}
 	}
 	
 	private int lastLightX = 0;
@@ -59,12 +77,17 @@ public class SingleMeshBuggery : MonoBehaviour {
 			lastLightY = lightY;
 			lastRadius = lightRadius;
 			
-			doLighten();
+			for( int i = 0; i < 4; ++i ) {
+				doLighten( new Vector2i( i, 0 ));
+			}
 		}
 	}
 	
-	void doLighten()
+	void doLighten( Vector2i offset )
 	{
+		int lightX = this.lightX + offset.x * (int)width;
+		int lightY = this.lightY + offset.y * (int)height;
+
 		uint numVertices = width * height;
 		var colors = new Color32[numVertices];
 		
@@ -93,8 +116,9 @@ public class SingleMeshBuggery : MonoBehaviour {
 		uint radius = (uint)Mathf.Max(lightRadius, 1);
 		Vector2i lightOrigin = new Vector2i(lightX, lightY);
 		Vector2 lightOriginFloat = new Vector2(lightX, lightY);
-		
-		SausageAssassins.FieldOfView.LightenPoint(lightOrigin, radius, 3u, width, height,(x, y) => {
+		uint overshoot = 3u;
+
+		SausageAssassins.FieldOfView.LightenPoint(lightOrigin, radius, overshoot, width, height,(x, y) => {
 				return simplexAt(x, y) < 0.3f ? false : true;
 			}, (x, y, visible) => {
 			uint i = x + y * width;
@@ -116,7 +140,8 @@ public class SingleMeshBuggery : MonoBehaviour {
 				colors[i] = new Color32(0,0,0,a);
 			}
 		});
-		
+
+		var meshTiles = allMeshTiles[ offset.x ];
 		meshTiles.TileColors = colors;
 	}
 	
