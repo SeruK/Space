@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace SausageAssassins
+namespace SA
 {
 	public delegate bool TileIsOpaque(uint x, uint y);
 	public delegate void SetTileVisibility(uint x, uint y, bool visible);

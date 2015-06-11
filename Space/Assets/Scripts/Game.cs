@@ -15,6 +15,9 @@ public class Game : MonoBehaviour {
 	public GameObject OrbPrefab;
 	
 	protected void OnEnable() {
+		string tmxFilePath = System.IO.Path.Combine( Application.streamingAssetsPath, "test.tmx" );
+		var tileMap = SA.TileMap.ParseTMXFileAtPath( tmxFilePath );
+
 		if( localization == null ) {
 			localization = gameObject.AddComponent<Localization>();
 		}

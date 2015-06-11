@@ -1,4 +1,4 @@
-﻿namespace SausageAssassins {
+﻿namespace SA {
 	public static class MaximumRect {
 		public delegate bool TileIsOpaque(uint x, uint y);
 

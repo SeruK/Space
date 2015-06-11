@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace SausageAssassins 
+namespace SA 
 {
 	[System.Serializable]
 	public struct Size2i

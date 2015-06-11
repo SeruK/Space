@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace SausageAssassins
+namespace SA
 {
 	public struct Recti
 	{

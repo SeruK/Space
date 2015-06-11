@@ -1,15 +1,10 @@
 using UnityEngine;
 using System.Collections;
-using SausageAssassins;
+using SA;
 
 public class SingleMeshBuggery : MonoBehaviour {
 	
-	private MeshTiles[] allMeshTiles;
-
-	[SerializeField]
-	private Texture2D[] textures;
-	[SerializeField]
-	private Material wholeTextureMaterial;
+	public MeshTiles meshTiles;
 	
 	private uint width = 50;
 	private uint height = 50;
@@ -26,27 +21,14 @@ public class SingleMeshBuggery : MonoBehaviour {
 	// Use this for initialization
 	void OnEnable () 
 	{
-		allMeshTiles = new MeshTiles[4];
-		for( uint i = 0; i < 4; ++i ) {
-			var dummyGO = new GameObject( "MeshTiles", typeof(MeshTiles) );
-			dummyGO.transform.parent = this.transform;
-			var meshTiles = dummyGO.GetComponent<MeshTiles>();
-			allMeshTiles[ i ] = meshTiles;
-
-			meshTiles.Textures = textures;
-			meshTiles.wholeTextureMaterial = wholeTextureMaterial;
-
-			dummyGO.transform.position = this.transform.position + new Vector3( meshTiles.TileSize * (float)( i * width ), 0.0f, 0.0f );
-
-			meshTiles.Width = width;
-			meshTiles.Height = height;
-			meshTiles.TextureIndexForTile = (x, y) => {
-				return simplexAt(x + i * width, y) < 0.3f ? 0u : 1u;
-			};
-			meshTiles.StartGeneratingMeshes();
-
-			doLighten( new Vector2i( (int)i, 0 ) );
-		}
+		meshTiles.Width = width;
+		meshTiles.Height = height;
+		meshTiles.TextureIndexForTile = (x, y) => {
+			return simplexAt(x, y) < 0.3f ? 0u : 1u;
+		};
+		meshTiles.StartGeneratingMeshes();
+		
+		doLighten();
 	}
 	
 	private int lastLightX = 0;
@@ -77,17 +59,12 @@ public class SingleMeshBuggery : MonoBehaviour {
 			lastLightY = lightY;
 			lastRadius = lightRadius;
 			
-			for( int i = 0; i < 4; ++i ) {
-				doLighten( new Vector2i( i, 0 ));
-			}
+			doLighten();
 		}
 	}
 	
-	void doLighten( Vector2i offset )
+	void doLighten()
 	{
-		int lightX = this.lightX + offset.x * (int)width;
-		int lightY = this.lightY + offset.y * (int)height;
-
 		uint numVertices = width * height;
 		var colors = new Color32[numVertices];
 		
@@ -116,9 +93,8 @@ public class SingleMeshBuggery : MonoBehaviour {
 		uint radius = (uint)Mathf.Max(lightRadius, 1);
 		Vector2i lightOrigin = new Vector2i(lightX, lightY);
 		Vector2 lightOriginFloat = new Vector2(lightX, lightY);
-		uint overshoot = 3u;
-
-		SausageAssassins.FieldOfView.LightenPoint(lightOrigin, radius, overshoot, width, height,(x, y) => {
+		
+		SA.FieldOfView.LightenPoint(lightOrigin, radius, 3u, width, height,(x, y) => {
 				return simplexAt(x, y) < 0.3f ? false : true;
 			}, (x, y, visible) => {
 			uint i = x + y * width;
@@ -140,8 +116,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 				colors[i] = new Color32(0,0,0,a);
 			}
 		});
-
-		var meshTiles = allMeshTiles[ offset.x ];
+		
 		meshTiles.TileColors = colors;
 	}
 	
@@ -151,8 +126,8 @@ public class SingleMeshBuggery : MonoBehaviour {
 		float lacunarity = 2.0f;
 		float gain = 0.5f; // increases "noise", helps decrease the blockiness of it all
 		float amplitude = 6.0f; // higher number decrease "thickness" of the paths created
-		float sensitivity = 0.3f;
-		float f = SausageAssassins.Simplex.GenerateOne2D((float)x, (float)y, freq, 3, lacunarity, gain, amplitude, true);
+//		float sensitivity = 0.3f;
+		float f = SA.Simplex.GenerateOne2D((float)x, (float)y, freq, 3, lacunarity, gain, amplitude, true);
 		return ((1.0f+f) / 2.0f);
 	}
 	

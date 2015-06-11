@@ -1,6 +1,6 @@
 using System;
 
-namespace SausageAssassins
+namespace SA
 {	
 	static class Random
 	{

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace SausageAssassins
+namespace SA
 {
 	static class Simplex
 	{
