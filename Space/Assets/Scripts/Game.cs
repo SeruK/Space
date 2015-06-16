@@ -16,7 +16,7 @@ public class Game : MonoBehaviour {
 	
 	protected void OnEnable() {
 		string tmxFilePath = System.IO.Path.Combine( Application.streamingAssetsPath, "test.tmx" );
-		var tileMap = SA.TileMap.ParseTMXFileAtPath( tmxFilePath );
+		var tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath );
 
 		if( localization == null ) {
 			localization = gameObject.AddComponent<Localization>();

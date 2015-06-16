@@ -27,30 +27,6 @@ namespace SA {
 		public string Value {
 			get { return value; }
 		}
-
-		public static void ReadTMXNodes( XmlReader reader, ref TileMapProperty[] properties ) {
-			DebugUtil.Log( "<properties>" );
-			var list = new List<TileMapProperty>();
-
-			if( reader.ReadToDescendant( "property" ) ) {
-				do {
-					var prop = new TileMapProperty();
-					prop.ReadTMXNode( reader );
-					list.Add( prop );
-				} while( reader.ReadToNextSibling( "property" ) );
-			}
-			properties = list.ToArray();
-			DebugUtil.Log( "</properties>" );
-		}
-
-		public void ReadTMXNode( XmlReader reader ) {
-			DebugUtil.Log( "<property>" );
-			name  = reader.GetAttribute( "name" );
-			value = reader.GetAttribute( "value" );
-			DebugUtil.Log( "name: " + name );
-			DebugUtil.Log( "value: " + value );	
-			DebugUtil.Log( "</property>" );
-		}
 	}
 
 	public class TileMapObject {
@@ -80,31 +56,6 @@ namespace SA {
 		}
 		public bool Visible {
 			get { return visible; }
-		}
-
-		public void ReadTMXNode( XmlReader reader ) {
-			DebugUtil.Log( "<object>" );
-			uint.TryParse( reader.GetAttribute( "id" ), out id );
-			name = reader.GetAttribute( "name" );
-			type = reader.GetAttribute( "type" );
-			float x, y, w, h;
-			float.TryParse( reader.GetAttribute( "x" ), out x );
-			float.TryParse( reader.GetAttribute( "y" ), out y );
-			float.TryParse( reader.GetAttribute( "w" ), out w );
-			float.TryParse( reader.GetAttribute( "h" ), out h );
-			bounds.Set( x, y, w, h );
-			bool.TryParse( reader.GetAttribute( "visible" ), out visible );
-
-			DebugUtil.Log( "id: " + id );
-			DebugUtil.Log( "name: " + name );
-			DebugUtil.Log( "type: " + type );
-			DebugUtil.Log( "bounds: " + bounds );
-			DebugUtil.Log( "visible: " + visible );
-
-			if( reader.ReadToDescendant( "properties" ) ) {
-				TileMapProperty.ReadTMXNodes( reader, ref properties );
-			}
-			DebugUtil.Log( "</object>" );
 		}
 	}
 
@@ -137,43 +88,6 @@ namespace SA {
 		public string ImagePath {
 			get { return imagePath; }
 		}
-
-		public void ReadTMXNode( XmlReader reader, string rootPath ) {
-			// GID always specific here
-			uint.TryParse( reader.GetAttribute( "firstgid" ), out firstGID );
-
-			string sourceRelPath = reader.GetAttribute( "source" );
-			if( sourceRelPath != null ) {
-				string fullPath = Path.Combine( rootPath, sourceRelPath );
-				using( var newReader = XmlReader.Create( new StreamReader( fullPath ) ) ) {
-					if( !newReader.ReadToFollowing( "tileset" ) ) {
-						Debug.LogWarning( "Invalid external tileset (" + sourceRelPath + ")" );
-						return;
-					}
-					ReadTMXNodeInternal( newReader );
-				}
-			} else {
-				ReadTMXNodeInternal( reader );
-			}
-		}
-
-		private void ReadTMXNodeInternal( XmlReader reader ) {
-			DebugUtil.Log( "<tileset>" );
-			name = reader.GetAttribute( "name" );
-			int.TryParse( reader.GetAttribute( "tilewidth" ),  out tileSize.width );
-			int.TryParse( reader.GetAttribute( "tileheight" ), out tileSize.height );
-
-			DebugUtil.Log( "name: " + name );
-			DebugUtil.Log( "tileSize: " + tileSize );
-
-			if( reader.ReadToDescendant( "image" ) ) {
-				DebugUtil.Log( "<image>" );
-				imagePath = reader.GetAttribute( "source" );
-				DebugUtil.Log( "imagePath: " + imagePath );
-				DebugUtil.Log( "</image>" );
-			}
-			DebugUtil.Log( "</tileset>" );
-		}
 	}
 
 	public abstract class Layer {
@@ -201,20 +115,6 @@ namespace SA {
 		public TileMapProperty[] Properties {
 			get { return properties; }
 		}
-
-		public virtual void ReadTMXNode( XmlReader reader ) {
-			name = reader.GetAttribute( "name" );
-			float.TryParse( reader.GetAttribute( "opacity" ), out opacity );
-			bool.TryParse( reader.GetAttribute( "visible" ), out visible );
-
-			DebugUtil.Log( "name: " + name );
-			DebugUtil.Log( "opacity: " + opacity );
-			DebugUtil.Log( "visible: " + visible );
-
-			if( reader.ReadToDescendant( "properties" ) ) {
-				TileMapProperty.ReadTMXNodes( reader, ref properties );
-			}
-		}
 	}
 
 	public class TileLayer : Layer {
@@ -224,61 +124,11 @@ namespace SA {
 		public System.UInt32[] Tiles {
 			get { return tiles; }
 		}
-
-		public void ReadTMXNode( XmlReader reader, Tileset[] tilesets ) {
-			DebugUtil.Log( "<layer>" );
-			base.ReadTMXNode( reader );
-			if( reader.ReadToDescendant( "data" ) ) {
-				DebugUtil.Log( "<data>" );
-
-				string encoding = reader.GetAttribute( "encoding" );
-				string compression = reader.GetAttribute( "compression" );
-				if( encoding != "base64" || compression != "zlib" ) {
-					DebugUtil.LogWarn( "Not reading data (" + encoding + " | " + compression + ")" );
-					DebugUtil.Log( "</data>" );
-					return;
-				}
-
-				// TODO: This nicer probably
-				string base64EncodedTiles = reader.ReadContentAsString();
-				byte[] compressedData = System.Convert.FromBase64String( base64EncodedTiles );
-
-				var compressedDataStream = new MemoryStream( compressedData );
-				var decompressedDataStream = new MemoryStream();
-				var zLibStream = new ZlibStream( compressedDataStream, CompressionMode.Decompress, true );
-				Util.CopyStream( zLibStream, decompressedDataStream );
-				zLibStream.Close();
-
-				byte[] tilesAsBytes = decompressedDataStream.ToArray();
-
-				DebugUtil.Log( "</data>" );
-			}
-			DebugUtil.Log( "</layer>" );
-		}
-
-		private void ReadTiles( System.UInt32[] data ) {
-
-		}
 	}
 
 	public class ObjectLayer : Layer {
 		// Objects associated with this layer
 		private TileMapObject[] objects;
-
-		public override void ReadTMXNode( XmlReader reader ) {
-			DebugUtil.Log( "<objectgroup>" );
-			base.ReadTMXNode( reader );
-
-			var objectsList = new List<TileMapObject>();
-
-			while( reader.ReadToDescendant( "object" ) ) {
-				var tileMapObject = new TileMapObject();
-				tileMapObject.ReadTMXNode( reader );
-				objectsList.Add( tileMapObject );
-			}
-			objects = objectsList.ToArray();
-			DebugUtil.Log( "</objectgroup>" );
-		}
 	}
 
 	public class TileMap {
@@ -323,81 +173,39 @@ namespace SA {
 
 		private TileMap() {
 		}
+	}
 
-		public void ReadTMXNode( XmlReader reader, string rootPath ) {
-			DebugUtil.Log( "<tilemap>" );
-
-			// Assume orthogonal & right-down render order
-			int.TryParse( reader.GetAttribute( "width" ), out size.width );
-			int.TryParse( reader.GetAttribute( "height" ), out size.height );
-			int.TryParse( reader.GetAttribute( "tilewidth" ), out tileSize.width );
-			int.TryParse( reader.GetAttribute( "tileheight" ), out tileSize.height );
-
-			DebugUtil.Log( "size: " + size );
-			DebugUtil.Log( "tileSize: " + tileSize );
-
-			string bgColorStr = reader.GetAttribute( "backgroundcolor" );
-			if( bgColorStr != null ) {
-				// Could be done much faster by converting to int and bitshifting
-				// Format: #ffaaff
-				var red   = System.Convert.ToUInt16( bgColorStr.Substring( 1, 2 ), 16 );
-				var green = System.Convert.ToUInt16( bgColorStr.Substring( 3, 2 ), 16 );
-				var blue  = System.Convert.ToUInt16( bgColorStr.Substring( 5, 2 ), 16 );
-
-				backgroundColor.r = (float)red / 255.0f;
-				backgroundColor.g = (float)green / 255.0f;
-				backgroundColor.b = (float)blue / 255.0f;
-			}
-			DebugUtil.Log( "backgroundcolor: " + backgroundColor);
-
-			var tilesetsList     = new List<Tileset>();
-			var tileLayersList   = new List<TileLayer>();
-			var objectLayersList = new List<ObjectLayer>();
-
-			while( reader.Read() ) {
-				if( reader.NodeType == XmlNodeType.Element ) {
-					if( reader.Name == "tileset" ) {
-						var tileset = new Tileset();
-						tileset.ReadTMXNode( reader, rootPath );
-						tilesetsList.Add( tileset );
-						continue;
-					} 
-
-					if( tilesetsList != null ) {
-						tilesets = tilesetsList.ToArray();
-						tilesetsList = null;
-						DebugUtil.Log( "- FINISHED READING TILESETS - " );
-					}
-
-					if( reader.Name == "properties" ) {
-						TileMapProperty.ReadTMXNodes( reader, ref properties );
-					} else if( reader.Name == "layer" ) {
-						var tileLayer = new TileLayer();
-						tileLayer.ReadTMXNode( reader, tilesets );
-						tileLayersList.Add( tileLayer );
-					} else if( reader.Name == "objectgroup" ) {
-						var objectLayer = new ObjectLayer();
-						objectLayer.ReadTMXNode( reader );
-						objectLayersList.Add( objectLayer );
-					}
-				}
-			}
-
-			tileLayers   = tileLayersList.ToArray();
-			objectLayers = objectLayersList.ToArray();
-
-			DebugUtil.Log( "</tilemap>" );
+	public static class TileMapTMXReader {
+		public static TileMap ParseTMXFileAtPath( string filePath ) {
+			return null;
 		}
 
-		public static TileMap ParseTMXFileAtPath( string filePath ) {
-			TileMap tileMap = new TileMap();
-
-			using( XmlReader reader = XmlReader.Create( new StreamReader( filePath ) ) ) {
-				reader.MoveToContent();
-				tileMap.ReadTMXNode( reader, filePath );
+		private static Color ParseColorString( string colorString, Color def ) {
+			if( string.IsNullOrEmpty( colorString ) || colorString.Length != 7 ) {
+				return def;
 			}
 
-			return tileMap;
+			// Could be done much faster by converting to int and bitshifting
+			// Format: #ffaaff
+			var red   = System.Convert.ToUInt16( colorString.Substring( 1, 2 ), 16 );
+			var green = System.Convert.ToUInt16( colorString.Substring( 3, 2 ), 16 );
+			var blue  = System.Convert.ToUInt16( colorString.Substring( 5, 2 ), 16 );
+			
+			return new Color( red / 255.0f, green / 255.0f, blue / 255.0f );
+		}
+
+		private static byte[] DecompressTiles( string base64EncodedTiles ) {
+			// TODO: This nicer probably
+			byte[] compressedData = System.Convert.FromBase64String( base64EncodedTiles );
+			
+			var compressedDataStream = new MemoryStream( compressedData );
+			var decompressedDataStream = new MemoryStream();
+			var zLibStream = new ZlibStream( compressedDataStream, CompressionMode.Decompress, true );
+			Util.CopyStream( zLibStream, decompressedDataStream );
+			zLibStream.Close();
+			
+			byte[] tilesAsBytes = decompressedDataStream.ToArray();
+			return tilesAsBytes;
 		}
 	}
 }
