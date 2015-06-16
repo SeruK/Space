@@ -28,6 +28,11 @@ namespace SA {
 		public string Value {
 			get { return value; }
 		}
+
+		public TileMapProperty( string name, string value ) {
+			this.name  = name;
+			this.value = value;
+		}
 	}
 
 	public class TileMapObject {
@@ -40,12 +45,21 @@ namespace SA {
 		// Unique id of the object in a specific tile map
 		private uint    id;
 		private string  name;
-		private string  type;
+		private string  objectType;
 		private Rect    bounds;
 		private bool    visible;
 
 		private TileMapProperty[] properties;
 
+		public uint ID {
+			get { return id; }
+		}
+		public string Name {
+			get { return name; }
+		}
+		public string ObjectType {
+			get { return objectType; }
+		}
 		public Rect Bounds {
 			get { return bounds; }
 		}
@@ -57,6 +71,18 @@ namespace SA {
 		}
 		public bool Visible {
 			get { return visible; }
+		}
+		public TileMapProperty[] Properties {
+			get { return properties; }
+		}
+
+		public TileMapObject( uint id, string name, string objectType, Rect bounds, bool visible, TileMapProperty[] properties ) {
+			this.id = id;
+			this.name = name;
+			this.objectType = objectType;
+			this.bounds = bounds;
+			this.visible = visible;
+			this.properties = properties;
 		}
 	}
 
@@ -108,13 +134,13 @@ namespace SA {
 		// x, y, width, height (width/height always same as map since Tiled Qt)
 		
 		// Name of the layer
-		private string name;
+		protected string name;
 		// Opacity of layer 
-		private float  opacity;
+		protected float  opacity;
 		// Is layer shown or hidden
-		private bool   visible;
+		protected bool   visible;
 		// Properties associated with this layer
-		private TileMapProperty[] properties;
+		protected TileMapProperty[] properties;
 		
 		public string Name {
 			get { return name; }
@@ -137,11 +163,31 @@ namespace SA {
 		public System.UInt32[] Tiles {
 			get { return tiles; }
 		}
+
+		public TileLayer( string name, float opacity, bool visible, TileMapProperty[] properties, System.UInt32[] tiles ) {
+			this.name = name;
+			this.opacity = opacity;
+			this.visible = visible;
+			this.properties = properties;
+			this.tiles = tiles;
+		}
 	}
 
 	public class ObjectLayer : Layer {
 		// Objects associated with this layer
 		private TileMapObject[] objects;
+
+		public TileMapObject[] Objects {
+			get { return objects; }
+		}
+
+		public ObjectLayer( string name, float opacity, bool visible, TileMapProperty[] properties, TileMapObject[] objects ) {
+			this.name = name;
+			this.opacity = opacity;
+			this.visible = visible;
+			this.properties = properties;
+			this.objects = objects;
+		}
 	}
 
 	public class TileMap {
@@ -203,8 +249,6 @@ namespace SA {
 				XElement map = XElement.Load( reader );
 				return ParseTileMap( map );
 			}
-
-			return null;
 		}
 
 		private static TileMap ParseTileMap( XElement map ) {
@@ -219,7 +263,7 @@ namespace SA {
 			}
 
 			var tilesets = new List<Tileset>();
-			TileMapProperty[] properties;
+			TileMapProperty[] properties = new TileMapProperty[ 0 ];
 			var tileLayers = new List<TileLayer>();
 			var objectLayers = new List<ObjectLayer>();
 
@@ -228,10 +272,13 @@ namespace SA {
 					tilesets.Add( ParseTileset( child ) );
 				} else if( child.Name == "properties" ) {
 					properties = ParseProperties( child );
+				} else if( child.Name == "layer" ) {
+					tileLayers.Add( ParseTileLayer( child, size ) );
 				}
 			}
 
-			return null;
+			return new TileMap( size, tileSize, bgColor, tilesets.ToArray(), properties,
+			                    tileLayers.ToArray(), objectLayers.ToArray() );
 		}
 
 		private static Tileset ParseTileset( XElement tileset) {
@@ -256,11 +303,84 @@ namespace SA {
 			return new Tileset( name, firstGID, tileSize, imagePath, properties );
 		}
 
+		private static TileLayer ParseTileLayer( XElement tileLayer, Size2i mapSize ) {
+			string name;
+			float  opacity;
+			bool   visible;
+			TileMapProperty[] properties;
+			ParseLayerAttributes( tileLayer, out name, out opacity, out visible, out properties );
+
+			var dataElement = tileLayer.Element( "data" );
+			// Check encoding etc
+			System.UInt32[] tiles = DecompressTiles( dataElement.Value, mapSize );
+
+			return new TileLayer( name, opacity, visible, properties, tiles );
+		}
+
+		private static ObjectLayer ParseObjectLayer( XElement objectLayer, Size2i mapSize ) {
+			string name;
+			float  opacity;
+			bool   visible;
+			TileMapProperty[] properties;
+			ParseLayerAttributes( objectLayer, out name, out opacity, out visible, out properties );
+
+			var objectsList = new List<TileMapObject>();
+			foreach( var obj in objectLayer.Elements( "object" ) ) {
+				objectsList.Add( ParseObject( obj ) );
+			}
+
+			return new ObjectLayer( name, opacity, visible, properties, objectsList.ToArray() );
+		}
+
+		private static TileMapObject ParseObject( XElement obj ) {
+//			private uint    id;
+//			private string  name;
+//			private string  type;
+//			private Rect    bounds;
+//			private bool    visible;
+//			
+//			private TileMapProperty[] properties;
+			uint id = (uint)obj.Attribute( "id" );
+			string name = (string)obj.Attribute( "name" );
+			string type = (string)obj.Attribute( "type" );
+
+			float x = (float)obj.Attribute( "x" );
+			float y = (float)obj.Attribute( "y" );
+			float w = (float)obj.Attribute( "w" );
+			float h = (float)obj.Attribute( "h" );
+			Rect bounds = new Rect( x, y, w, h );
+
+			TileMapProperty[] properties = ParseProperties( obj.Element( "properties" ) );
+
+			bool visible = ( (bool?)obj.Attribute( "visible" ) ) ?? true;
+
+			return new TileMapObject( id, name, type, bounds, visible, properties );
+		}
+
+		private static void ParseLayerAttributes( XElement layer, out string name, out float opacity,
+		                                          out bool visible, out TileMapProperty[] properties ) {
+			name = layer.Attribute( "name" ).Value;
+			opacity = ( (float?)layer.Attribute( "opacity" ) ) ?? 1.0f;
+			visible = ( (bool?)layer.Attribute( "visible" ) ) ?? true;
+			properties = ParseProperties( layer.Element( "properties" ) );
+		}
+
 		private static TileMapProperty[] ParseProperties( XElement properties ) {
 			if( properties == null ) {
 				return new TileMapProperty[ 0 ];
 			}
-			return null;
+
+			var propertiesList = new List<TileMapProperty>();
+			foreach( var property in properties.Elements() ) {
+				propertiesList.Add( ParseProperty( property ) );
+			}
+			return propertiesList.ToArray();
+		}
+
+		private static TileMapProperty ParseProperty( XElement property ) {
+			string k = property.Attribute( "name" ).Value;
+			string v = property.Attribute( "value" ).Value;
+			return new TileMapProperty( k, v );
 		}
 
 		private static Color ParseColorString( string colorString, Color def ) {
@@ -276,14 +396,14 @@ namespace SA {
 				green = System.Convert.ToUInt16( colorString.Substring( 3, 2 ), 16 );
 				blue  = System.Convert.ToUInt16( colorString.Substring( 5, 2 ), 16 );
 			} catch( System.Exception e ) {
-				DebugUtil.LogError( "Invalid color string: " + colorString );
+				DebugUtil.LogError( "Invalid color string: " + colorString + " || " + e );
 				return def;
 			}
 
 			return new Color( red / 255.0f, green / 255.0f, blue / 255.0f );
 		}
 
-		private static byte[] DecompressTiles( string base64EncodedTiles ) {
+		private static System.UInt32[] DecompressTiles( string base64EncodedTiles, Size2i expectedSize ) {
 			// TODO: This nicer probably
 			byte[] compressedData = System.Convert.FromBase64String( base64EncodedTiles );
 			
@@ -292,9 +412,21 @@ namespace SA {
 			var zLibStream = new ZlibStream( compressedDataStream, CompressionMode.Decompress, true );
 			Util.CopyStream( zLibStream, decompressedDataStream );
 			zLibStream.Close();
-			
-			byte[] tilesAsBytes = decompressedDataStream.ToArray();
-			return tilesAsBytes;
+
+			if( decompressedDataStream.Length != ( expectedSize.width * expectedSize.height ) * 4 ) {
+				DebugUtil.LogError( "Decompressed tiles longer than expected!" );
+				return null;
+			}
+
+			var tiles = new System.UInt32[ expectedSize.width * expectedSize.height ];
+			var binaryReader = new BinaryReader( decompressedDataStream );
+			int i = 0;
+			while( decompressedDataStream.Position < decompressedDataStream.Length ) {
+				tiles[ i ] = binaryReader.ReadUInt32();
+				++i;
+			}
+
+			return tiles;
 		}
 	}
 }
