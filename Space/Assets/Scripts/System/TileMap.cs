@@ -256,11 +256,8 @@ namespace SA {
 			var size = new Size2i( (int)map.Attribute( "width" ), (int)map.Attribute( "height" ) );
 			var tileSize = new Size2i( (int)map.Attribute( "tilewidth" ), (int)map.Attribute( "tileheight" ) );
 			
-			var bgColor = Color.white;
-			var bgColorElement = map.Attribute( "backgroundcolor" );
-			if( bgColorElement != null ) {
-				bgColor = ParseColorString( bgColorElement.Value, bgColor );
-			}
+			var defaultColor = Color.white;
+			var bgColor = ParseColorString( (string)map.Attribute( "backgroundcolor" ), defaultColor );
 
 			var tilesets = new List<Tileset>();
 			TileMapProperty[] properties = new TileMapProperty[ 0 ];
@@ -274,6 +271,8 @@ namespace SA {
 					properties = ParseProperties( child );
 				} else if( child.Name == "layer" ) {
 					tileLayers.Add( ParseTileLayer( child, size ) );
+				} else if( child.Name == "objectgroup" ) {
+					objectLayers.Add( ParseObjectLayer( child ) );
 				}
 			}
 
@@ -282,21 +281,21 @@ namespace SA {
 		}
 
 		private static Tileset ParseTileset( XElement tileset) {
-			string externalSource = tileset.Attribute( "source" ).Value;
+			string externalSource = (string)tileset.Attribute( "source" );
 
 			if( !string.IsNullOrEmpty( externalSource ) ) {
 				Debug.Log( "External tileset" );
 				return null;
 			}
 
-			string name = tileset.Attribute( "name" ).Value;
-			uint firstGID = (uint)tileset.Attribute( "firstGID" );
+			string name = (string)tileset.Attribute( "name" );
+			uint firstGID = (uint)tileset.Attribute( "firstgid" );
 
 			int w = (int) tileset.Attribute( "tilewidth" );
 			int h = (int) tileset.Attribute( "tileheight" );
 			var tileSize = new Size2i( w, h );
 
-			string imagePath = tileset.Element( "image ").Attribute( "source" ).Value;
+			string imagePath = (string)tileset.Element( "image").Attribute( "source" );
 
 			var properties = ParseProperties( tileset.Element( "properties" ) );
 
@@ -317,7 +316,7 @@ namespace SA {
 			return new TileLayer( name, opacity, visible, properties, tiles );
 		}
 
-		private static ObjectLayer ParseObjectLayer( XElement objectLayer, Size2i mapSize ) {
+		private static ObjectLayer ParseObjectLayer( XElement objectLayer ) {
 			string name;
 			float  opacity;
 			bool   visible;
@@ -333,21 +332,14 @@ namespace SA {
 		}
 
 		private static TileMapObject ParseObject( XElement obj ) {
-//			private uint    id;
-//			private string  name;
-//			private string  type;
-//			private Rect    bounds;
-//			private bool    visible;
-//			
-//			private TileMapProperty[] properties;
 			uint id = (uint)obj.Attribute( "id" );
 			string name = (string)obj.Attribute( "name" );
 			string type = (string)obj.Attribute( "type" );
 
 			float x = (float)obj.Attribute( "x" );
 			float y = (float)obj.Attribute( "y" );
-			float w = (float)obj.Attribute( "w" );
-			float h = (float)obj.Attribute( "h" );
+			float w = ( (float?)obj.Attribute( "width" ) ) ?? 0.0f;
+			float h = ( (float?)obj.Attribute( "height" ) ) ?? 0.0f;
 			Rect bounds = new Rect( x, y, w, h );
 
 			TileMapProperty[] properties = ParseProperties( obj.Element( "properties" ) );
@@ -359,7 +351,7 @@ namespace SA {
 
 		private static void ParseLayerAttributes( XElement layer, out string name, out float opacity,
 		                                          out bool visible, out TileMapProperty[] properties ) {
-			name = layer.Attribute( "name" ).Value;
+			name = (string)layer.Attribute( "name" );
 			opacity = ( (float?)layer.Attribute( "opacity" ) ) ?? 1.0f;
 			visible = ( (bool?)layer.Attribute( "visible" ) ) ?? true;
 			properties = ParseProperties( layer.Element( "properties" ) );
@@ -378,8 +370,8 @@ namespace SA {
 		}
 
 		private static TileMapProperty ParseProperty( XElement property ) {
-			string k = property.Attribute( "name" ).Value;
-			string v = property.Attribute( "value" ).Value;
+			string k = (string)property.Attribute( "name" );
+			string v = (string)property.Attribute( "value" );
 			return new TileMapProperty( k, v );
 		}
 
@@ -415,6 +407,11 @@ namespace SA {
 
 			if( decompressedDataStream.Length != ( expectedSize.width * expectedSize.height ) * 4 ) {
 				DebugUtil.LogError( "Decompressed tiles longer than expected!" );
+				return null;
+			}
+
+			if( ( decompressedDataStream.Length % 4 ) != 0 ) {
+				DebugUtil.LogError( "Decompressed tiles not 32bit" );
 				return null;
 			}
 
