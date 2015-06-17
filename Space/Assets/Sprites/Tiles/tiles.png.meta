@@ -78,8 +78,8 @@ TextureImporter:
     - name: BACKGROUND
       rect:
         serializedVersion: 2
-        x: 2
-        y: 234
+        x: 0
+        y: 108
         width: 20
         height: 20
       alignment: 0
@@ -88,8 +88,8 @@ TextureImporter:
     - name: BACKGROUND_s07
       rect:
         serializedVersion: 2
-        x: 24
-        y: 234
+        x: 20
+        y: 108
         width: 20
         height: 20
       alignment: 0
@@ -98,8 +98,8 @@ TextureImporter:
     - name: BACKGROUND_s08
       rect:
         serializedVersion: 2
-        x: 46
-        y: 234
+        x: 40
+        y: 108
         width: 20
         height: 20
       alignment: 0
@@ -108,8 +108,8 @@ TextureImporter:
     - name: BACKGROUND_s09
       rect:
         serializedVersion: 2
-        x: 68
-        y: 234
+        x: 60
+        y: 108
         width: 20
         height: 20
       alignment: 0
@@ -118,8 +118,8 @@ TextureImporter:
     - name: CAVERN
       rect:
         serializedVersion: 2
-        x: 90
-        y: 234
+        x: 80
+        y: 108
         width: 20
         height: 20
       alignment: 0
@@ -128,8 +128,8 @@ TextureImporter:
     - name: CAVERN_s02
       rect:
         serializedVersion: 2
-        x: 2
-        y: 212
+        x: 100
+        y: 108
         width: 20
         height: 20
       alignment: 0
@@ -138,8 +138,8 @@ TextureImporter:
     - name: CAVERN_s03
       rect:
         serializedVersion: 2
-        x: 24
-        y: 212
+        x: 0
+        y: 88
         width: 20
         height: 20
       alignment: 0
@@ -148,8 +148,8 @@ TextureImporter:
     - name: CAVERN_s04
       rect:
         serializedVersion: 2
-        x: 46
-        y: 212
+        x: 20
+        y: 88
         width: 20
         height: 20
       alignment: 0
@@ -158,8 +158,8 @@ TextureImporter:
     - name: CAVERN_s05
       rect:
         serializedVersion: 2
-        x: 68
-        y: 212
+        x: 40
+        y: 88
         width: 20
         height: 20
       alignment: 0
@@ -168,8 +168,8 @@ TextureImporter:
     - name: s01
       rect:
         serializedVersion: 2
-        x: 90
-        y: 212
+        x: 60
+        y: 88
         width: 20
         height: 20
       alignment: 0
@@ -178,8 +178,8 @@ TextureImporter:
     - name: s02
       rect:
         serializedVersion: 2
-        x: 2
-        y: 190
+        x: 80
+        y: 88
         width: 20
         height: 20
       alignment: 0
@@ -188,8 +188,8 @@ TextureImporter:
     - name: s03
       rect:
         serializedVersion: 2
-        x: 24
-        y: 190
+        x: 100
+        y: 88
         width: 20
         height: 20
       alignment: 0
@@ -198,8 +198,8 @@ TextureImporter:
     - name: s04
       rect:
         serializedVersion: 2
-        x: 46
-        y: 190
+        x: 0
+        y: 68
         width: 20
         height: 20
       alignment: 0
@@ -208,8 +208,8 @@ TextureImporter:
     - name: s05
       rect:
         serializedVersion: 2
-        x: 68
-        y: 190
+        x: 20
+        y: 68
         width: 20
         height: 20
       alignment: 0
@@ -218,8 +218,8 @@ TextureImporter:
     - name: s06
       rect:
         serializedVersion: 2
-        x: 90
-        y: 190
+        x: 40
+        y: 68
         width: 20
         height: 20
       alignment: 0
@@ -228,8 +228,8 @@ TextureImporter:
     - name: s07
       rect:
         serializedVersion: 2
-        x: 2
-        y: 168
+        x: 60
+        y: 68
         width: 20
         height: 20
       alignment: 0
@@ -238,8 +238,8 @@ TextureImporter:
     - name: s08
       rect:
         serializedVersion: 2
-        x: 24
-        y: 168
+        x: 80
+        y: 68
         width: 20
         height: 20
       alignment: 0
@@ -248,8 +248,8 @@ TextureImporter:
     - name: ship_1
       rect:
         serializedVersion: 2
-        x: 46
-        y: 168
+        x: 100
+        y: 68
         width: 20
         height: 20
       alignment: 0
@@ -258,8 +258,8 @@ TextureImporter:
     - name: ship_10
       rect:
         serializedVersion: 2
-        x: 68
-        y: 168
+        x: 0
+        y: 48
         width: 20
         height: 20
       alignment: 0
@@ -268,8 +268,8 @@ TextureImporter:
     - name: ship_2
       rect:
         serializedVersion: 2
-        x: 90
-        y: 168
+        x: 20
+        y: 48
         width: 20
         height: 20
       alignment: 0
@@ -278,8 +278,8 @@ TextureImporter:
     - name: ship_3
       rect:
         serializedVersion: 2
-        x: 2
-        y: 146
+        x: 40
+        y: 48
         width: 20
         height: 20
       alignment: 0
@@ -288,8 +288,8 @@ TextureImporter:
     - name: ship_4
       rect:
         serializedVersion: 2
-        x: 24
-        y: 146
+        x: 60
+        y: 48
         width: 20
         height: 20
       alignment: 0
@@ -298,8 +298,8 @@ TextureImporter:
     - name: ship_5
       rect:
         serializedVersion: 2
-        x: 46
-        y: 146
+        x: 80
+        y: 48
         width: 20
         height: 20
       alignment: 0
@@ -308,8 +308,8 @@ TextureImporter:
     - name: ship_6
       rect:
         serializedVersion: 2
-        x: 68
-        y: 146
+        x: 100
+        y: 48
         width: 20
         height: 20
       alignment: 0
@@ -318,8 +318,8 @@ TextureImporter:
     - name: ship_7
       rect:
         serializedVersion: 2
-        x: 90
-        y: 146
+        x: 0
+        y: 28
         width: 20
         height: 20
       alignment: 0
@@ -328,8 +328,8 @@ TextureImporter:
     - name: ship_8
       rect:
         serializedVersion: 2
-        x: 2
-        y: 124
+        x: 20
+        y: 28
         width: 20
         height: 20
       alignment: 0
@@ -338,8 +338,8 @@ TextureImporter:
     - name: ship_9
       rect:
         serializedVersion: 2
-        x: 24
-        y: 124
+        x: 40
+        y: 28
         width: 20
         height: 20
       alignment: 0
