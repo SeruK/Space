@@ -417,10 +417,9 @@ namespace SA {
 
 			var tiles = new System.UInt32[ expectedSize.width * expectedSize.height ];
 			var binaryReader = new BinaryReader( decompressedDataStream );
-			int i = 0;
-			while( decompressedDataStream.Position < decompressedDataStream.Length ) {
+			binaryReader.BaseStream.Position = 0;
+			for( int i = 0; i < expectedSize.width * expectedSize.height; ++i ) {
 				tiles[ i ] = binaryReader.ReadUInt32();
-				++i;
 			}
 
 			return tiles;

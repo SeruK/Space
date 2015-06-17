@@ -50,7 +50,7 @@ public class MeshTiles : MonoBehaviour
 		stopLoading();
 	}	
 	
-	public void ClampTileSizeToMaxVertices(ref uint width, ref uint height)
+	public void ClampSizeToMaxVertices(ref uint width, ref uint height)
 	{		
 		while(((width+1u)*(height+1u)) >= kMaxVerticesInMesh)
 		{
@@ -96,7 +96,7 @@ public class MeshTiles : MonoBehaviour
 		
 		/* * * * * * * * * * * * * * * * * */
 		
-		ClampTileSizeToMaxVertices(ref Width, ref Height);
+		ClampSizeToMaxVertices(ref Width, ref Height);
 		
 		uint width = Width;
 		uint height = Height;
@@ -234,7 +234,7 @@ public class MeshTiles : MonoBehaviour
 		
 		if((uint)tileColors.Length*4u != numVertices)
 		{
-			Debug.LogWarning("Tile colors len ("+tileColors.Length+") != num vertices ("+numVertices+")");
+			Debug.LogWarning("Tile colors len * 4 ("+(tileColors.Length*4)+") != num vertices ("+numVertices+")");
 			return;	
 		}
 		

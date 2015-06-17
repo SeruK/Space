@@ -17,15 +17,25 @@ public class SingleMeshBuggery : MonoBehaviour {
 	
 	public Easing.Mode lightMode;
 	public Easing.Algorithm lightAlgo;
-	
+
+	private TileMap tileMap;
+
 	// Use this for initialization
 	void OnEnable () 
 	{
-		meshTiles.Width = width;
-		meshTiles.Height = height;
+		string tmxFilePath = System.IO.Path.Combine( Application.streamingAssetsPath, "test.tmx" );
+		tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath );
+
+		Camera.main.backgroundColor = tileMap.BackgroundColor;
+
+		meshTiles.Width = (uint)tileMap.Size.width;
+		meshTiles.Height = (uint)tileMap.Size.height;
 		meshTiles.TextureIndexForTile = (x, y) => {
-			return simplexAt(x, y) < 0.3f ? 0u : 1u;
+			return TileAt(x,y);
 		};
+//		meshTiles.TextureIndexForTile = (x, y) => {
+//			return simplexAt(x, y) < 0.3f ? 0u : 1u;
+//		};
 		meshTiles.StartGeneratingMeshes();
 		
 		doLighten();
@@ -38,20 +48,20 @@ public class SingleMeshBuggery : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
-			
-		Plane plane = new Plane(transform.TransformDirection(Vector3.forward), transform.position);
-		
-		float distance = 0; 
-		
-  		if (plane.Raycast(ray, out distance))
-		{
-			Vector3 point = ray.GetPoint(distance);
-			var vec = point - transform.position;
-			
-			lightX = Mathf.FloorToInt(vec.x);
-			lightY = Mathf.FloorToInt(vec.y);
-		}
+//		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
+//			
+//		Plane plane = new Plane(transform.TransformDirection(Vector3.forward), transform.position);
+//		
+//		float distance = 0; 
+//		
+//  		if (plane.Raycast(ray, out distance))
+//		{
+//			Vector3 point = ray.GetPoint(distance);
+//			var vec = point - transform.position;
+//			
+//			lightX = Mathf.FloorToInt(vec.x);
+//			lightY = Mathf.FloorToInt(vec.y);
+//		}
 		
 		if(lightX != lastLightX || lightY != lastLightY || lightRadius != lastRadius)
 		{
@@ -65,7 +75,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 	
 	void doLighten()
 	{
-		uint numVertices = width * height;
+		uint numVertices = width * height * 4u;
 		var colors = new Color32[numVertices];
 		
 		for(int i = 0; i < numVertices; ++i)
@@ -83,7 +93,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 		if(lightX >= 0 && lightY >= 0 && lightX < width && lightY < height)
 		{
 			byte a = 255;
-			if(simplexAt((uint)lightX, (uint)lightY) < 0.3f)
+			if(TileAt((uint)lightX, (uint)lightY) == 0u)
 			{
 				a = 0;
 			}
@@ -95,7 +105,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 		Vector2 lightOriginFloat = new Vector2(lightX, lightY);
 		
 		SA.FieldOfView.LightenPoint(lightOrigin, radius, 3u, width, height,(x, y) => {
-				return simplexAt(x, y) < 0.3f ? false : true;
+			return TileAt((uint)lightX, (uint)lightY) == 0u ? false : true;
 			}, (x, y, visible) => {
 			uint i = x + y * width;
 			
@@ -106,7 +116,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 			byte b2 = b;
 			byte a = 255;
 			
-			if(simplexAt(x, y) >= 0.3f)
+			if(TileAt(x, y) > 0)
 			{
 				colors[i] = Color32.Lerp(new Color32(r2,g2,b2,a), new Color32(0,0,0,255), Easing.Alpha(f, lightMode, lightAlgo));
 			} else
@@ -119,7 +129,13 @@ public class SingleMeshBuggery : MonoBehaviour {
 		
 		meshTiles.TileColors = colors;
 	}
-	
+
+	uint TileAt(uint x, uint y)
+	{
+		var tile = tileMap.TileLayers[0].Tiles[x + (tileMap.Size.height-1-y) * tileMap.Size.width];
+		return tile == 0u ? 0u : 1u;
+	}
+
 	float simplexAt(uint x, uint y)
 	{
 		float freq = 1.0f/(float)width;
