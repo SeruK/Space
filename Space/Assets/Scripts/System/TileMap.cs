@@ -9,14 +9,14 @@ using Ionic.Zlib;
 // http://doc.mapeditor.org/reference/tmx-map-format/#imagelayer
 
 namespace SA {
-	public class TileMapTile {
-		// Omitted features:
-		// terrain
-		// probability
-
-		// Local ID within its tileset
-		private uint id;
-	}
+//	public class TileMapTile {
+//		// Omitted features:
+//		// terrain
+//		// probability
+//
+//		// Local ID within its tileset
+//		private uint id;
+//	}
 
 	public class TileMapProperty {
 		private string name;
@@ -101,7 +101,7 @@ namespace SA {
 		private string imagePath;
 		private TileMapProperty[] properties;
 		// TODO: Do this some other way?
-		private Sprite[] sprites;
+		private System.UInt32[] uuids;
 
 		public string Name {
 			get { return name; }
@@ -115,9 +115,9 @@ namespace SA {
 		public TileMapProperty[] Properties {
 			get { return properties; }
 		}
-		public Sprite[] Sprites {
-			get { return sprites; }
-			set { sprites = value; }
+		public System.UInt32[] UUIDs {
+			get { return uuids; }
+			set { uuids = value; }
 		}
 
 		public Tileset( string name, Size2i tileSize, string imagePath, TileMapProperty[] properties ) {
@@ -131,7 +131,7 @@ namespace SA {
 	public class TilesetRef {
 		// The global ID that maps to the first tile
 		// in this tileset (in a tilemap)
-		private uint firstGID;
+		private System.UInt32 firstGID;
 		private Tileset tileset;
 
 		public uint FirstGID {
@@ -292,7 +292,7 @@ namespace SA {
 				} else if( child.Name == "properties" ) {
 					properties = ParseProperties( child );
 				} else if( child.Name == "layer" ) {
-					tileLayers.Add( ParseTileLayer( child, size ) );
+					tileLayers.Add( ParseTileLayer( child, size, tilesets, tilesetLookup ) );
 				} else if( child.Name == "objectgroup" ) {
 					objectLayers.Add( ParseObjectLayer( child ) );
 				}
@@ -344,7 +344,7 @@ namespace SA {
 			return new TilesetRef( firstGID, t );
 		}
 
-		private static TileLayer ParseTileLayer( XElement tileLayer, Size2i mapSize ) {
+		private static TileLayer ParseTileLayer( XElement tileLayer, Size2i mapSize, List<TilesetRef> tilesets, TilesetLookup tilesetLookup ) {
 			string name;
 			float  opacity;
 			bool   visible;
@@ -354,6 +354,7 @@ namespace SA {
 			var dataElement = tileLayer.Element( "data" );
 			// Check encoding etc
 			System.UInt32[] tiles = DecompressTiles( dataElement.Value, mapSize );
+			ResolveTiles( ref tiles, mapSize, tilesets, tilesetLookup );
 
 			return new TileLayer( name, opacity, visible, properties, tiles );
 		}
@@ -466,17 +467,61 @@ namespace SA {
 
 			return tiles;
 		}
+
+		private static void ResolveTiles( ref System.UInt32[] tiles, Size2i mapSize, List<TilesetRef> tilesets, TilesetLookup tilesetLookup ) {
+			System.UInt32 FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+			System.UInt32 FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+			System.UInt32 FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+
+			for( int tileIndex = 0; tileIndex < tiles.Length; ++tileIndex ) {
+				System.UInt32 tileGID = tiles[ tileIndex ];
+
+//				bool flippedHori = (tileGID & FLIPPED_HORIZONTALLY_FLAG) != 0;
+//				bool flippedVert = (tileGID & FLIPPED_VERTICALLY_FLAG) != 0;
+//				bool flippedDiag = (tileGID & FLIPPED_DIAGONALLY_FLAG) != 0;
+
+				// Clear flags
+				tileGID &= ~(FLIPPED_HORIZONTALLY_FLAG |
+				             FLIPPED_VERTICALLY_FLAG |
+				             FLIPPED_DIAGONALLY_FLAG);
+
+				// Resolve tileset
+				for( int i = tilesets.Count - 1; i >= 0; --i ) {
+					var tilesetRef = tilesets[ i ];
+
+					if( tilesetRef.FirstGID <= tileGID ) {
+						tiles[ i ] = tilesetRef.Value.UUIDs[ tileGID - tilesetRef.FirstGID ];
+						// TODO: Reapply flags
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	public struct TileInfo {
+		public readonly Sprite TileSprite;
+		public readonly System.UInt32 UUID;
+
+		public TileInfo( Sprite tileSprite, System.UInt32 UUID ) {
+			this.TileSprite = tileSprite;
+			this.UUID = UUID;
+		}
 	}
 
 	public class TilesetLookup {
-		private Dictionary<string, Tileset> tilesetsByName;
 		private Dictionary<string, Tileset> tilesetsByFilePath;
 		private Dictionary<string, Sprite[]> spritesByFilePath;
+		private List<TileInfo> tiles;
+
+		public List<TileInfo> Tiles {
+			get { return tiles; }
+		}
 
 		public TilesetLookup() {
-			tilesetsByName = new Dictionary<string, Tileset>();
 			tilesetsByFilePath = new Dictionary<string, Tileset>();
 			spritesByFilePath = new Dictionary<string, Sprite[]>();
+			tiles = new List<TileInfo>();
 		}
 
 		// Absolute file path
@@ -495,22 +540,22 @@ namespace SA {
 				return;
 			}
 
-			if( tilesetsByName.ContainsKey( tileset.Name ) ) {
-				DebugUtil.LogError( "Duplicate tilesets: " + tileset.Name );
-			} else {
-				tilesetsByName[ tileset.Name ] = tileset;
-			}
-
 			if( tilesetsByFilePath.ContainsKey( filePath ) ) {
 				DebugUtil.LogError( "Duplicate tilesets: " + filePath );
 			} else {
 				tilesetsByFilePath[ filePath ] = tileset;
 			}
 
-			LoadSpriteIfNecessary( tileset, filePath );
+			var tileSprites = LoadSpritesIfNecessary( tileset, filePath );
+			tileset.UUIDs = new System.UInt32[ tileSprites.Length ];
+			for( int i = 0; i < tileSprites.Length; ++i ) {
+				System.UInt32 uuid = (System.UInt32) tiles.Count;
+				tileset.UUIDs[ i ] = uuid;
+				tiles.Add( new TileInfo( tileSprites[ i ], uuid ) );
+			}
 		}
 
-		private void LoadSpriteIfNecessary( Tileset tileset, string filePath ) {
+		private Sprite[] LoadSpritesIfNecessary( Tileset tileset, string filePath ) {
 			string imagePath = filePath;
 			// Will contain full TileMap path + /[tileset.Name].embedded
 			// so needs extra removal
@@ -521,8 +566,7 @@ namespace SA {
 			imagePath = Path.Combine( imagePath, tileset.ImagePath );
 
 			if( spritesByFilePath.ContainsKey( imagePath ) ) {
-				tileset.Sprites = spritesByFilePath[ imagePath ];
-				return;
+				return spritesByFilePath[ imagePath ];
 			}
 
 			DebugUtil.Log( "Will load sprites at: " + imagePath );
@@ -544,8 +588,12 @@ namespace SA {
 				DebugUtil.Log( "Loaded sprites: " + sprites );
 
 				spritesByFilePath[ imagePath ] = sprites;
-				tileset.Sprites = sprites;
-			} 
+				return sprites;
+			}
+
+			DebugUtil.Assert( false, "Unable to load sprites" );
+
+			return null;
 		}
 	}
 }
