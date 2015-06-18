@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="20" tileheight="20" backgroundcolor="#ffaaff" nextobjectid="5">
- <tileset firstgid="1" name="tiles" tilewidth="20" tileheight="20">
-  <image source="../Sprites/Tiles/tiles.png" width="128" height="128"/>
- </tileset>
+ <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
  <layer name="Tile Layer 1" width="100" height="100">
   <data encoding="base64" compression="zlib">
-   eJzt1TEKACAMBMHk/5+2FiQWwtnMgIWQKlukCgDe9eVPVtfeoIdHxqnJaYac2771yJt2rkfedCf0+MctBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAICMBfRdABw=
+   eJztwTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbnEAAAQ==
   </data>
  </layer>
  <objectgroup name="Object Layer 1">
@@ -25,7 +23,7 @@
    <property name="derp" value="as"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt0bENADAMwzCv+f/hrvkgRkECukAJAACwzYpbEz+aeNHFjy5eAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPzlAaopAIg=
+   eJztwTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbnEAAAQ==
   </data>
  </layer>
 </map>

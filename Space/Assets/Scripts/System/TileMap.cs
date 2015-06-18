@@ -260,16 +260,14 @@ namespace SA {
 	}
 
 	public static class TileMapTMXReader {
-		public static TileMap ParseTMXFileAtPath( string filePath ) {
+		public static TileMap ParseTMXFileAtPath( string filePath, TilesetLookup tilesetLookup ) {
 			using( XmlReader reader = XmlReader.Create( new StreamReader( filePath ) ) ) {
 				XElement map = XElement.Load( reader );
-				return ParseTileMap( map );
+				return ParseTileMap( map, tilesetLookup, filePath );
 			}
 		}
 
-		private static TileMap ParseTileMap( XElement map ) {
-			var lookup = new TilesetLookup(); // TODO: temp
-
+		private static TileMap ParseTileMap( XElement map, TilesetLookup tilesetLookup, string filePath ) {
 			// Assume orthogonal orientation and right-down renderorder
 			var size = new Size2i( (int)map.Attribute( "width" ), (int)map.Attribute( "height" ) );
 			var tileSize = new Size2i( (int)map.Attribute( "tilewidth" ), (int)map.Attribute( "tileheight" ) );
@@ -284,7 +282,7 @@ namespace SA {
 
 			foreach( var child in map.Elements() ) {
 				if( child.Name == "tileset" ) {
-					tilesets.Add( ParseTileset( child, lookup ) );
+					tilesets.Add( ParseTileset( child, tilesetLookup, filePath ) );
 				} else if( child.Name == "properties" ) {
 					properties = ParseProperties( child );
 				} else if( child.Name == "layer" ) {
@@ -298,19 +296,33 @@ namespace SA {
 			                    tileLayers.ToArray(), objectLayers.ToArray() );
 		}
 
-		private static TilesetRef ParseTileset( XElement tileset, TilesetLookup lookup ) {
+		// TODO: Error check this mofo
+		private static TilesetRef ParseTileset( XElement tileset, TilesetLookup tilesetLookup, string basePath ) {
 			uint firstGID = (uint)tileset.Attribute( "firstgid" );
+			// Relative path from TileMap
 			string externalSource = (string)tileset.Attribute( "source" );
+			string filePath = basePath;
 
 			if( !string.IsNullOrEmpty( externalSource ) ) {
-				Debug.Log( "External tileset" );
-				return null;
+				filePath = Path.Combine( Path.GetDirectoryName( filePath ), externalSource );
+
+				var existingTileset = tilesetLookup.GetTilesetByFilePath( filePath );
+				if( existingTileset != null ) {
+					return new TilesetRef( firstGID, existingTileset );
+				}
+
+				using( XmlReader reader = XmlReader.Create( new StreamReader( filePath ) ) ) {
+					var externalTileset = XElement.Load( reader );
+					return ParseTileset( externalTileset, firstGID, tilesetLookup, filePath );
+				}
 			}
 
-			return ParseTileset( tileset, firstGID, lookup );
+			filePath = Path.Combine( filePath, tileset.Name + ".embedded" );
+
+			return ParseTileset( tileset, firstGID, tilesetLookup, filePath );
 		}
 
-		private static TilesetRef ParseTileset( XElement tileset, uint firstGID, TilesetLookup lookup ) {
+		private static TilesetRef ParseTileset( XElement tileset, uint firstGID, TilesetLookup tilesetLookup, string externalFilePath ) {
 			string name = (string)tileset.Attribute( "name" );
 			
 			int w = (int) tileset.Attribute( "tilewidth" );
@@ -322,7 +334,7 @@ namespace SA {
 			var properties = ParseProperties( tileset.Element( "properties" ) );
 			
 			var t = new Tileset( name, tileSize, imagePath, properties );
-			lookup.AddTileset( name, t );
+			tilesetLookup.AddTileset( t, externalFilePath );
 			return new TilesetRef( firstGID, t );
 		}
 
@@ -451,18 +463,60 @@ namespace SA {
 	}
 
 	public class TilesetLookup {
-		private Dictionary<string, Tileset> tilesets;
+		private Dictionary<string, Tileset> tilesetsByName;
+		private Dictionary<string, Tileset> tilesetsByFilePath;
 
 		public TilesetLookup() {
-			tilesets = new Dictionary<string, Tileset>();
+			tilesetsByName = new Dictionary<string, Tileset>();
+			tilesetsByFilePath = new Dictionary<string, Tileset>();
 		}
 
 		public Tileset GetTileset( string name ) {
-			return tilesets[ name ];
+			Tileset tileset;
+			if( !tilesetsByName.TryGetValue( name, out tileset ) ) {
+				return null;
+			}
+			return tilesetsByName[ name ];
 		}
 
-		public void AddTileset( string name, Tileset tileset ) {
-			tilesets[ name ] = tileset;
+		// Absolute file path
+		public Tileset GetTilesetByFilePath( string filePath ) {
+			Tileset tileset;
+			if( !tilesetsByFilePath.TryGetValue( filePath, out tileset ) ) {
+				return null;
+			}
+			return tileset;
+		}
+
+		public void AddTileset( Tileset tileset ) {
+			string filePath = null;
+			AddTileset( tileset, filePath );
+		}
+
+		// Absolute file path
+		public void AddTileset( Tileset tileset, string filePath ) {
+			if( string.IsNullOrEmpty( tileset.Name ) || string.IsNullOrEmpty( filePath ) ) {
+				DebugUtil.Log( "Must have name and file path" );
+				return;
+			}
+
+			if( tilesetsByName.ContainsKey( tileset.Name ) ) {
+				DebugUtil.LogError( "Duplicate tilesets: " + tileset.Name );
+			} else {
+				tilesetsByName[ tileset.Name ] = tileset;
+			}
+
+			if( tilesetsByFilePath.ContainsKey( filePath ) ) {
+				DebugUtil.LogError( "Duplicate tilesets: " + filePath );
+			} else {
+				tilesetsByFilePath[ filePath ] = tileset;
+			}
+
+			LoadSpriteIfNecessary( tileset, filePath );
+		}
+
+		private void LoadSpriteIfNecessary( Tileset tileset, string filePath ) {
+
 		}
 	}
 }

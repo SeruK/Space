@@ -24,7 +24,8 @@ public class SingleMeshBuggery : MonoBehaviour {
 	void OnEnable () 
 	{
 		string tmxFilePath = System.IO.Path.Combine( Application.streamingAssetsPath, "test.tmx" );
-		tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath );
+		var tilesetLookup = new TilesetLookup();
+		tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
 
 		Camera.main.backgroundColor = tileMap.BackgroundColor;
 
