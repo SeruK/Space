@@ -2,8 +2,7 @@
 using SA;
 
 public class TileMapVisual : MonoBehaviour {
-	[SerializeField]
-	private MeshTiles meshTiles;
+	public Material TileMaterial;
 
 	private TileMap tileMap;
 	private TilesetLookup tilesetLookup;
@@ -12,13 +11,33 @@ public class TileMapVisual : MonoBehaviour {
 		this.tileMap = tileMap;
 		this.tilesetLookup = tilesetLookup;
 
-		meshTiles.Width = (uint)tileMap.Size.width;
-		meshTiles.Height = (uint)tileMap.Size.height;
-		meshTiles.SpriteAt = (x, y) => {
-			System.UInt32 tile = tileMap.MidgroundLayer.Tiles[x + y * tileMap.Size.width];
-			return tilesetLookup.Tiles[ (int)tile ].TileSprite;
-		};
-		meshTiles.StartGeneratingMeshes();
+		foreach( Transform child in transform ) {
+			Destroy( child.gameObject );
+		}
+
+		foreach( var tileLayer in tileMap.TileLayers ) {
+			var child = new GameObject( tileLayer.Name );
+			child.transform.position = transform.position;
+			child.transform.parent = transform;
+
+			var meshTiles = child.AddComponent<MeshTiles>();
+			meshTiles.TileMaterial = TileMaterial;
+			meshTiles.Width = (uint)tileMap.Size.width;
+			meshTiles.Height = (uint)tileMap.Size.height;
+			meshTiles.SpriteAt = (x, y) => {
+				System.UInt32 tile = tileLayer.Tiles[x + y * tileMap.Size.width];
+				return tilesetLookup.Tiles[ (int)tile ].TileSprite;
+			};
+			bool createColliders = tileLayer == tileMap.MidgroundLayer;
+			meshTiles.StartGeneratingMeshes( createColliders );
+
+			int numTiles = tileMap.Size.width * tileMap.Size.height;
+			var colors = new Color32[ numTiles ];
+			for( int i = 0; i < numTiles; ++i ) {
+				colors[ i ] = new Color( 0, 0, 0, 1 );
+			}
+			meshTiles.TileColors = colors;
+		}
 	}
 
 	public void DoLightSource( Vector2i position, float lightRadius, Color lightColor, Easing.Mode lightMode = Easing.Mode.In, Easing.Algorithm lightAlgo = Easing.Algorithm.Linear ) {
@@ -83,8 +102,15 @@ public class TileMapVisual : MonoBehaviour {
 				colors[i] = new Color32(0,0,0,a);
 			}
 		});
-		
-		meshTiles.TileColors = colors;
+
+		foreach( Transform child in transform ) {
+			if( child.gameObject.name != "Midground" ) {
+				continue;
+			}
+
+			var meshTiles = child.GetComponent<MeshTiles>();
+			meshTiles.TileColors = colors;
+		}
 	}
 
 	private System.UInt32 TileAt( uint x, uint y ) {

@@ -40,7 +40,8 @@ public class SingleMeshBuggery : MonoBehaviour {
 //		meshTiles.TextureIndexForTile = (x, y) => {
 //			return simplexAt(x, y) < 0.3f ? 0u : 1u;
 //		};
-		meshTiles.StartGeneratingMeshes();
+		bool colliders = true;
+		meshTiles.StartGeneratingMeshes( colliders );
 		
 		doLighten();
 	}

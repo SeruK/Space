@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 public class MeshTiles : MonoBehaviour 
 {
-	[SerializeField]
-	private Material TileMaterial;
+	public Material TileMaterial;
 	[HideInInspector]
 	public uint Width;
 	[HideInInspector]
@@ -31,6 +30,7 @@ public class MeshTiles : MonoBehaviour
 	}
 	
 	private bool isLoading = false;
+	private bool createColliders = false;
 
 	public delegate Sprite SpriteAtHandler(uint x, uint y);
 	public SpriteAtHandler SpriteAt;
@@ -61,9 +61,10 @@ public class MeshTiles : MonoBehaviour
 		}
 	}
 	
-	public void StartGeneratingMeshes()
+	public void StartGeneratingMeshes( bool createColliders )
 	{
 		stopLoading();
+		this.createColliders = createColliders;
 		startLoading();
 	}
 	
@@ -154,12 +155,15 @@ public class MeshTiles : MonoBehaviour
 
 		var oldColliders = transform.FindChild( "__colliders" );
 		if( oldColliders != null ) Destroy( oldColliders.gameObject );
-		var collidersRoot = new GameObject( "__colliders" );
-		collidersRoot.transform.parent = transform;
-		collidersRoot.transform.position = transform.position;
-		var collidersRootRigid = collidersRoot.AddComponent<Rigidbody2D>();
-		collidersRootRigid.isKinematic = true;
 
+		GameObject collidersRoot = null;
+		if( createColliders ) {
+			collidersRoot= new GameObject( "__colliders" );
+			collidersRoot.transform.parent = transform;
+			collidersRoot.transform.position = transform.position;
+			var collidersRootRigid = collidersRoot.AddComponent<Rigidbody2D>();
+			collidersRootRigid.isKinematic = true;
+		}
 		for(uint i = 0; i < numTiles; ++i)
 		{			
 			uint x = i % width;
@@ -177,7 +181,6 @@ public class MeshTiles : MonoBehaviour
 			int topRightVertex    = (int)vertexIndex + 2;
 			int topLeftVertex     = (int)vertexIndex + 3;
 
-			
 			vertices[bottomRightVertex] = new Vector3(maxX, maxY, 0.0f);
 			vertices[bottomLeftVertex] = new Vector3(minX, maxY, 0.0f);
 			vertices[topRightVertex] = new Vector3(maxX, minY, 0.0f);
@@ -195,12 +198,14 @@ public class MeshTiles : MonoBehaviour
 				texRect.width /= texWidth;
 				texRect.height /= texHeight;
 
-				var collGo = new GameObject( "__collider" );
-				collGo.transform.parent = collidersRoot.transform;
-				var boxCollider = collGo.AddComponent<BoxCollider2D>();
-				boxCollider.transform.position = (Vector2)transform.position + new Vector2(minX, minY);
-				boxCollider.offset = new Vector2( meshSize / 2.0f, meshSize / 2.0f );
-				boxCollider.size = new Vector2( meshSize, meshSize );
+				if( createColliders ) {
+					var collGo = new GameObject( "__collider" );
+					collGo.transform.parent = collidersRoot.transform;
+					var boxCollider = collGo.AddComponent<BoxCollider2D>();
+					boxCollider.transform.position = (Vector2)transform.position + new Vector2(minX, minY);
+					boxCollider.offset = new Vector2( meshSize / 2.0f, meshSize / 2.0f );
+					boxCollider.size = new Vector2( meshSize, meshSize );
+				}
 			}
 
 			uvs[bottomRightVertex] = new Vector2(texRect.xMax, texRect.yMin);

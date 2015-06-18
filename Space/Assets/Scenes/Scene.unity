@@ -357,6 +357,10 @@ Prefab:
       propertyPath: TileMapVisualPrefab
       value: 
       objectReference: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
+    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
+      propertyPath: tileMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 5f270465738ec43cf9254c55217361df, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0

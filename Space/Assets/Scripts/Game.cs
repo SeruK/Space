@@ -6,6 +6,8 @@ public class Game : MonoBehaviour {
 	private GUIStyle inventoryStyle;
 	[SerializeField]
 	private float lightRadius; //TODO: TEMP
+	[SerializeField]
+	private Material tileMaterial;
 
 	public Entity Player;
 	public SmoothFollow CameraController;
@@ -38,6 +40,7 @@ public class Game : MonoBehaviour {
 		}
 		var tileMapGO = GameObject.Instantiate( TileMapVisualPrefab );
 		tileMapVisual = tileMapGO.GetComponent<TileMapVisual>();
+		tileMapVisual.TileMaterial = tileMaterial;
 		tileMapVisual.CreateWithTileMap( tileMap, tilesetLookup );
 
 		if( localization == null ) {
