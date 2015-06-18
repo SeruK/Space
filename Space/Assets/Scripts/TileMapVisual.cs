@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using SA;
 
-public class TileMapObject : MonoBehaviour {
+public class TileMapVisual : MonoBehaviour {
 	[SerializeField]
 	private MeshTiles meshTiles;
 
@@ -15,7 +15,7 @@ public class TileMapObject : MonoBehaviour {
 		meshTiles.Width = (uint)tileMap.Size.width;
 		meshTiles.Height = (uint)tileMap.Size.height;
 		meshTiles.SpriteAt = (x, y) => {
-			System.UInt32 tile = tileMap.TileLayers[0].Tiles[x + y * tileMap.Size.width];
+			System.UInt32 tile = tileMap.MidgroundLayer.Tiles[x + y * tileMap.Size.width];
 			return tilesetLookup.Tiles[ (int)tile ].TileSprite;
 		};
 		meshTiles.StartGeneratingMeshes();
@@ -88,6 +88,6 @@ public class TileMapObject : MonoBehaviour {
 	}
 
 	private System.UInt32 TileAt( uint x, uint y ) {
-		return tileMap.TileLayers[ 0 ].Tiles[ x + y * tileMap.Size.width ];
+		return tileMap.MidgroundLayer.Tiles[ x + y * tileMap.Size.width ];
 	}
 }

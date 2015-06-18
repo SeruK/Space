@@ -180,7 +180,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 
 	uint TileAt(uint x, uint y)
 	{
-		var tile = tileMap.TileLayers[0].Tiles[x + (tileMap.Size.height-1-y) * tileMap.Size.width];
+		var tile = tileMap.MidgroundLayer.Tiles[x + (tileMap.Size.height-1-y) * tileMap.Size.width];
 		return tile;
 	}
 

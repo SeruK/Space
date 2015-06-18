@@ -323,7 +323,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
       propertyPath: m_RootOrder
-      value: 4
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
       propertyPath: Player
@@ -353,6 +353,10 @@ Prefab:
       propertyPath: PickupPrefab
       value: 
       objectReference: {fileID: 100000, guid: f1208f32ee1b6624fa0f46d763cdd13f, type: 2}
+    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
+      propertyPath: TileMapVisualPrefab
+      value: 
+      objectReference: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0

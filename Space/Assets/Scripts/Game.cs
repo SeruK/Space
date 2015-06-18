@@ -15,13 +15,13 @@ public class Game : MonoBehaviour {
 
 	private TilesetLookup tilesetLookup;
 	private TileMap tileMap;
-	private TileMapObject tileMapObject;
+	private TileMapVisual tileMapVisual;
 
 	// TODO: This nicer
 	[SerializeField]
 	private GameObject PickupPrefab;
 	[SerializeField]
-	private GameObject TileMapObjectPrefab;
+	private GameObject TileMapVisualPrefab;
 	[SerializeField]
 	private GameObject GoombaPrefab;
 	[SerializeField]
@@ -33,12 +33,12 @@ public class Game : MonoBehaviour {
 		tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
 		DebugUtil.Log( "tilemap: " + tileMap );
 
-		if( tileMapObject != null ) {
-			Destroy( tileMapObject.gameObject );
+		if( tileMapVisual != null ) {
+			Destroy( tileMapVisual.gameObject );
 		}
-		var tileMapGO = GameObject.Instantiate( TileMapObjectPrefab );
-		tileMapObject = tileMapGO.GetComponent<TileMapObject>();
-		tileMapObject.CreateWithTileMap( tileMap, tilesetLookup );
+		var tileMapGO = GameObject.Instantiate( TileMapVisualPrefab );
+		tileMapVisual = tileMapGO.GetComponent<TileMapVisual>();
+		tileMapVisual.CreateWithTileMap( tileMap, tilesetLookup );
 
 		if( localization == null ) {
 			localization = gameObject.AddComponent<Localization>();
@@ -82,8 +82,8 @@ public class Game : MonoBehaviour {
 
 	protected void Update() {
 		UpdateInput();
-		if( Player != null && tileMapObject != null ) {
-			tileMapObject.DoLightSource( EntityPos( Player ), lightRadius, Color.white );
+		if( Player != null && tileMapVisual != null ) {
+			tileMapVisual.DoLightSource( EntityPos( Player ), lightRadius, Color.white );
 		} 
 	}
 

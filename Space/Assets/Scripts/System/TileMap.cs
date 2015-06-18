@@ -230,6 +230,8 @@ namespace SA {
 		private TileMapProperty[] properties;
 		private ObjectLayer[]     objectLayers;
 
+		private int midgroundIndex;
+
 		public Size2i Size {
 			get { return size; }
 		}
@@ -251,10 +253,14 @@ namespace SA {
 		public ObjectLayer[] ObjectLayers {
 			get { return objectLayers; }
 		}
+		public TileLayer MidgroundLayer {
+			get { return tileLayers[ midgroundIndex ]; }
+		}
 
 		public TileMap( Size2i size, Size2i tileSize, Color bgColor,
 		                TilesetRef[] tilesets, TileMapProperty[] properties,
-		                TileLayer[] tileLayers, ObjectLayer[] objectLayers ) {
+		                TileLayer[] tileLayers, ObjectLayer[] objectLayers,
+		                int midgroundIndex ) {
 			this.size            = size;
 			this.tileSize        = tileSize;
 			this.backgroundColor = bgColor;
@@ -262,6 +268,7 @@ namespace SA {
 			this.properties      = properties;
 			this.tileLayers      = tileLayers;
 			this.objectLayers    = objectLayers;
+			this.midgroundIndex = midgroundIndex;
 		}
 	}
 
@@ -285,6 +292,7 @@ namespace SA {
 			TileMapProperty[] properties = new TileMapProperty[ 0 ];
 			var tileLayers = new List<TileLayer>();
 			var objectLayers = new List<ObjectLayer>();
+			int midgroundIndex = 0;
 
 			foreach( var child in map.Elements() ) {
 				if( child.Name == "tileset" ) {
@@ -292,14 +300,18 @@ namespace SA {
 				} else if( child.Name == "properties" ) {
 					properties = ParseProperties( child );
 				} else if( child.Name == "layer" ) {
-					tileLayers.Add( ParseTileLayer( child, size, tilesets, tilesetLookup ) );
+					var tileLayer = ParseTileLayer( child, size, tilesets, tilesetLookup );
+					if( tileLayer.Name == "Midground" ) {
+						midgroundIndex = tileLayers.Count;
+					}
+					tileLayers.Add( tileLayer );
 				} else if( child.Name == "objectgroup" ) {
 					objectLayers.Add( ParseObjectLayer( child ) );
 				}
 			}
 
 			return new TileMap( size, tileSize, bgColor, tilesets.ToArray(), properties,
-			                    tileLayers.ToArray(), objectLayers.ToArray() );
+			                    tileLayers.ToArray(), objectLayers.ToArray(), midgroundIndex );
 		}
 
 		// TODO: Error check this mofo
