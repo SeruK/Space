@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
  <layer name="Tile Layer 1" width="100" height="100">
   <data encoding="base64" compression="zlib">
-   eJztwTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbnEAAAQ==
+   eJzt0bEJAEAIBEHtv+lPDMQGXmQGNrj4IgAAgKz65i9/7JIjAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDLHqcDAAo=
   </data>
  </layer>
  <objectgroup name="Object Layer 1">
@@ -23,7 +23,7 @@
    <property name="derp" value="as"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJztwTEBAAAAwqD1T+1lC6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAbnEAAAQ==
+   eJzt0cEJAAAIA7F2/6X9OoJgAjfBJQDAB11xR+MNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADANQOkDAAI
   </data>
  </layer>
 </map>

@@ -100,6 +100,8 @@ namespace SA {
 		// Relative image path (from .tmx or .tsx file)
 		private string imagePath;
 		private TileMapProperty[] properties;
+		// TODO: Do this some other way?
+		private Sprite[] sprites;
 
 		public string Name {
 			get { return name; }
@@ -112,6 +114,10 @@ namespace SA {
 		}
 		public TileMapProperty[] Properties {
 			get { return properties; }
+		}
+		public Sprite[] Sprites {
+			get { return sprites; }
+			set { sprites = value; }
 		}
 
 		public Tileset( string name, Size2i tileSize, string imagePath, TileMapProperty[] properties ) {
@@ -465,18 +471,12 @@ namespace SA {
 	public class TilesetLookup {
 		private Dictionary<string, Tileset> tilesetsByName;
 		private Dictionary<string, Tileset> tilesetsByFilePath;
+		private Dictionary<string, Sprite[]> spritesByFilePath;
 
 		public TilesetLookup() {
 			tilesetsByName = new Dictionary<string, Tileset>();
 			tilesetsByFilePath = new Dictionary<string, Tileset>();
-		}
-
-		public Tileset GetTileset( string name ) {
-			Tileset tileset;
-			if( !tilesetsByName.TryGetValue( name, out tileset ) ) {
-				return null;
-			}
-			return tilesetsByName[ name ];
+			spritesByFilePath = new Dictionary<string, Sprite[]>();
 		}
 
 		// Absolute file path
@@ -519,7 +519,33 @@ namespace SA {
 			}
 			imagePath = Path.GetDirectoryName( imagePath );
 			imagePath = Path.Combine( imagePath, tileset.ImagePath );
-			DebugUtil.Log( "Will load image at: " + imagePath );
+
+			if( spritesByFilePath.ContainsKey( imagePath ) ) {
+				tileset.Sprites = spritesByFilePath[ imagePath ];
+				return;
+			}
+
+			DebugUtil.Log( "Will load sprites at: " + imagePath );
+
+			// TODO: Support sprites located other places than resources?
+			if( imagePath.StartsWith( Util.ResourcesPath ) ) {
+				// This needs a lot of massaging
+				string relativeResourcesPath = imagePath;
+				relativeResourcesPath = relativeResourcesPath.Remove( 0, Util.ResourcesPath.Length);
+				relativeResourcesPath = relativeResourcesPath.Replace( "\\", "/" );
+				if( relativeResourcesPath.StartsWith( "/" ) ) {
+					relativeResourcesPath = relativeResourcesPath.Remove( 0, 1 );
+				}
+				relativeResourcesPath = relativeResourcesPath.Replace( Path.GetExtension( relativeResourcesPath ), "" );
+				DebugUtil.Log( "Texture resource path: " + relativeResourcesPath );
+				object loadedObj = Resources.Load( relativeResourcesPath );
+				DebugUtil.Log( "Loaded object: " + loadedObj );
+				Sprite[] sprites = Resources.LoadAll<Sprite>( relativeResourcesPath );
+				DebugUtil.Log( "Loaded sprites: " + sprites );
+
+				spritesByFilePath[ imagePath ] = sprites;
+				tileset.Sprites = sprites;
+			} 
 		}
 	}
 }

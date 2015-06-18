@@ -18,4 +18,6 @@
 		}
 		dest.Flush();
 	}
+
+	public static readonly string ResourcesPath = UnityEngine.Application.dataPath + "/Resources";
 }

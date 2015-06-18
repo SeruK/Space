@@ -15,7 +15,7 @@ public class Game : MonoBehaviour {
 	public GameObject OrbPrefab;
 	
 	protected void OnEnable() {
-		string tmxFilePath = System.IO.Path.Combine( System.IO.Path.Combine( Application.dataPath, "Resources" ), "test.tmx" );
+		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
 		var lookup = new SA.TilesetLookup();
 		var tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, lookup );
 		DebugUtil.Log( "tilemap: " + tileMap );
