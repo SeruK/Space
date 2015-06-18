@@ -45,14 +45,17 @@ SubShader {
 				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
 				o.color = v.color;
 				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-				UNITY_TRANSFER_FOG(o,o.vertex);
+				//UNITY_TRANSFER_FOG(o,o.vertex);
 				return o;
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
+				if(i.texcoord.x < 0.001 && i.texcoord.y < 0.001) {
+					return i.color;
+				}
 				fixed4 col = tex2D(_MainTex, i.texcoord) * i.color;
-				UNITY_APPLY_FOG(i.fogCoord, col);
+				//UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;
 			}
 		ENDCG

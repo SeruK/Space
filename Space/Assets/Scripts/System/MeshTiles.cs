@@ -6,11 +6,9 @@ public class MeshTiles : MonoBehaviour
 {
 	public Material wholeTextureMaterial;
 	
-	public uint Width = 5;
-	public uint Height = 5;
-	
-	public float TileSize = 2.0f;
-	
+	public uint Width;
+	public uint Height;
+
 	private MeshFilter meshFilter;
 	
 	private Color32[] tileColors;
@@ -21,13 +19,12 @@ public class MeshTiles : MonoBehaviour
 		}
 		
 		set {
+			tileColors = value;
 			if(isLoading || meshFilter == null || meshFilter.mesh == null)
 			{
-				tileColors = value;
 				return;
 			}
-			tileColors = null;
-			applyTileColors(meshFilter.mesh, value);
+			applyTileColors();
 		}
 	}
 	
@@ -130,7 +127,7 @@ public class MeshTiles : MonoBehaviour
 		
 		/* * * * * * * * * * * * * * * * * */
 		
-		float meshSize = TileSize;
+		float meshSize = baseSprite.textureRect.width / baseSprite.pixelsPerUnit;
 		
 		Mesh mesh = new Mesh();
 		
@@ -154,7 +151,15 @@ public class MeshTiles : MonoBehaviour
 //		Debug.Log("Tris: "+numTriangles/3u);
 		
 		float fullMeshHeight = meshSize * height;
-		
+
+		var oldColliders = transform.FindChild( "__colliders" );
+		if( oldColliders != null ) Destroy( oldColliders.gameObject );
+		var collidersRoot = new GameObject( "__colliders" );
+		collidersRoot.transform.parent = transform;
+		collidersRoot.transform.position = transform.position;
+		var collidersRootRigid = collidersRoot.AddComponent<Rigidbody2D>();
+		collidersRootRigid.isKinematic = true;
+
 		for(uint i = 0; i < numTiles; ++i)
 		{			
 			uint x = i % width;
@@ -164,7 +169,7 @@ public class MeshTiles : MonoBehaviour
 			float minY = fullMeshHeight - meshSize*(height-y);
 			float maxX = minX + meshSize;
 			float maxY = fullMeshHeight - (meshSize*(height-y) + meshSize);
-			
+
 			uint vertexIndex = i*4u;
 			
 			int bottomRightVertex = (int)vertexIndex;
@@ -188,6 +193,13 @@ public class MeshTiles : MonoBehaviour
 				texRect.y /= texHeight;
 				texRect.width /= texWidth;
 				texRect.height /= texHeight;
+
+				var collGo = new GameObject( "__collider" );
+				collGo.transform.parent = collidersRoot.transform;
+				var boxCollider = collGo.AddComponent<BoxCollider2D>();
+				boxCollider.transform.position = (Vector2)transform.position + new Vector2(minX, minY);
+				boxCollider.offset = new Vector2( meshSize / 2.0f, -meshSize / 2.0f );
+				boxCollider.size = new Vector2( meshSize, meshSize );
 			}
 
 			uvs[bottomRightVertex] = new Vector2(texRect.xMax, texRect.yMin);
@@ -209,9 +221,6 @@ public class MeshTiles : MonoBehaviour
 		mesh.uv = uvs;
 		mesh.triangles = triangles;
 		
-		applyTileColors(mesh, tileColors);
-		tileColors = null;
-		
 		mesh.Optimize();
 		mesh.MarkDynamic();
 		mesh.RecalculateNormals();
@@ -219,12 +228,13 @@ public class MeshTiles : MonoBehaviour
 		meshFilter.mesh = mesh;
 		
 		isLoading = false;
+
+		applyTileColors();
 	}
 	
-	private void applyTileColors(Mesh mesh, Color32[] tileColors)
+	private void applyTileColors()
 	{
-		if(mesh == null || tileColors == null)
-		{
+		if( meshFilter == null || meshFilter.mesh == null || tileColors == null ) {
 			return;
 		}
 		
@@ -247,5 +257,6 @@ public class MeshTiles : MonoBehaviour
 		}
 		
 		meshFilter.mesh.colors32 = colors;
+		tileColors = null;
 	}
 }

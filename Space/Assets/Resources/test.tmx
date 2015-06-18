@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="20" tileheight="20" backgroundcolor="#ffaaff" nextobjectid="5">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="20" tileheight="20" backgroundcolor="#ffaaff" nextobjectid="5">
  <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
- <layer name="Tile Layer 1" width="100" height="100">
+ <layer name="Tile Layer 1" width="10" height="10">
   <data encoding="base64" compression="zlib">
-   eJzt1slqw1AQRcHnIZ4Sx/OM/v83c3c2wvYiCz+BquAgkDYNjaAHpZRhGqVx+kqTQi3TNEvztEjf6afqRP22TL9pldZpk7ZVJ+q3XdqnQzqmUzpXnajfLumabrUH4d+a2gP0UNOq/Y3uaFpP4M5/0Q32AM9vqvLiHZ/37u59dxfzOY83r13UZw8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANA9f/RbBKc=
+   eJzFykkOgCAQRNFGccIBQcUp3v+a/rX20sRK3qq+EZEMOSwKlPJehRoNHFp0StdjgMeIgKh0E2YsSFixKd2OA6fyfbnr4a/d6ecB7w==
   </data>
  </layer>
  <objectgroup name="Object Layer 1" visible="0">
@@ -15,15 +15,13 @@
     <property name="dick" value="butt"/>
    </properties>
   </object>
-  <object id="3" x="252" y="162"/>
-  <object id="4" x="337" y="230"/>
  </objectgroup>
- <layer name="Tile Layer 2" width="100" height="100" visible="0">
+ <layer name="Tile Layer 2" width="10" height="10" visible="0">
   <properties>
    <property name="derp" value="as"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJzt0cEJAAAIA7F2/6X9OoJgAjfBJQDAB11xR+MNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADANQOkDAAI
+   eJxjYBg5gHGgHUAEAAACNAAC
   </data>
  </layer>
 </map>

@@ -492,7 +492,7 @@ namespace SA {
 					if( tilesetRef.FirstGID <= tileGID ) {
 						System.UInt32 localGID = tileGID - tilesetRef.FirstGID;
 						if( localGID >= tilesetRef.Value.UUIDs.Length ) {
-							Debug.LogWarning( "Tile at " + new SA.Vector2i( tileIndex % mapSize.width, tileIndex / mapSize.width ) + " has GID (" + localGID + ") > Assigned UUIDs (" + tilesetRef.Value.UUIDs.Length + ")" );
+//							Debug.LogWarning( "Tile at " + new SA.Vector2i( tileIndex % mapSize.width, tileIndex / mapSize.width ) + " has GID (" + localGID + ") > Assigned UUIDs (" + tilesetRef.Value.UUIDs.Length + ")" );
 							tiles[ tileIndex ] = 0u;
 							break;
 						}
