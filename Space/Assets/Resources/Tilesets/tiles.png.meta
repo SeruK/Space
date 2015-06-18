@@ -1,39 +1,40 @@
 fileFormatVersion: 2
-guid: 1137a88a6f9b6524aa8ee850191c6925
+guid: 71af4245ffcbf2149960f670bb868708
+timeCreated: 1434638119
+licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: tiles
-    21300002: BACKGROUND
-    21300004: BACKGROUND_s07
-    21300006: BACKGROUND_s08
-    21300008: BACKGROUND_s09
-    21300010: CAVERN
-    21300012: CAVERN_s02
-    21300014: CAVERN_s03
-    21300016: CAVERN_s04
-    21300018: CAVERN_s05
-    21300020: s01
-    21300022: s02
-    21300024: s03
-    21300026: s04
-    21300028: s05
-    21300030: s06
-    21300032: s07
-    21300034: s08
-    21300036: ship_1
-    21300038: ship_10
-    21300040: ship_2
-    21300042: ship_3
-    21300044: ship_4
-    21300046: ship_5
-    21300048: ship_6
-    21300050: ship_7
-    21300052: ship_8
-    21300054: ship_9
+    21300000: BACKGROUND
+    21300002: BACKGROUND_s07
+    21300004: BACKGROUND_s08
+    21300006: BACKGROUND_s09
+    21300008: CAVERN
+    21300010: CAVERN_s02
+    21300012: CAVERN_s03
+    21300014: CAVERN_s04
+    21300016: CAVERN_s05
+    21300018: s01
+    21300020: s02
+    21300022: s03
+    21300024: s04
+    21300026: s05
+    21300028: s06
+    21300030: s07
+    21300032: s08
+    21300034: ship_1
+    21300036: ship_10
+    21300038: ship_2
+    21300040: ship_3
+    21300042: ship_4
+    21300044: ship_5
+    21300046: ship_6
+    21300048: ship_7
+    21300050: ship_8
+    21300052: ship_9
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
+    enableMipMap: 1
     linearTexture: 0
     correctGamma: 0
     fadeOut: 0
@@ -55,8 +56,8 @@ TextureImporter:
   textureFormat: -1
   maxTextureSize: 4096
   textureSettings:
-    filterMode: 0
-    aniso: 1
+    filterMode: -1
+    aniso: -1
     mipBias: -1
     wrapMode: 1
   nPOTScale: 0
@@ -69,7 +70,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 10
+  spritePixelsToUnits: 100
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []

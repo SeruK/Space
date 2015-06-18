@@ -488,11 +488,6 @@ namespace SA {
 			return tileset;
 		}
 
-		public void AddTileset( Tileset tileset ) {
-			string filePath = null;
-			AddTileset( tileset, filePath );
-		}
-
 		// Absolute file path
 		public void AddTileset( Tileset tileset, string filePath ) {
 			if( string.IsNullOrEmpty( tileset.Name ) || string.IsNullOrEmpty( filePath ) ) {
@@ -516,7 +511,15 @@ namespace SA {
 		}
 
 		private void LoadSpriteIfNecessary( Tileset tileset, string filePath ) {
-
+			string imagePath = filePath;
+			// Will contain full TileMap path + /[tileset.Name].embedded
+			// so needs extra removal
+			if( Path.GetExtension( imagePath ) == ".embedded" ) {
+				imagePath = Path.GetDirectoryName( imagePath );
+			}
+			imagePath = Path.GetDirectoryName( imagePath );
+			imagePath = Path.Combine( imagePath, tileset.ImagePath );
+			DebugUtil.Log( "Will load image at: " + imagePath );
 		}
 	}
 }
