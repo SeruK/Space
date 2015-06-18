@@ -30,6 +30,10 @@ Material:
         first:
           name: _Shininess
         second: .699999988
+      data:
+        first:
+          name: PixelSnap
+        second: 0
     m_Colors:
       data:
         first:

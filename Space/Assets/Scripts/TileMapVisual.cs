@@ -15,7 +15,9 @@ public class TileMapVisual : MonoBehaviour {
 			Destroy( child.gameObject );
 		}
 
-		foreach( var tileLayer in tileMap.TileLayers ) {
+		for( int layerIndex = 0; layerIndex < tileMap.TileLayers.Length; ++layerIndex ) {
+			var tileLayer = tileMap.TileLayers[ layerIndex ];
+
 			var child = new GameObject( tileLayer.Name );
 			child.transform.position = transform.position;
 			child.transform.parent = transform;
@@ -28,13 +30,22 @@ public class TileMapVisual : MonoBehaviour {
 				System.UInt32 tile = tileLayer.Tiles[x + y * tileMap.Size.width];
 				return tilesetLookup.Tiles[ (int)tile ].TileSprite;
 			};
-			bool createColliders = tileLayer == tileMap.MidgroundLayer;
+			bool isMidground = tileLayer == tileMap.MidgroundLayer;
+			bool createColliders = isMidground;
 			meshTiles.StartGeneratingMeshes( createColliders );
+
+			if( !isMidground ) {
+				int MIDGROUND_RENDER_QUEUE = 2500;
+				int midgroundDiff = layerIndex - tileMap.MidgroundLayerIndex;
+				var renderer = meshTiles.GetComponent<MeshRenderer>();
+				renderer.material.renderQueue = MIDGROUND_RENDER_QUEUE + midgroundDiff;
+			}
 
 			int numTiles = tileMap.Size.width * tileMap.Size.height;
 			var colors = new Color32[ numTiles ];
 			for( int i = 0; i < numTiles; ++i ) {
-				colors[ i ] = new Color( 0, 0, 0, 1 );
+				var color = tileLayer.Tiles[ i ] == 0 ? new Color( 0, 0, 0, 0 ) : new Color( 1, 1, 1, 1 );
+				colors[ i ] = color;
 			}
 			meshTiles.TileColors = colors;
 		}

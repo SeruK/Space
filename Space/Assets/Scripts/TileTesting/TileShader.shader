@@ -6,21 +6,28 @@
 Shader "Custom/TileShader" {
 Properties {
 	_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
+	[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
 }
 
 SubShader {
-	Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
-	LOD 100
+	Tags {
+		"Queue"="Transparent"
+		"IgnoreProjector"="True"
+		"RenderType"="Transparent"
+		"PreviewType"="Plane"
+		"CanUseSpriteAtlas"="True"
+	}
 	
 	ZWrite Off
 	Blend SrcAlpha OneMinusSrcAlpha
-	Cull front
+	Cull Front
+	Lighting Off
 	
 	Pass {  
 		CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma multi_compile_fog
+			#pragma multi_compile _ PIXELSNAP_ON
 			
 			#include "UnityCG.cginc"
 
@@ -34,7 +41,6 @@ SubShader {
 				float4 vertex : SV_POSITION;
 				float4 color : COLOR;
 				half2 texcoord : TEXCOORD0;
-				UNITY_FOG_COORDS(1)
 			};
 
 			sampler2D _MainTex;
@@ -42,12 +48,14 @@ SubShader {
 			
 			v2f vert (appdata_t v)
 			{
-				v2f o;
-				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
-				o.color = v.color;
-				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
-				//UNITY_TRANSFER_FOG(o,o.vertex);
-				return o;
+				v2f OUT;
+				OUT.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				OUT.color = v.color;
+				OUT.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
+				#ifdef PIXELSNAP_ON
+				OUT.vertex = UnityPixelSnap (OUT.vertex);
+				#endif
+				return OUT;
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
@@ -56,7 +64,6 @@ SubShader {
 					return i.color;
 				}
 				fixed4 col = tex2D(_MainTex, i.texcoord) * i.color;
-				//UNITY_APPLY_FOG(i.fogCoord, col);
 				return col;
 			}
 		ENDCG

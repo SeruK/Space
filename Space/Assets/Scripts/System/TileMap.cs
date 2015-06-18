@@ -253,6 +253,9 @@ namespace SA {
 		public ObjectLayer[] ObjectLayers {
 			get { return objectLayers; }
 		}
+		public int MidgroundLayerIndex {
+			get { return midgroundIndex; }
+		}
 		public TileLayer MidgroundLayer {
 			get { return tileLayers[ midgroundIndex ]; }
 		}
