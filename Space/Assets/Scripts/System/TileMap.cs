@@ -490,7 +490,14 @@ namespace SA {
 					var tilesetRef = tilesets[ i ];
 
 					if( tilesetRef.FirstGID <= tileGID ) {
-						tiles[ tileIndex ] = tilesetRef.Value.UUIDs[ tileGID - tilesetRef.FirstGID ];
+						System.UInt32 localGID = tileGID - tilesetRef.FirstGID;
+						if( localGID >= tilesetRef.Value.UUIDs.Length ) {
+							Debug.LogWarning( "Tile at " + new SA.Vector2i( tileIndex % mapSize.width, tileIndex / mapSize.width ) + " has GID (" + localGID + ") > Assigned UUIDs (" + tilesetRef.Value.UUIDs.Length + ")" );
+							tiles[ tileIndex ] = 0u;
+							break;
+						}
+						System.UInt32 uuid = tilesetRef.Value.UUIDs[ localGID ];
+						tiles[ tileIndex ] = uuid;
 						// TODO: Reapply flags
 						break;
 					}
@@ -588,6 +595,20 @@ namespace SA {
 				DebugUtil.Log( "Loaded object: " + loadedObj );
 				Sprite[] sprites = Resources.LoadAll<Sprite>( relativeResourcesPath );
 				DebugUtil.Log( "Loaded sprites: " + sprites );
+
+				// Ensure that sprites are ordered by their position in
+				// the atlas (messy, tired)
+				System.Array.Sort( sprites, ( Sprite a, Sprite b ) => {
+					var apos = a.textureRect.position;
+					var bpos = b.textureRect.position;
+					float w = a.textureRect.width;
+					float h = a.textureRect.height;
+
+					float ai = w - apos.x + apos.y * w;
+					float bi = w - bpos.x + bpos.y * w;
+
+					return (int)bi - (int)ai;
+				} );
 
 				spritesByFilePath[ imagePath ] = sprites;
 				return sprites;

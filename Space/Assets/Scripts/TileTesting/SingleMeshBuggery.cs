@@ -19,20 +19,26 @@ public class SingleMeshBuggery : MonoBehaviour {
 	public Easing.Algorithm lightAlgo;
 
 	private TileMap tileMap;
+	private TilesetLookup tilesetLookup;
 
 	// Use this for initialization
+
 	void OnEnable () 
 	{
-		string tmxFilePath = System.IO.Path.Combine( Application.streamingAssetsPath, "test.tmx" );
-		var tilesetLookup = new TilesetLookup();
+		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
+		tilesetLookup = new TilesetLookup();
 		tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
+
+		DebugTileset();
+		DebugTiles();
 
 		Camera.main.backgroundColor = tileMap.BackgroundColor;
 
 		meshTiles.Width = (uint)tileMap.Size.width;
 		meshTiles.Height = (uint)tileMap.Size.height;
-		meshTiles.TextureIndexForTile = (x, y) => {
-			return TileAt(x,y);
+		meshTiles.SpriteAt = (x, y) => {
+			System.UInt32 tile = TileAt(x,y);
+			return tilesetLookup.Tiles[ (int)tile ].TileSprite;
 		};
 //		meshTiles.TextureIndexForTile = (x, y) => {
 //			return simplexAt(x, y) < 0.3f ? 0u : 1u;
@@ -40,6 +46,44 @@ public class SingleMeshBuggery : MonoBehaviour {
 		meshTiles.StartGeneratingMeshes();
 		
 		doLighten();
+	}
+
+	void DebugTileset() {
+		var masterGo = GameObject.Find( "tilemapdunk" );
+		if( masterGo != null) Destroy( masterGo );
+		masterGo = new GameObject( "tilemapdunk" );
+		for( int i = 1; i < tilesetLookup.Tiles.Count; ++i ) {
+			var tileInfo = tilesetLookup.Tiles[ i ];
+			var go = new GameObject( tileInfo.UUID.ToString() );
+			var sr = go.AddComponent<SpriteRenderer>();
+			sr.sprite = tileInfo.TileSprite;
+			go.transform.parent = masterGo.transform;
+			
+			Vector2 gopos = sr.sprite.textureRect.position;
+			gopos.x /= sr.sprite.pixelsPerUnit;
+			gopos.y /= sr.sprite.pixelsPerUnit;
+			
+			go.transform.position = gopos;
+		}
+		masterGo.transform.localScale = new Vector3( 20, 20, 20 );
+	}
+
+	void DebugTiles() {
+		var masterGo = GameObject.Find( "debugtiles" );
+		if( masterGo != null) Destroy( masterGo );
+		masterGo = new GameObject( "debugtiles" );
+		for( int y = 0; y < tileMap.Size.height; ++y ) {
+			for( int x = 0; x < tileMap.Size.width; ++x ) {
+				uint t = TileAt((uint)x, (uint)y);
+				if( t == 0 ) continue;
+				var tileInfo = tilesetLookup.Tiles[ (int)t ];
+				var go = new GameObject( t.ToString() );
+				var sr = go.AddComponent<SpriteRenderer>();
+				sr.sprite = tileInfo.TileSprite;
+				go.transform.parent = masterGo.transform;
+				go.transform.position = new Vector2( (float)x * (20.0f / sr.sprite.pixelsPerUnit), (float)y * (20.0f / sr.sprite.pixelsPerUnit ) );
+			}
+		}
 	}
 	
 	private int lastLightX = 0;
@@ -63,7 +107,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 //			lightX = Mathf.FloorToInt(vec.x);
 //			lightY = Mathf.FloorToInt(vec.y);
 //		}
-		
+
 		if(lightX != lastLightX || lightY != lastLightY || lightRadius != lastRadius)
 		{
 			lastLightX = lightX;
@@ -76,6 +120,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 	
 	void doLighten()
 	{
+		return;
 		uint numVertices = width * height * 4u;
 		var colors = new Color32[numVertices];
 		
@@ -134,7 +179,7 @@ public class SingleMeshBuggery : MonoBehaviour {
 	uint TileAt(uint x, uint y)
 	{
 		var tile = tileMap.TileLayers[0].Tiles[x + (tileMap.Size.height-1-y) * tileMap.Size.width];
-		return tile == 0u ? 0u : 1u;
+		return tile;
 	}
 
 	float simplexAt(uint x, uint y)

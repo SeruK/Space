@@ -3,10 +3,10 @@
  <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
  <layer name="Tile Layer 1" width="100" height="100">
   <data encoding="base64" compression="zlib">
-   eJzt0bEJAEAIBEHtv+lPDMQGXmQGNrj4IgAAgKz65i9/7JIjAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIDLHqcDAAo=
+   eJzt1slqw1AQRcHnIZ4Sx/OM/v83c3c2wvYiCz+BquAgkDYNjaAHpZRhGqVx+kqTQi3TNEvztEjf6afqRP22TL9pldZpk7ZVJ+q3XdqnQzqmUzpXnajfLumabrUH4d+a2gP0UNOq/Y3uaFpP4M5/0Q32AM9vqvLiHZ/37u59dxfzOY83r13UZw8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANA9f/RbBKc=
   </data>
  </layer>
- <objectgroup name="Object Layer 1">
+ <objectgroup name="Object Layer 1" visible="0">
   <properties>
    <property name="pingu" value="pipipi"/>
   </properties>
@@ -18,7 +18,7 @@
   <object id="3" x="252" y="162"/>
   <object id="4" x="337" y="230"/>
  </objectgroup>
- <layer name="Tile Layer 2" width="100" height="100">
+ <layer name="Tile Layer 2" width="100" height="100" visible="0">
   <properties>
    <property name="derp" value="as"/>
   </properties>

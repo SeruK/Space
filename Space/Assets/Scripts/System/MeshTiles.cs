@@ -4,10 +4,6 @@ using System.Collections.Generic;
 
 public class MeshTiles : MonoBehaviour 
 {
-	public Texture2D[] Textures;
-	
-	private Rect[] textureRects;
-	
 	public Material wholeTextureMaterial;
 	
 	public uint Width = 5;
@@ -36,13 +32,10 @@ public class MeshTiles : MonoBehaviour
 	}
 	
 	private bool isLoading = false;
-	
-	public delegate Rect TextureRectModification(uint x, uint y, Rect rect);
-	public delegate uint TextureIndexHandler(uint x, uint y);
-	
-	public TextureRectModification OnAssignRect;
-	public TextureIndexHandler TextureIndexForTile;
-	
+
+	public delegate Sprite SpriteAtHandler(uint x, uint y);
+	public SpriteAtHandler SpriteAt;
+
 	private const int kMaxVerticesInMesh = 65000;
 	
 	void OnDisable()
@@ -88,9 +81,8 @@ public class MeshTiles : MonoBehaviour
 	
 	private IEnumerator generateMeshes()
 	{
-		if(Textures == null || TextureIndexForTile == null)
-		{
-			Debug.LogWarning("Textures or TextureIndexForTile was not set, unable to generate meshes.");
+		if( SpriteAt == null ) {
+			Debug.LogWarning( "SpriteAt was not set, unable to generate meshes." ); 
 			yield break;
 		}
 		
@@ -118,19 +110,20 @@ public class MeshTiles : MonoBehaviour
 		}
 		
 		/* * * * * * * * * * * * * * * * * */
-		
-		int texturesLength = Textures.Length;
-		
-		if(texturesLength % 2 != 0)
-		{
-			texturesLength += 1;	
-		}
 
-		bool mipMap = false;
-		Texture2D textureAtlas = new Texture2D(0,0, TextureFormat.RGBA4444, mipMap);
-		textureAtlas.wrapMode = TextureWrapMode.Clamp;
-		textureRects = textureAtlas.PackTextures(Textures, 0);
-		
+		Sprite baseSprite = null;
+		SA.Vector2i p = new SA.Vector2i( 0, 0 );
+		do {
+			baseSprite = SpriteAt( (uint)p.x, (uint)p.y );
+			++p.x;
+			if( p.x >= (int)width ) {
+				p.x = 0;
+				++p.y;
+			}
+		} while( baseSprite == null );
+
+		Texture2D textureAtlas = baseSprite.texture;
+
 		wholeTextureMaterial.mainTexture = textureAtlas;
 		
 		meshRenderer.material = wholeTextureMaterial;
@@ -157,7 +150,7 @@ public class MeshTiles : MonoBehaviour
 		Vector3[] vertices = new Vector3[numVertices];
 		int[] triangles = new int[numTriangles];
 		Vector2[] uvs = new Vector2[numVertices];
-		
+
 //		Debug.Log("Tris: "+numTriangles/3u);
 		
 		float fullMeshHeight = meshSize * height;
@@ -183,14 +176,20 @@ public class MeshTiles : MonoBehaviour
 			vertices[bottomLeftVertex] = new Vector3(minX, maxY, 0.0f);
 			vertices[topRightVertex] = new Vector3(maxX, minY, 0.0f);
 			vertices[topLeftVertex] = new Vector3(minX, minY, 0.0f);
-			
-			Rect texRect = new Rect(textureRects[TextureIndexForTile(x, y)]);
-			
-			if(OnAssignRect != null)
-			{
-				texRect = OnAssignRect(x, y, texRect);
+
+			Sprite sprite = SpriteAt( x, y );
+
+			Rect texRect = new Rect(0, 0, 0, 0);
+			if( sprite != null ) {
+				float texWidth = (float)baseSprite.texture.width;
+				float texHeight = (float)baseSprite.texture.height;
+				texRect = sprite.textureRect;
+				texRect.x /= texWidth;
+				texRect.y /= texHeight;
+				texRect.width /= texWidth;
+				texRect.height /= texHeight;
 			}
-			
+
 			uvs[bottomRightVertex] = new Vector2(texRect.xMax, texRect.yMin);
 			uvs[bottomLeftVertex] = new Vector2(texRect.xMin, texRect.yMin);
 			uvs[topRightVertex] = new Vector2(texRect.xMax, texRect.yMax);
