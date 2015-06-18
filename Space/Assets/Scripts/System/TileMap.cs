@@ -602,7 +602,6 @@ namespace SA {
 					var apos = a.textureRect.position;
 					var bpos = b.textureRect.position;
 					float w = a.textureRect.width;
-					float h = a.textureRect.height;
 
 					float ai = w - apos.x + apos.y * w;
 					float bi = w - bpos.x + bpos.y * w;

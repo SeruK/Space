@@ -10,9 +10,10 @@ public class Pickup : MonoBehaviour {
 
 	public ItemType ItemType {
 		get { return itemType; }
+		set { itemType = value; }
 	}
-
 	public string LocalizedLineId {
-		get  { return localizedLineId; }
+		get { return localizedLineId; }
+		set { localizedLineId = value; }
 	}
 }

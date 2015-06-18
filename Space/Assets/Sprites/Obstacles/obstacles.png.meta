@@ -1,5 +1,7 @@
 fileFormatVersion: 2
 guid: 1ba6219f48e108141a076ecc41ff8d45
+timeCreated: 1434661901
+licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
     21300000: spike_1
@@ -55,8 +57,8 @@ TextureImporter:
         y: 2
         width: 7
         height: 4
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

@@ -12,6 +12,16 @@ public static class Item {
 		DataDisc
 	}
 
+	public static ItemType ItemTypeFromString( string str ) {
+		ItemType itemType = ItemType.None;
+		try {
+			itemType = (ItemType)System.Enum.Parse( typeof(ItemType), str );
+		} catch( System.Exception e ) {
+			DebugUtil.LogWarn( "Invalid item type: " + str + "\n" + e );
+		}
+		return itemType;
+	}
+
 	public static string LocalizedNameId( ItemType itemType ) {
 		return "item_" + System.Enum.GetName( typeof( ItemType ), itemType );
 	}

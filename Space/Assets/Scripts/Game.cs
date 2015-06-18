@@ -18,11 +18,14 @@ public class Game : MonoBehaviour {
 	private TileMapObject tileMapObject;
 
 	// TODO: This nicer
-	public GameObject OrbPrefab;
+	[SerializeField]
+	private GameObject PickupPrefab;
 	[SerializeField]
 	private GameObject TileMapObjectPrefab;
 	[SerializeField]
 	private GameObject GoombaPrefab;
+	[SerializeField]
+	private GameObject SpikePrefab;
 
 	protected void OnEnable() {
 		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
@@ -51,12 +54,19 @@ public class Game : MonoBehaviour {
 						Player.CharController.transform.position = LayerToWorldPos( layerObject.Position );
 					}
 					if( layerObject.ObjectType == "Goomba" ) {
-						if( GoombaPrefab == null ) {
-							continue;
-						}
-
-						var goombaGo = GameObject.Instantiate( GoombaPrefab );
-						goombaGo.transform.position = LayerToWorldPos( layerObject.Position );
+						InstantiateTileMapObject( GoombaPrefab, layerObject );
+					}
+					if( layerObject.ObjectType == "Item" ) {
+						InstantiateTileMapObject<Pickup>( PickupPrefab, layerObject, ( pickup ) => {
+							foreach( var prop in layerObject.Properties ) {
+								if( prop.Name == "ItemType" ) {
+									pickup.ItemType = Item.ItemTypeFromString( prop.Value );
+								}
+							}
+						} );
+					}
+					if( layerObject.ObjectType == "Spike" ) {
+						InstantiateTileMapObject( SpikePrefab, layerObject );
 					}
 				}
 			}
@@ -136,6 +146,32 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	private T InstantiateTileMapObject<T>( GameObject prefab, SA.TileMapObject layerObject, System.Action<T> setup ) where T : Component {
+		var go = InstantiateTileMapObject( prefab, layerObject );
+		T comp = null;
+		if( go != null ) {
+			comp = go.GetComponent<T>();
+			if( comp == null ) {
+				Destroy( go );
+				return null;
+			}
+			if( setup != null ) {
+				setup( comp );
+			}
+		}
+		return comp;
+	}
+
+	private GameObject InstantiateTileMapObject( GameObject prefab, SA.TileMapObject layerObject ) {
+		if( prefab == null ) {
+			return null;
+		}
+		
+		var go = GameObject.Instantiate( prefab );
+		go.transform.position = LayerToWorldPos( layerObject.Position );
+		return go;
+	}
+	
 	// Pickups
 
 	private void DestroyPickup( Pickup pickup ) {
