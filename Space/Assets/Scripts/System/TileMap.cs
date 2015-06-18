@@ -95,9 +95,6 @@ namespace SA {
 		// margin
 
 		private string name;
-		// The global ID that maps to the first tile
-		// in this tileset
-		private uint firstGID;
 		// Maximum size of tiles
 		private Size2i tileSize;
 		// Relative image path (from .tmx or .tsx file)
@@ -106,9 +103,6 @@ namespace SA {
 
 		public string Name {
 			get { return name; }
-		}
-		public uint FirstGID {
-			get { return firstGID; }
 		}
 		public Size2i TileSize {
 			get { return tileSize; }
@@ -120,12 +114,34 @@ namespace SA {
 			get { return properties; }
 		}
 
-		public Tileset( string name, uint firstGID, Size2i tileSize, string imagePath, TileMapProperty[] properties ) {
+		public Tileset( string name, Size2i tileSize, string imagePath, TileMapProperty[] properties ) {
 			this.name = name;
-			this.firstGID = firstGID;
 			this.tileSize = tileSize;
 			this.imagePath = imagePath;
 			this.properties = properties;
+		}
+	}
+
+	public class TilesetRef {
+		// The global ID that maps to the first tile
+		// in this tileset (in a tilemap)
+		private uint firstGID;
+		private Tileset tileset;
+
+		public uint FirstGID {
+			get { return firstGID; }
+		}
+		public Tileset Value {
+			get { return tileset; }
+		}
+
+		public TilesetRef( uint firstGID, Tileset tileset ) {
+			this.firstGID = firstGID;
+			this.tileset = tileset;
+		}
+
+		public static explicit operator Tileset( TilesetRef tilesetRef ) {
+			return tilesetRef.tileset;
 		}
 	}
 
@@ -203,7 +219,7 @@ namespace SA {
 		// Color drawn behind tiles
 		private Color  backgroundColor;
 
-		private Tileset[]         tilesets;
+		private TilesetRef[]      tilesets;
 		private TileLayer[]       tileLayers;
 		private TileMapProperty[] properties;
 		private ObjectLayer[]     objectLayers;
@@ -217,7 +233,7 @@ namespace SA {
 		public Color BackgroundColor {
 			get { return backgroundColor; }
 		}
-		public Tileset[] Tilesets {
+		public TilesetRef[] Tilesets {
 			get { return tilesets; }
 		}
 		public TileLayer[] TileLayers {
@@ -231,7 +247,7 @@ namespace SA {
 		}
 
 		public TileMap( Size2i size, Size2i tileSize, Color bgColor,
-		                Tileset[] tilesets, TileMapProperty[] properties,
+		                TilesetRef[] tilesets, TileMapProperty[] properties,
 		                TileLayer[] tileLayers, ObjectLayer[] objectLayers ) {
 			this.size            = size;
 			this.tileSize        = tileSize;
@@ -252,6 +268,8 @@ namespace SA {
 		}
 
 		private static TileMap ParseTileMap( XElement map ) {
+			var lookup = new TilesetLookup(); // TODO: temp
+
 			// Assume orthogonal orientation and right-down renderorder
 			var size = new Size2i( (int)map.Attribute( "width" ), (int)map.Attribute( "height" ) );
 			var tileSize = new Size2i( (int)map.Attribute( "tilewidth" ), (int)map.Attribute( "tileheight" ) );
@@ -259,14 +277,14 @@ namespace SA {
 			var defaultColor = Color.white;
 			var bgColor = ParseColorString( (string)map.Attribute( "backgroundcolor" ), defaultColor );
 
-			var tilesets = new List<Tileset>();
+			var tilesets = new List<TilesetRef>();
 			TileMapProperty[] properties = new TileMapProperty[ 0 ];
 			var tileLayers = new List<TileLayer>();
 			var objectLayers = new List<ObjectLayer>();
 
 			foreach( var child in map.Elements() ) {
 				if( child.Name == "tileset" ) {
-					tilesets.Add( ParseTileset( child ) );
+					tilesets.Add( ParseTileset( child, lookup ) );
 				} else if( child.Name == "properties" ) {
 					properties = ParseProperties( child );
 				} else if( child.Name == "layer" ) {
@@ -280,7 +298,8 @@ namespace SA {
 			                    tileLayers.ToArray(), objectLayers.ToArray() );
 		}
 
-		private static Tileset ParseTileset( XElement tileset) {
+		private static TilesetRef ParseTileset( XElement tileset, TilesetLookup lookup ) {
+			uint firstGID = (uint)tileset.Attribute( "firstgid" );
 			string externalSource = (string)tileset.Attribute( "source" );
 
 			if( !string.IsNullOrEmpty( externalSource ) ) {
@@ -288,18 +307,23 @@ namespace SA {
 				return null;
 			}
 
-			string name = (string)tileset.Attribute( "name" );
-			uint firstGID = (uint)tileset.Attribute( "firstgid" );
+			return ParseTileset( tileset, firstGID, lookup );
+		}
 
+		private static TilesetRef ParseTileset( XElement tileset, uint firstGID, TilesetLookup lookup ) {
+			string name = (string)tileset.Attribute( "name" );
+			
 			int w = (int) tileset.Attribute( "tilewidth" );
 			int h = (int) tileset.Attribute( "tileheight" );
 			var tileSize = new Size2i( w, h );
-
-			string imagePath = (string)tileset.Element( "image").Attribute( "source" );
-
+			
+			string imagePath = (string)tileset.Element( "image" ).Attribute( "source" );
+			
 			var properties = ParseProperties( tileset.Element( "properties" ) );
-
-			return new Tileset( name, firstGID, tileSize, imagePath, properties );
+			
+			var t = new Tileset( name, tileSize, imagePath, properties );
+			lookup.AddTileset( name, t );
+			return new TilesetRef( firstGID, t );
 		}
 
 		private static TileLayer ParseTileLayer( XElement tileLayer, Size2i mapSize ) {
@@ -423,6 +447,22 @@ namespace SA {
 			}
 
 			return tiles;
+		}
+	}
+
+	public class TilesetLookup {
+		private Dictionary<string, Tileset> tilesets;
+
+		public TilesetLookup() {
+			tilesets = new Dictionary<string, Tileset>();
+		}
+
+		public Tileset GetTileset( string name ) {
+			return tilesets[ name ];
+		}
+
+		public void AddTileset( string name, Tileset tileset ) {
+			tilesets[ name ] = tileset;
 		}
 	}
 }
