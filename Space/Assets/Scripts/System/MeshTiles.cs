@@ -4,9 +4,11 @@ using System.Collections.Generic;
 
 public class MeshTiles : MonoBehaviour 
 {
-	public Material wholeTextureMaterial;
-	
+	[SerializeField]
+	private Material TileMaterial;
+	[HideInInspector]
 	public uint Width;
+	[HideInInspector]
 	public uint Height;
 
 	private MeshFilter meshFilter;
@@ -121,9 +123,9 @@ public class MeshTiles : MonoBehaviour
 
 		Texture2D textureAtlas = baseSprite.texture;
 
-		wholeTextureMaterial.mainTexture = textureAtlas;
+		TileMaterial.mainTexture = textureAtlas;
 		
-		meshRenderer.material = wholeTextureMaterial;
+		meshRenderer.material = TileMaterial;
 		
 		/* * * * * * * * * * * * * * * * * */
 		
@@ -149,8 +151,6 @@ public class MeshTiles : MonoBehaviour
 		Vector2[] uvs = new Vector2[numVertices];
 
 //		Debug.Log("Tris: "+numTriangles/3u);
-		
-		float fullMeshHeight = meshSize * height;
 
 		var oldColliders = transform.FindChild( "__colliders" );
 		if( oldColliders != null ) Destroy( oldColliders.gameObject );
@@ -166,16 +166,17 @@ public class MeshTiles : MonoBehaviour
 			uint y = i / width;
 			
 			float minX = meshSize*x;
-			float minY = fullMeshHeight - meshSize*(height-y);
+			float minY = meshSize*(height-y);
 			float maxX = minX + meshSize;
-			float maxY = fullMeshHeight - (meshSize*(height-y) + meshSize);
+			float maxY = (meshSize*(height-y) + meshSize);
 
 			uint vertexIndex = i*4u;
 			
 			int bottomRightVertex = (int)vertexIndex;
-			int bottomLeftVertex = (int)vertexIndex + 1;
-			int topRightVertex = (int)vertexIndex + 2;
-			int topLeftVertex = (int)vertexIndex + 3;
+			int bottomLeftVertex  = (int)vertexIndex + 1;
+			int topRightVertex    = (int)vertexIndex + 2;
+			int topLeftVertex     = (int)vertexIndex + 3;
+
 			
 			vertices[bottomRightVertex] = new Vector3(maxX, maxY, 0.0f);
 			vertices[bottomLeftVertex] = new Vector3(minX, maxY, 0.0f);
@@ -198,7 +199,7 @@ public class MeshTiles : MonoBehaviour
 				collGo.transform.parent = collidersRoot.transform;
 				var boxCollider = collGo.AddComponent<BoxCollider2D>();
 				boxCollider.transform.position = (Vector2)transform.position + new Vector2(minX, minY);
-				boxCollider.offset = new Vector2( meshSize / 2.0f, -meshSize / 2.0f );
+				boxCollider.offset = new Vector2( meshSize / 2.0f, meshSize / 2.0f );
 				boxCollider.size = new Vector2( meshSize, meshSize );
 			}
 

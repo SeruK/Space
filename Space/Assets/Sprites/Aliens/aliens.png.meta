@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 0a33885b34966ad4799008ff9c31bf14
-timeCreated: 1432296636
+timeCreated: 1434660198
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -61,8 +61,8 @@ TextureImporter:
         y: 47
         width: 16
         height: 15
-      alignment: 9
-      pivot: {x: .53125, y: .833333313}
+      alignment: 7
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: alien_c_s02
       rect:
@@ -71,8 +71,8 @@ TextureImporter:
         y: 25
         width: 17
         height: 16
-      alignment: 9
-      pivot: {x: .558823526, y: .78125}
+      alignment: 7
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: alien_c_s03
       rect:
@@ -81,8 +81,8 @@ TextureImporter:
         y: 2
         width: 16
         height: 18
-      alignment: 9
-      pivot: {x: .53125, y: .694444418}
+      alignment: 7
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: alien_c_s04
       rect:
@@ -91,8 +91,8 @@ TextureImporter:
         y: 43
         width: 20
         height: 19
-      alignment: 9
-      pivot: {x: .574999988, y: .657894731}
+      alignment: 7
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: alien_c_s05
       rect:
@@ -101,8 +101,8 @@ TextureImporter:
         y: 22
         width: 15
         height: 19
-      alignment: 9
-      pivot: {x: .5, y: .657894731}
+      alignment: 7
+      pivot: {x: .5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

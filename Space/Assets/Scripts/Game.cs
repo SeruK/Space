@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
+using SA;
 
 public class Game : MonoBehaviour {
 	[SerializeField]
 	private GUIStyle inventoryStyle;
+	[SerializeField]
+	private float lightRadius; //TODO: TEMP
 
 	public Entity Player;
 	public SmoothFollow CameraController;
@@ -11,14 +13,29 @@ public class Game : MonoBehaviour {
 	public Inventory Inventory;
 	private Localization localization;
 
+	private TilesetLookup tilesetLookup;
+	private TileMap tileMap;
+	private TileMapObject tileMapObject;
+
 	// TODO: This nicer
 	public GameObject OrbPrefab;
-	
+	[SerializeField]
+	private GameObject TileMapObjectPrefab;
+	[SerializeField]
+	private GameObject GoombaPrefab;
+
 	protected void OnEnable() {
 		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
-		var lookup = new SA.TilesetLookup();
-		var tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, lookup );
+		tilesetLookup = new SA.TilesetLookup();
+		tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
 		DebugUtil.Log( "tilemap: " + tileMap );
+
+		if( tileMapObject != null ) {
+			Destroy( tileMapObject.gameObject );
+		}
+		var tileMapGO = GameObject.Instantiate( TileMapObjectPrefab );
+		tileMapObject = tileMapGO.GetComponent<TileMapObject>();
+		tileMapObject.CreateWithTileMap( tileMap, tilesetLookup );
 
 		if( localization == null ) {
 			localization = gameObject.AddComponent<Localization>();
@@ -28,6 +45,21 @@ public class Game : MonoBehaviour {
 		if( Player != null ) {		
 			Player.CharController.onControllerCollidedEvent += OnPlayerCollided;
 			Player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
+			foreach( var objectLayer in tileMap.ObjectLayers ) {
+				foreach( var layerObject in objectLayer.Objects ) {
+					if( layerObject.ObjectType == "SpawnPoint" ) {
+						Player.CharController.transform.position = LayerToWorldPos( layerObject.Position );
+					}
+					if( layerObject.ObjectType == "Goomba" ) {
+						if( GoombaPrefab == null ) {
+							continue;
+						}
+
+						var goombaGo = GameObject.Instantiate( GoombaPrefab );
+						goombaGo.transform.position = LayerToWorldPos( layerObject.Position );
+					}
+				}
+			}
 		}
 	}
 
@@ -40,6 +72,9 @@ public class Game : MonoBehaviour {
 
 	protected void Update() {
 		UpdateInput();
+		if( Player != null && tileMapObject != null ) {
+			tileMapObject.DoLightSource( EntityPos( Player ), lightRadius, Color.white );
+		} 
 	}
 
 	protected void UpdateInput() {
@@ -113,9 +148,31 @@ public class Game : MonoBehaviour {
 
 	GUIState guiState = new GUIState();
 
+	private Vector2i PosToTilePos( Vector2 pos ) {
+		float pixelsPerUnit = 20.0f;
+		return new Vector2i( Mathf.FloorToInt( ( pos.x * pixelsPerUnit ) / tileMap.TileSize.width ),
+		                     Mathf.FloorToInt( ( pos.y * pixelsPerUnit ) / tileMap.TileSize.height ) );
+	}
+
+	private Vector2i EntityPos( Entity entity ) {
+		return PosToTilePos( entity.transform.position );
+	}
+
+	private Vector2 LayerToWorldPos( Vector2 layerPos ) {
+		float pixelsPerUnit = 20.0f;
+		// Flipperoo
+		layerPos.y = ( tileMap.Size.height * tileMap.TileSize.height ) - layerPos.y;
+		layerPos /= pixelsPerUnit;
+		return layerPos;
+	}
+	
 	// TODO: Temp
 	protected void OnGUI() {
 		if( !guiState.ShowInventory ) {
+			if( Player != null ) {
+				GUILayout.Label( "Playerpos: " + EntityPos( Player ) );
+			}
+
 			guiState.ShowInventory = GUILayout.Button( "Inventory" );
 			return;
 		}

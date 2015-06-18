@@ -61,11 +61,73 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3e3ef329aef8c4d90b654705ef5710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inventoryStyle:
+    m_Name: 
+    m_Normal:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 1, g: 1, b: 1, a: 1}
+    m_Hover:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Active:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Focused:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnNormal:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnHover:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnActive:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnFocused:
+      m_Background: {fileID: 0}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Border:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Margin:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Padding:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Overflow:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Font: {fileID: 12800000, guid: 22827def52c63264091083b49caa5192, type: 3}
+    m_FontSize: 9
+    m_FontStyle: 2
+    m_Alignment: 4
+    m_WordWrap: 0
+    m_RichText: 0
+    m_TextClipping: 0
+    m_ImagePosition: 0
+    m_ContentOffset: {x: 0, y: 0}
+    m_FixedWidth: 48
+    m_FixedHeight: 0
+    m_StretchWidth: 0
+    m_StretchHeight: 0
+  lightRadius: 0
   Player: {fileID: 0}
   CameraController: {fileID: 0}
   TextDisplay: {fileID: 11400000}
   Inventory: {fileID: 11420576}
   OrbPrefab: {fileID: 0}
+  TileMapObjectPrefab: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
+  GoombaPrefab: {fileID: 0}
 --- !u!114 &11420576
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -77,6 +139,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4efa03c5b70c7da40b9e98175debe7bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
+  - {fileID: 21300006, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
+  - {fileID: 21300010, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
+  - {fileID: 21300014, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
+  - {fileID: 21300016, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
+  - {fileID: 21300014, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
 --- !u!132 &13200000
 GUIText:
   m_ObjectHideFlags: 1

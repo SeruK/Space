@@ -1,27 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="20" tileheight="20" backgroundcolor="#ffaaff" nextobjectid="5">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="20" tileheight="20" backgroundcolor="#aa00ff" nextobjectid="10">
  <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
  <layer name="Tile Layer 1" width="10" height="10">
   <data encoding="base64" compression="zlib">
-   eJzFykkOgCAQRNFGccIBQcUp3v+a/rX20sRK3qq+EZEMOSwKlPJehRoNHFp0StdjgMeIgKh0E2YsSFixKd2OA6fyfbnr4a/d6ecB7w==
+   eJwTYGBgECASEwKUquNAY8PUMaJhBiSaGvaCgCwSxqaOE4s7SLWXGAwADnoCug==
   </data>
  </layer>
- <objectgroup name="Object Layer 1" visible="0">
-  <properties>
-   <property name="pingu" value="pipipi"/>
-  </properties>
-  <object id="1" x="182.04" y="118" width="110" height="91">
-   <properties>
-    <property name="dick" value="butt"/>
-   </properties>
-  </object>
+ <objectgroup name="Object Layer 1">
+  <object id="5" type="SpawnPoint" x="46" y="50" width="37" height="24"/>
+  <object id="7" type="Goomba" x="108" y="120" width="18" height="17"/>
  </objectgroup>
- <layer name="Tile Layer 2" width="10" height="10" visible="0">
-  <properties>
-   <property name="derp" value="as"/>
-  </properties>
-  <data encoding="base64" compression="zlib">
-   eJxjYBg5gHGgHUAEAAACNAAC
-  </data>
- </layer>
 </map>

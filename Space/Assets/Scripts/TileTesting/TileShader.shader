@@ -13,7 +13,8 @@ SubShader {
 	LOD 100
 	
 	ZWrite Off
-	Blend SrcAlpha OneMinusSrcAlpha 
+	Blend SrcAlpha OneMinusSrcAlpha
+	Cull front
 	
 	Pass {  
 		CGPROGRAM
