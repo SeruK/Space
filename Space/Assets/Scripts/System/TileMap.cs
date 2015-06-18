@@ -490,7 +490,7 @@ namespace SA {
 					var tilesetRef = tilesets[ i ];
 
 					if( tilesetRef.FirstGID <= tileGID ) {
-						tiles[ i ] = tilesetRef.Value.UUIDs[ tileGID - tilesetRef.FirstGID ];
+						tiles[ tileIndex ] = tilesetRef.Value.UUIDs[ tileGID - tilesetRef.FirstGID ];
 						// TODO: Reapply flags
 						break;
 					}
@@ -522,6 +522,8 @@ namespace SA {
 			tilesetsByFilePath = new Dictionary<string, Tileset>();
 			spritesByFilePath = new Dictionary<string, Sprite[]>();
 			tiles = new List<TileInfo>();
+			// Reserve 0
+			tiles.Add( new TileInfo( null, 0 ) );
 		}
 
 		// Absolute file path
