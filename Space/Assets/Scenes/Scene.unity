@@ -268,7 +268,7 @@ Transform:
   m_Children:
   - {fileID: 90181519}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
 --- !u!114 &190974038
 MonoBehaviour:
   m_ObjectHideFlags: 0
