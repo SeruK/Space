@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
  <layer name="Background" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztjjsKADAIxRw8RO9/0tJdET+lQxPI+Iwif6OG1RudZrab3XvNaBvtpvZa3Hj9yo3jMrz5d6c74atuVQAAAACYZQND9gPt
+   eJztjjEKACAMxAr6CP//UhEcOlTUWl1MIOByjSJ/kw29N06au93d/ag52852Ufvs3Iz6nhvN0k3qffPfupuUK90Ii+GLrlcAAAAAiKUCx+IDmQ==
   </data>
  </layer>
  <layer name="Midground" width="30" height="30">
