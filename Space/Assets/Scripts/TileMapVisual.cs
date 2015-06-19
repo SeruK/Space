@@ -27,8 +27,15 @@ public class TileMapVisual : MonoBehaviour {
 			meshTiles.Width = (uint)tileMap.Size.width;
 			meshTiles.Height = (uint)tileMap.Size.height;
 			meshTiles.SpriteAt = (x, y) => {
-				System.UInt32 tile = tileLayer.Tiles[x + y * tileMap.Size.width];
-				return tilesetLookup.Tiles[ (int)tile ].TileSprite;
+				System.UInt32 tile = tileLayer.Tiles[ x + y * tileMap.Size.width ];
+				System.UInt32 uuid = Tile.UUID( tile );
+				Sprite sprite = tilesetLookup.Tiles[ (int)uuid ].TileSprite;
+				var spriteData = new MeshTiles.SpriteData( sprite,
+				                                           Tile.FlippedHori( tile ),
+				                                           Tile.FlippedVert( tile ),
+				                                           Tile.FlippedDiag( tile ) );
+				
+				return spriteData;
 			};
 			bool isMidground = tileLayer == tileMap.MidgroundLayer;
 			bool createColliders = isMidground;
@@ -44,7 +51,7 @@ public class TileMapVisual : MonoBehaviour {
 			int numTiles = tileMap.Size.width * tileMap.Size.height;
 			var colors = new Color32[ numTiles ];
 			for( int i = 0; i < numTiles; ++i ) {
-				var color = tileLayer.Tiles[ i ] == 0 ? new Color( 0, 0, 0, 0 ) : new Color( 1, 1, 1, 1 );
+				var color = Tile.UUID( tileLayer.Tiles[ i ] ) == 0 ? new Color( 0, 0, 0, 0 ) : new Color( 1, 1, 1, 1 );
 				colors[ i ] = color;
 			}
 			meshTiles.TileColors = colors;
@@ -90,7 +97,7 @@ public class TileMapVisual : MonoBehaviour {
 		Vector2i lightOrigin = new Vector2i(lightX, lightY);
 		Vector2 lightOriginFloat = new Vector2(lightX, lightY);
 		
-		SA.FieldOfView.LightenPoint(lightOrigin, radius, 3u, width, height,(x, y) => {
+		SA.FieldOfView.LightenPoint(lightOrigin, radius, 0u, width, height,(x, y) => {
 			return TileAt((uint)lightX, (uint)lightY) == 0u ? false : true;
 		}, (x, y, visible) => {
 			uint i = x + y * width;
@@ -125,6 +132,6 @@ public class TileMapVisual : MonoBehaviour {
 	}
 
 	private System.UInt32 TileAt( uint x, uint y ) {
-		return tileMap.MidgroundLayer.Tiles[ x + y * tileMap.Size.width ];
+		return Tile.UUID( tileMap.MidgroundLayer.Tiles[ x + y * tileMap.Size.width ] );
 	}
 }

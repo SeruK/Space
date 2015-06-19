@@ -3,15 +3,15 @@
  <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
  <layer name="Background" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztjjsOACAIxRw4hPc/qXE1EuRjHGyTjo/S2t/IxuiNTNPb9e61prW1dlV7CW60fuTGtC/e/lvrnrazvupGBQAAAIBaBmknA9k=
+   eJztjjsKADAIxRw8RO9/0tJdET+lQxPI+Iwif6OG1RudZrab3XvNaBvtpvZa3Hj9yo3jMrz5d6c74atuVQAAAACYZQND9gPt
   </data>
  </layer>
  <layer name="Midground" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztkLEKwCAMRO3axQ7tIvT/f9NJCOIl1igt9B4caIS8mBDIW2zgvMIjs9rnJYF4uEU0Z2/dot75l/c9wuHIKXJV9yd99s7ajKA/t3wR1GLjTZt3xr5Lf+TXnMgte6D5LY/l9P57xEUIIYT8lQzbjQs4
+   eJxjYBgFAwUYcbBpYQ8yprV9lAIRBoYDuDC5ZsoiYTz2LsAhnkCqfehhPpjDmxwgQAEWwYNJMYeLSDFqYFx+xmYfPw4xfixy+NxLjfCGmY/Lfnx24rIb2Qxc7idkDyE7KfU3OXaNglEwCkbBKBgFIxUAAFMxESc=
   </data>
  </layer>
- <layer name="Foreground" width="30" height="30">
+ <layer name="Foreground" width="30" height="30" visible="0">
   <data encoding="base64" compression="zlib">
    eJztzTENAAAIBLG3gX+jaGACkna85RJgUw379y8AAHc0ENwAZQ==
   </data>

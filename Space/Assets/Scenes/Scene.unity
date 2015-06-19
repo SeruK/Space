@@ -333,34 +333,6 @@ Prefab:
       propertyPath: CameraController
       value: 
       objectReference: {fileID: 190974038}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: OrbPrefab
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: lightRadius
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: GoombaPrefab
-      value: 
-      objectReference: {fileID: 167524, guid: 309db16e91a625140abaad8ca0e58ca2, type: 2}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: SpikePrefab
-      value: 
-      objectReference: {fileID: 100002, guid: 28024fa8e660e6149a38564742f42a9b, type: 2}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: PickupPrefab
-      value: 
-      objectReference: {fileID: 100000, guid: f1208f32ee1b6624fa0f46d763cdd13f, type: 2}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: TileMapVisualPrefab
-      value: 
-      objectReference: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: tileMaterial
-      value: 
-      objectReference: {fileID: 2100000, guid: 5f270465738ec43cf9254c55217361df, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0

@@ -4,6 +4,20 @@ using System.Collections.Generic;
 
 public class MeshTiles : MonoBehaviour 
 {
+	public struct SpriteData {
+		public readonly Sprite Sprite;
+		public readonly bool FlippedHori;
+		public readonly bool FlippedVert;
+		public readonly bool FlippedDiag;
+
+		public SpriteData( Sprite sprite, bool hori, bool vert, bool diag ) {
+			Sprite = sprite;
+			FlippedHori = hori;
+			FlippedVert = vert;
+			FlippedDiag = diag;
+		}
+	}
+
 	public Material TileMaterial;
 	[HideInInspector]
 	public uint Width;
@@ -32,7 +46,7 @@ public class MeshTiles : MonoBehaviour
 	private bool isLoading = false;
 	private bool createColliders = false;
 
-	public delegate Sprite SpriteAtHandler(uint x, uint y);
+	public delegate SpriteData SpriteAtHandler(uint x, uint y);
 	public SpriteAtHandler SpriteAt;
 
 	private const int kMaxVerticesInMesh = 65000;
@@ -114,7 +128,8 @@ public class MeshTiles : MonoBehaviour
 		Sprite baseSprite = null;
 		SA.Vector2i p = new SA.Vector2i( 0, 0 );
 		do {
-			baseSprite = SpriteAt( (uint)p.x, (uint)p.y );
+			var spriteData = SpriteAt( (uint)p.x, (uint)p.y );
+			baseSprite = spriteData.Sprite;
 			++p.x;
 			if( p.x >= (int)width ) {
 				p.x = 0;
@@ -186,13 +201,13 @@ public class MeshTiles : MonoBehaviour
 			vertices[topRightVertex] = new Vector3(maxX, minY, 0.0f);
 			vertices[topLeftVertex] = new Vector3(minX, minY, 0.0f);
 
-			Sprite sprite = SpriteAt( x, y );
+			SpriteData spriteData = SpriteAt( x, y );
 
 			Rect texRect = new Rect(0, 0, 0, 0);
-			if( sprite != null ) {
+			if( spriteData.Sprite != null ) {
 				float texWidth = (float)baseSprite.texture.width;
 				float texHeight = (float)baseSprite.texture.height;
-				texRect = sprite.textureRect;
+				texRect = spriteData.Sprite.textureRect;
 				texRect.x /= texWidth;
 				texRect.y /= texHeight;
 				texRect.width /= texWidth;
@@ -208,10 +223,27 @@ public class MeshTiles : MonoBehaviour
 				}
 			}
 
-			uvs[bottomRightVertex] = new Vector2(texRect.xMax, texRect.yMin);
-			uvs[bottomLeftVertex] = new Vector2(texRect.xMin, texRect.yMin);
-			uvs[topRightVertex] = new Vector2(texRect.xMax, texRect.yMax);
-			uvs[topLeftVertex] = new Vector2(texRect.xMin, texRect.yMax);
+			// TODO: Diagonal flipping
+
+			if( spriteData.FlippedHori ) {
+				float xMin = texRect.xMin;
+				float xMax = texRect.xMax;
+				texRect.xMin = xMax;
+				texRect.xMax = xMin;
+			}
+
+			if( spriteData.FlippedVert ) {
+				float yMin = texRect.yMin;
+				float yMax = texRect.yMax;
+				texRect.yMin = yMax;
+				texRect.yMax = yMin;
+			}
+
+			// Since Tiled renders with negative y, flip axis
+			uvs[bottomRightVertex] = new Vector2(texRect.xMax, texRect.yMax);
+			uvs[bottomLeftVertex] = new Vector2(texRect.xMin, texRect.yMax);
+			uvs[topRightVertex] = new Vector2(texRect.xMax, texRect.yMin);
+			uvs[topLeftVertex] = new Vector2(texRect.xMin, texRect.yMin);
 			
 			int triangleIndex = (int)i*6;
 			

@@ -7,6 +7,8 @@ public class Game : MonoBehaviour {
 	[SerializeField]
 	private float lightRadius; //TODO: TEMP
 	[SerializeField]
+	private Easing.Algorithm lightAlgo;
+	[SerializeField]
 	private Material tileMaterial;
 
 	public Entity Player;
@@ -86,7 +88,7 @@ public class Game : MonoBehaviour {
 	protected void Update() {
 		UpdateInput();
 		if( Player != null && tileMapVisual != null ) {
-			tileMapVisual.DoLightSource( EntityPos( Player ), lightRadius, Color.white );
+			tileMapVisual.DoLightSource( EntityPos( Player ) + new Vector2i( 0, -1 ), lightRadius, Color.white, Easing.Mode.In, lightAlgo );
 		} 
 	}
 

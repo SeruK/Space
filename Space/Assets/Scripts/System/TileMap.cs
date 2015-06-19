@@ -9,14 +9,47 @@ using Ionic.Zlib;
 // http://doc.mapeditor.org/reference/tmx-map-format/#imagelayer
 
 namespace SA {
-//	public class TileMapTile {
-//		// Omitted features:
-//		// terrain
-//		// probability
-//
-//		// Local ID within its tileset
+	public static class Tile {
+		public static readonly System.UInt32 FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+		public static readonly System.UInt32 FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+		public static readonly System.UInt32 FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+		public static readonly System.UInt32 FLIP_MASK = FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG;
+				
+		public static System.UInt32 UUID( System.UInt32 tile ) {
+			return tile & ( ~FLIP_MASK );
+		}
+
+		public static bool FlippedHori( System.UInt32 tile ) {
+			return ( tile & FLIPPED_HORIZONTALLY_FLAG) != 0;
+		}
+
+		public static void SetFlippedHori( ref System.UInt32 tile, bool flipped ) {
+			tile = flipped ? ( tile | FLIPPED_HORIZONTALLY_FLAG ) : ( tile & ( ~FLIPPED_HORIZONTALLY_FLAG ) );
+		}
+
+		public static bool FlippedVert( System.UInt32 tile ) {
+			return ( tile & FLIPPED_VERTICALLY_FLAG ) != 0;
+		}
+
+		public static void SetFlippedVert( ref System.UInt32 tile, bool flipped ) {
+			tile = flipped ? ( tile | FLIPPED_VERTICALLY_FLAG ) : ( tile & ( ~FLIPPED_VERTICALLY_FLAG ) );
+		}
+
+		public static bool FlippedDiag( System.UInt32 tile ) {
+			return ( tile & FLIPPED_DIAGONALLY_FLAG ) != 0;
+		}
+
+		public static void SetFlippedDiag( ref System.UInt32 tile, bool flipped ) {
+			tile = flipped ? ( tile | FLIPPED_DIAGONALLY_FLAG ) : ( tile & ( ~FLIPPED_DIAGONALLY_FLAG ) );
+		}
+
+		// Omitted features:
+		// terrain
+		// probability
+
+		// Local ID within its tileset
 //		private uint id;
-//	}
+	}
 
 	public class TileMapProperty {
 		private string name;
@@ -484,21 +517,11 @@ namespace SA {
 		}
 
 		private static void ResolveTiles( ref System.UInt32[] tiles, Size2i mapSize, List<TilesetRef> tilesets, TilesetLookup tilesetLookup ) {
-			System.UInt32 FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
-			System.UInt32 FLIPPED_VERTICALLY_FLAG   = 0x40000000;
-			System.UInt32 FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
-
 			for( int tileIndex = 0; tileIndex < tiles.Length; ++tileIndex ) {
 				System.UInt32 tileGID = tiles[ tileIndex ];
-
-//				bool flippedHori = (tileGID & FLIPPED_HORIZONTALLY_FLAG) != 0;
-//				bool flippedVert = (tileGID & FLIPPED_VERTICALLY_FLAG) != 0;
-//				bool flippedDiag = (tileGID & FLIPPED_DIAGONALLY_FLAG) != 0;
-
-				// Clear flags
-				tileGID &= ~(FLIPPED_HORIZONTALLY_FLAG |
-				             FLIPPED_VERTICALLY_FLAG |
-				             FLIPPED_DIAGONALLY_FLAG);
+				System.UInt32 flipMask = tileGID & Tile.FLIP_MASK;
+				// Clear flags; works with GIDs as well
+				tileGID = Tile.UUID( tileGID );
 
 				// Resolve tileset
 				for( int i = tilesets.Count - 1; i >= 0; --i ) {
@@ -512,8 +535,8 @@ namespace SA {
 							break;
 						}
 						System.UInt32 uuid = tilesetRef.Value.UUIDs[ localGID ];
+						uuid |= flipMask;
 						tiles[ tileIndex ] = uuid;
-						// TODO: Reapply flags
 						break;
 					}
 				}
@@ -633,4 +656,5 @@ namespace SA {
 			return null;
 		}
 	}
+
 }

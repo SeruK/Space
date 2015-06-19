@@ -33,10 +33,10 @@ public class SingleMeshBuggery : MonoBehaviour {
 
 		meshTiles.Width = (uint)tileMap.Size.width;
 		meshTiles.Height = (uint)tileMap.Size.height;
-		meshTiles.SpriteAt = (x, y) => {
-			System.UInt32 tile = TileAt(x,y);
-			return tilesetLookup.Tiles[ (int)tile ].TileSprite;
-		};
+//		meshTiles.SpriteAt = (x, y) => {
+//			System.UInt32 tile = TileAt(x,y);
+//			return tilesetLookup.Tiles[ (int)tile ].TileSprite;
+//		};
 //		meshTiles.TextureIndexForTile = (x, y) => {
 //			return simplexAt(x, y) < 0.3f ? 0u : 1u;
 //		};
