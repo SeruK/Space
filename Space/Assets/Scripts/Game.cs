@@ -10,17 +10,6 @@ public class Game : MonoBehaviour {
 	private Easing.Algorithm lightAlgo;
 	[SerializeField]
 	private Material tileMaterial;
-
-	public Entity Player;
-	public SmoothFollow CameraController;
-	public TextDisplay TextDisplay;
-	public Inventory Inventory;
-	private Localization localization;
-
-	private TilesetLookup tilesetLookup;
-	private TileMap tileMap;
-	private TileMapVisual tileMapVisual;
-
 	// TODO: This nicer
 	[SerializeField]
 	private GameObject PickupPrefab;
@@ -30,6 +19,19 @@ public class Game : MonoBehaviour {
 	private GameObject GoombaPrefab;
 	[SerializeField]
 	private GameObject SpikePrefab;
+
+	public Entity Player;
+	public SmoothFollow CameraController;
+	public TextDisplay TextDisplay;
+	public Inventory Inventory;
+	private Localization localization;
+	private Vector2 spawnPos;
+	private float playerInvincibilityTimer;
+
+	private TilesetLookup tilesetLookup;
+	private TileMap tileMap;
+	private TileMapVisual tileMapVisual;
+	private Unit playerUnit;
 
 	protected void OnEnable() {
 		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
@@ -50,16 +52,15 @@ public class Game : MonoBehaviour {
 		}
 		localization.Load();
 
-		if( Player != null ) {		
-			Player.CharController.onControllerCollidedEvent += OnPlayerCollided;
-			Player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
+		if( Player != null ) {
+			playerUnit = Player.GetComponent<Unit>();
 			foreach( var objectLayer in tileMap.ObjectLayers ) {
 				foreach( var layerObject in objectLayer.Objects ) {
 					if( layerObject.ObjectType == "SpawnPoint" ) {
-						Player.CharController.transform.position = LayerToWorldPos( layerObject.Position );
+						spawnPos = LayerToWorldPos( layerObject.Position );
 					}
 					if( layerObject.ObjectType == "Goomba" ) {
-						InstantiateTileMapObject( GoombaPrefab, layerObject );
+						InstantiateTileMapObject<Unit>( GoombaPrefab, layerObject, SpawnUnit );
 					}
 					if( layerObject.ObjectType == "Item" ) {
 						InstantiateTileMapObject<Pickup>( PickupPrefab, layerObject, ( pickup ) => {
@@ -75,12 +76,12 @@ public class Game : MonoBehaviour {
 					}
 				}
 			}
+			RespawnPlayer( spawnPos );
 		}
 	}
 
 	protected void OnDisable() {
 		if( Player != null ) {
-			Player.CharController.onControllerCollidedEvent -= OnPlayerCollided;
 			Player.CharController.onTriggerEnterEvent -= OnPlayerEnteredTrigger;
 		}
 	}
@@ -89,7 +90,17 @@ public class Game : MonoBehaviour {
 		UpdateInput();
 		if( Player != null && tileMapVisual != null ) {
 			tileMapVisual.DoLightSource( EntityPos( Player ) + new Vector2i( 0, -1 ), lightRadius, Color.white, Easing.Mode.In, lightAlgo );
-		} 
+		}
+		if( playerUnit != null && playerInvincibilityTimer > 0.0f ) {
+			playerInvincibilityTimer -= Time.deltaTime;
+			if( playerInvincibilityTimer <= 0.0f ) {
+				playerUnit.Invincible = false;
+				Player.Visual.color = Color.white;
+			} else {
+				playerUnit.Invincible = true;
+				Player.Visual.color = new Color( 0.8f, 0.0f, 0.0f );
+			}
+		}
 	}
 
 	protected void UpdateInput() {
@@ -98,6 +109,15 @@ public class Game : MonoBehaviour {
 		}
 
 		if( Player == null ) {
+			return;
+		}
+
+		if( Input.GetKeyDown( KeyCode.R ) ) {
+			RespawnPlayer( spawnPos );
+		}
+		if( playerUnit != null && playerUnit.Dead ) {
+			Player.RequestedHorizontalSpeed = 0.0f;
+			Player.RequestedJump = false;
 			return;
 		}
 
@@ -111,19 +131,46 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	protected void OnPlayerCollided( RaycastHit2D hit ) {
+	private void OnEntityCollided( Entity collidingEntity, RaycastHit2D hit ) {
+		var collidingUnit = collidingEntity.GetComponent<Unit>();
+
+		if( collidingUnit == null ) {
+			return;
+		}
+
 		var obstacle = hit.collider.GetComponentInChildren<Obstacle>();
 		if( obstacle != null ) {
 			if( obstacle.KnockForce > 0.0f ) {
 				Vector3 force = hit.normal * obstacle.KnockForce;
-				Player.CharController.move( force );
-				TextDisplay.TypeTextThenDisplayFor( "Collided with " + obstacle.name, 3.0f );
+				collidingEntity.CharController.move( force );
+				if( collidingEntity == Player ) {
+					TextDisplay.TypeTextThenDisplayFor( "Collided with " + obstacle.name, 3.0f );
+				}
 			}
 		}
 
 		var unit = hit.collider.GetComponentInChildren<Unit>();
+		// Handle all Unit collisions from both ends
 		if( unit != null ) {
-			TextDisplay.TypeTextThenDisplayFor( "Collided with " + unit.DisplayName, 3.0f );
+			HandleUnitCollision( collidingUnit, unit, hit.normal );
+			HandleUnitCollision( unit, collidingUnit, -hit.normal );
+		}
+	}
+
+	private void HandleUnitCollision( Unit a, Unit b, Vector2 normal ) {
+		bool wasDamaged = DamageUnit( a, b.Damage );
+		if( wasDamaged ) {
+			Vector3 force = normal * 0.05f + Vector2.up * 0.1f;
+			a.GetComponent<Entity>().CharController.move( force );
+			if( a == playerUnit ) {
+				string name = localization.Get( b.LocalizedNameId );
+				if( name == null ) {
+					name = b.LocalizedNameId;
+				}
+				TextDisplay.TypeTextThenDisplayFor( "Collided with " + name, 3.0f );
+				a.Invincible = true;
+				playerInvincibilityTimer = 2.0f;
+			}
 		}
 	}
 
@@ -206,12 +253,71 @@ public class Game : MonoBehaviour {
 		layerPos /= pixelsPerUnit;
 		return layerPos;
 	}
-	
+
+	private void RespawnPlayer( Vector2 pos ) {
+		if( Player == null ) {
+			return;
+		}
+		Player.CharController.GetComponent<Transform>().position = pos;
+		Player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
+		if( playerUnit != null ) {
+			SpawnUnit( playerUnit );
+		}
+	}
+
+	private void SpawnEntity( Entity entity ) {
+		entity.Visual.enabled = true;
+
+		var charController = entity.GetComponentInChildren<CharacterController2D>();
+
+		var weakEntity = new System.WeakReference( entity as object );
+		charController.onControllerCollidedEvent += ( hit ) => {
+			if( weakEntity.IsAlive ) {
+				OnEntityCollided( weakEntity.Target as Entity, hit );
+			}
+		};
+	}
+
+	private void SpawnUnit( Unit unit ) {
+		var entity = unit.GetComponent<Entity>();
+		SpawnEntity( entity );
+		unit.HealthPoints = unit.MaxHealthPoints;
+		unit.Dead = false;
+	}
+
+	private bool DamageUnit( Unit damagedUnit, float damageAmount ) {
+		if( damagedUnit.Invincible ) {
+			return false;
+		}
+		damagedUnit.HealthPoints -= damageAmount;
+		if( damagedUnit.HealthPoints < 0.0f || Mathf.Approximately( damagedUnit.HealthPoints, 0.0f ) ) {
+			KillUnit( damagedUnit );
+		}
+		return !Mathf.Approximately( damageAmount, 0.0f );
+	}
+
+	private void KillUnit( Unit dyingUnit ) {
+		var entity = dyingUnit.GetComponent<Entity>();
+		entity.Visual.enabled = false;
+		dyingUnit.HealthPoints = 0.0f;
+		dyingUnit.Dead = true;
+	}
+
 	// TODO: Temp
 	protected void OnGUI() {
 		if( !guiState.ShowInventory ) {
 			if( Player != null ) {
 				GUILayout.Label( "Playerpos: " + EntityPos( Player ) );
+			}
+
+			if( playerUnit != null ) {
+				float hpFrac = playerUnit.HealthPoints / playerUnit.MaxHealthPoints;
+				float barWidth = 100.0f;
+				float barHeight = 20.0f;
+				GUI.DrawTexture( new Rect( Screen.width - 10.0f - barWidth, barHeight - 10.0f, barWidth, barHeight ), Texture2D.whiteTexture );
+				GUI.color = Color.red;
+				GUI.DrawTexture( new Rect( Screen.width - 10.0f - barWidth, barHeight - 10.0f, barWidth * hpFrac, barHeight ), Texture2D.whiteTexture );
+				GUI.color = Color.white;
 			}
 
 			guiState.ShowInventory = GUILayout.Button( "Inventory" );

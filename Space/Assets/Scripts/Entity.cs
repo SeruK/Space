@@ -26,12 +26,16 @@ public class Entity : MonoBehaviour {
 	public CharacterController2D CharController {
 		get { return charController; }
 	}
+	public SpriteRenderer Visual {
+		get { return spriteRenderer; }
+	}
 
 	private bool didJump;
 
 	private CharacterController2D charController;
 	private Animator animator;
 	private Transform spriteTransform;
+	private SpriteRenderer spriteRenderer;
 
 	public int Direction {
 		get { return spriteTransform.localScale.x < 0 ? -1 : 1; }
@@ -55,7 +59,7 @@ public class Entity : MonoBehaviour {
 			animator = GetComponentInChildren<Animator>();
 		}
 		if( spriteTransform == null ) {
-			var spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+			spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 			if( spriteRenderer != null ) {
 				spriteTransform = spriteRenderer.transform;
 			}

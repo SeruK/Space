@@ -27,8 +27,12 @@ public class Enemy : MonoBehaviour {
 	private Vector2 targetPosition;
 
 	protected void OnEnable() {
-		if( thisEntity == null ) thisEntity = GetComponent<Entity>();
-		if( thisUnit == null ) thisUnit = GetComponent<Unit>();
+		if( thisEntity == null ) {
+			thisEntity = GetComponent<Entity>();
+		}
+		if( thisUnit == null ) {
+			thisUnit = GetComponent<Unit>();
+		}
 
 		targetPosition = transform.position;
 	}
@@ -38,7 +42,7 @@ public class Enemy : MonoBehaviour {
 	}
 
 	protected void Update() {
-		if( thisEntity == null ) {
+		if( thisEntity == null || thisUnit == null || thisUnit.Dead ) {
 			return;
 		}
 
@@ -68,7 +72,7 @@ public class Enemy : MonoBehaviour {
 			}
 		} else {
 			Vector2 targetUnitPos = targetUnit.transform.position;
-			if( Vector2.Distance( pos, targetUnitPos ) > chaseRange ) {
+			if( targetUnit.Dead || Vector2.Distance( pos, targetUnitPos ) > chaseRange ) {
 				targetPosition = pos;
 				targetUnit = null;
 			} else {
@@ -77,7 +81,7 @@ public class Enemy : MonoBehaviour {
 		}
 
 		float distToTargetPos = Mathf.Abs( targetPosition.x - pos.x );
-		if( distToTargetPos > 0.2f ) {
+		if( distToTargetPos > 0.1f ) {
 			thisEntity.RequestedHorizontalSpeed = Mathf.Sign( targetPosition.x - pos.x );
 		} else {
 			thisEntity.RequestedHorizontalSpeed = 0.0f;
@@ -98,7 +102,7 @@ public class Enemy : MonoBehaviour {
 				if( foundUnit == thisUnit ) {
 					continue;
 				}
-				if( foundUnit.Faction != thisUnit.Faction  ) {
+				if( foundUnit.Faction != thisUnit.Faction && !foundUnit.Dead  ) {
 					return foundUnit;
 				}
 			}
