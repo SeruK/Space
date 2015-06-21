@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
-[RequireComponent( typeof(Entity) )]
+[RequireComponent( typeof(MovingEntity) )]
 [RequireComponent( typeof(Unit) )]
 public class Enemy : MonoBehaviour {
 	public enum Behavior {
@@ -18,7 +18,7 @@ public class Enemy : MonoBehaviour {
 	[SerializeField]
 	private LayerMask sightMask = 0;
 	
-	private Entity thisEntity;
+	private MovingEntity thisEntity;
 	private Unit   thisUnit;
 
 	private float   moveAroundTimer;
@@ -28,7 +28,7 @@ public class Enemy : MonoBehaviour {
 
 	protected void OnEnable() {
 		if( thisEntity == null ) {
-			thisEntity = GetComponent<Entity>();
+			thisEntity = GetComponent<MovingEntity>();
 		}
 		if( thisUnit == null ) {
 			thisUnit = GetComponent<Unit>();

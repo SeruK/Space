@@ -128,7 +128,7 @@ MonoBehaviour:
     m_Bits: 1024
   oneWayPlatformMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4096
   slopeLimit: 30
   jumpingThreshold: .0700000003
   slopeSpeedMultiplier:

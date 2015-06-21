@@ -2,7 +2,7 @@
 using System.Collections;
 using ItemType = Item.ItemType;
 
-public class Pickup : MonoBehaviour {
+public class Pickup : Entity {
 	[SerializeField]
 	private ItemType itemType;
 	[SerializeField]

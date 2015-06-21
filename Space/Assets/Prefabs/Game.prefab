@@ -12,6 +12,7 @@ GameObject:
   - 132: {fileID: 13200000}
   - 114: {fileID: 11400000}
   - 114: {fileID: 11420576}
+  - 114: {fileID: 11467286}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -123,14 +124,11 @@ MonoBehaviour:
   lightRadius: 7
   lightAlgo: 2
   tileMaterial: {fileID: 2100000, guid: 5f270465738ec43cf9254c55217361df, type: 2}
+  TileMapVisualPrefab: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
   Player: {fileID: 0}
   CameraController: {fileID: 0}
   TextDisplay: {fileID: 11400000}
   Inventory: {fileID: 11420576}
-  PickupPrefab: {fileID: 100000, guid: f1208f32ee1b6624fa0f46d763cdd13f, type: 2}
-  TileMapVisualPrefab: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
-  GoombaPrefab: {fileID: 167524, guid: 309db16e91a625140abaad8ca0e58ca2, type: 2}
-  SpikePrefab: {fileID: 100002, guid: 28024fa8e660e6149a38564742f42a9b, type: 2}
 --- !u!114 &11420576
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -150,6 +148,21 @@ MonoBehaviour:
   - {fileID: 21300014, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
   - {fileID: 21300016, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
   - {fileID: 21300014, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
+--- !u!114 &11467286
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01a81cdbc936ee64797cb0b6e16cb1a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerPrefab: {fileID: 0}
+  PickupPrefab: {fileID: 100000, guid: f1208f32ee1b6624fa0f46d763cdd13f, type: 2}
+  GoombaPrefab: {fileID: 167524, guid: 309db16e91a625140abaad8ca0e58ca2, type: 2}
+  SpikePrefab: {fileID: 100002, guid: 28024fa8e660e6149a38564742f42a9b, type: 2}
 --- !u!132 &13200000
 GUIText:
   m_ObjectHideFlags: 1

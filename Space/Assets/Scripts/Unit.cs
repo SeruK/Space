@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[RequireComponent( typeof(Entity) )]
+[RequireComponent( typeof(MovingEntity) )]
 public class Unit : MonoBehaviour {
 	[SerializeField]
 	private string localizedNameId;

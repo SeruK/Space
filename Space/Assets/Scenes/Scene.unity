@@ -141,48 +141,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 190974037}
   m_RootOrder: 0
---- !u!1001 &174913730
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: 2.11398697
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-      propertyPath: m_RootOrder
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-  m_IsPrefabParent: 0
 --- !u!1 &190974032
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,7 +238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c77e296734a228a47bde80d541218472, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 2135602093}
+  target: {fileID: 0}
   smoothDampTime: .200000003
   transform: {fileID: 0}
   cameraOffset: {x: 0, y: -2, z: 10}
@@ -323,26 +281,20 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
       propertyPath: Player
       value: 
-      objectReference: {fileID: 2135602097}
+      objectReference: {fileID: 0}
     - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
       propertyPath: CameraController
       value: 
       objectReference: {fileID: 190974038}
+    - target: {fileID: 11467286, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
+      propertyPath: PlayerPrefab
+      value: 
+      objectReference: {fileID: 100000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0
---- !u!4 &2135602093 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 400000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-  m_PrefabInternal: {fileID: 174913730}
---- !u!114 &2135602097 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 11483748, guid: ae85e76a43b0183429bfdf69f8e3046b,
-    type: 2}
-  m_PrefabInternal: {fileID: 174913730}
-  m_Script: {fileID: 11500000, guid: c4b58a3b06e57fb46ba32a7064895d0c, type: 3}

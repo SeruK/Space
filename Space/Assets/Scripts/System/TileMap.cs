@@ -82,7 +82,7 @@ namespace SA {
 		private Rect    bounds;
 		private bool    visible;
 
-		private TileMapProperty[] properties;
+		private Dictionary<string, string> properties;
 
 		public uint ID {
 			get { return id; }
@@ -105,11 +105,11 @@ namespace SA {
 		public bool Visible {
 			get { return visible; }
 		}
-		public TileMapProperty[] Properties {
+		public Dictionary<string, string> Properties {
 			get { return properties; }
 		}
 
-		public TileMapObject( uint id, string name, string objectType, Rect bounds, bool visible, TileMapProperty[] properties ) {
+		public TileMapObject( uint id, string name, string objectType, Rect bounds, bool visible, Dictionary<string,string> properties ) {
 			this.id = id;
 			this.name = name;
 			this.objectType = objectType;
@@ -132,7 +132,7 @@ namespace SA {
 		private Size2i tileSize;
 		// Relative image path (from .tmx or .tsx file)
 		private string imagePath;
-		private TileMapProperty[] properties;
+		private Dictionary<string, string> properties;
 		// TODO: Do this some other way?
 		private System.UInt32[] uuids;
 
@@ -145,7 +145,7 @@ namespace SA {
 		public string ImagePath {
 			get { return imagePath; }
 		}
-		public TileMapProperty[] Properties {
+		public Dictionary<string, string> Properties {
 			get { return properties; }
 		}
 		public System.UInt32[] UUIDs {
@@ -153,7 +153,7 @@ namespace SA {
 			set { uuids = value; }
 		}
 
-		public Tileset( string name, Size2i tileSize, string imagePath, TileMapProperty[] properties ) {
+		public Tileset( string name, Size2i tileSize, string imagePath, Dictionary<string, string> properties ) {
 			this.name = name;
 			this.tileSize = tileSize;
 			this.imagePath = imagePath;
@@ -195,7 +195,7 @@ namespace SA {
 		// Is layer shown or hidden
 		protected bool   visible;
 		// Properties associated with this layer
-		protected TileMapProperty[] properties;
+		protected Dictionary<string, string> properties;
 		
 		public string Name {
 			get { return name; }
@@ -206,7 +206,7 @@ namespace SA {
 		public bool Visible {
 			get { return visible; }
 		}
-		public TileMapProperty[] Properties {
+		public Dictionary<string, string> Properties {
 			get { return properties; }
 		}
 	}
@@ -219,7 +219,7 @@ namespace SA {
 			get { return tiles; }
 		}
 
-		public TileLayer( string name, float opacity, bool visible, TileMapProperty[] properties, System.UInt32[] tiles ) {
+		public TileLayer( string name, float opacity, bool visible, Dictionary<string, string> properties, System.UInt32[] tiles ) {
 			this.name = name;
 			this.opacity = opacity;
 			this.visible = visible;
@@ -236,7 +236,7 @@ namespace SA {
 			get { return objects; }
 		}
 
-		public ObjectLayer( string name, float opacity, bool visible, TileMapProperty[] properties, TileMapObject[] objects ) {
+		public ObjectLayer( string name, float opacity, bool visible, Dictionary<string, string> properties, TileMapObject[] objects ) {
 			this.name = name;
 			this.opacity = opacity;
 			this.visible = visible;
@@ -260,7 +260,7 @@ namespace SA {
 
 		private TilesetRef[]      tilesets;
 		private TileLayer[]       tileLayers;
-		private TileMapProperty[] properties;
+		private Dictionary<string, string> properties;
 		private ObjectLayer[]     objectLayers;
 
 		private int midgroundIndex;
@@ -280,7 +280,7 @@ namespace SA {
 		public TileLayer[] TileLayers {
 			get { return tileLayers; }
 		}
-		public TileMapProperty[] Properties {
+		public Dictionary<string, string> Properties {
 			get { return properties; }
 		}
 		public ObjectLayer[] ObjectLayers {
@@ -294,7 +294,7 @@ namespace SA {
 		}
 
 		public TileMap( Size2i size, Size2i tileSize, Color bgColor,
-		                TilesetRef[] tilesets, TileMapProperty[] properties,
+		                TilesetRef[] tilesets, Dictionary<string, string> properties,
 		                TileLayer[] tileLayers, ObjectLayer[] objectLayers,
 		                int midgroundIndex ) {
 			this.size            = size;
@@ -325,7 +325,7 @@ namespace SA {
 			var bgColor = ParseColorString( (string)map.Attribute( "backgroundcolor" ), defaultColor );
 
 			var tilesets = new List<TilesetRef>();
-			TileMapProperty[] properties = new TileMapProperty[ 0 ];
+			Dictionary<string, string> properties = null;
 			var tileLayers = new List<TileLayer>();
 			var objectLayers = new List<ObjectLayer>();
 			int midgroundIndex = 0;
@@ -396,7 +396,7 @@ namespace SA {
 			string name;
 			float  opacity;
 			bool   visible;
-			TileMapProperty[] properties;
+			Dictionary<string, string> properties;
 			ParseLayerAttributes( tileLayer, out name, out opacity, out visible, out properties );
 
 			var dataElement = tileLayer.Element( "data" );
@@ -411,7 +411,7 @@ namespace SA {
 			string name;
 			float  opacity;
 			bool   visible;
-			TileMapProperty[] properties;
+			Dictionary<string, string> properties;
 			ParseLayerAttributes( objectLayer, out name, out opacity, out visible, out properties );
 
 			var objectsList = new List<TileMapObject>();
@@ -433,7 +433,7 @@ namespace SA {
 			float h = ( (float?)obj.Attribute( "height" ) ) ?? 0.0f;
 			Rect bounds = new Rect( x, y, w, h );
 
-			TileMapProperty[] properties = ParseProperties( obj.Element( "properties" ) );
+			var properties = ParseProperties( obj.Element( "properties" ) );
 
 			bool visible = ( (bool?)obj.Attribute( "visible" ) ) ?? true;
 
@@ -441,29 +441,28 @@ namespace SA {
 		}
 
 		private static void ParseLayerAttributes( XElement layer, out string name, out float opacity,
-		                                          out bool visible, out TileMapProperty[] properties ) {
+		                                          out bool visible, out Dictionary<string, string> properties ) {
 			name = (string)layer.Attribute( "name" );
 			opacity = ( (float?)layer.Attribute( "opacity" ) ) ?? 1.0f;
 			visible = ( (bool?)layer.Attribute( "visible" ) ) ?? true;
 			properties = ParseProperties( layer.Element( "properties" ) );
 		}
 
-		private static TileMapProperty[] ParseProperties( XElement properties ) {
+		private static Dictionary<string,string> ParseProperties( XElement properties ) {
+			var ret = new Dictionary<string, string>();
 			if( properties == null ) {
-				return new TileMapProperty[ 0 ];
+				return ret;
 			}
 
-			var propertiesList = new List<TileMapProperty>();
 			foreach( var property in properties.Elements() ) {
-				propertiesList.Add( ParseProperty( property ) );
+				string k = (string)property.Attribute( "name" );
+				string v = (string)property.Attribute( "value" );
+				if( !string.IsNullOrEmpty( k ) ) {
+					ret[ k ] = v;
+				}
 			}
-			return propertiesList.ToArray();
-		}
 
-		private static TileMapProperty ParseProperty( XElement property ) {
-			string k = (string)property.Attribute( "name" );
-			string v = (string)property.Attribute( "value" );
-			return new TileMapProperty( k, v );
+			return ret;
 		}
 
 		private static Color ParseColorString( string colorString, Color def ) {

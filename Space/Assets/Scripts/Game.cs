@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using SA;
 
+[RequireComponent( typeof(EntityManager) )]
 public class Game : MonoBehaviour {
 	[SerializeField]
 	private GUIStyle inventoryStyle;
@@ -10,17 +11,10 @@ public class Game : MonoBehaviour {
 	private Easing.Algorithm lightAlgo;
 	[SerializeField]
 	private Material tileMaterial;
-	// TODO: This nicer
-	[SerializeField]
-	private GameObject PickupPrefab;
+
 	[SerializeField]
 	private GameObject TileMapVisualPrefab;
-	[SerializeField]
-	private GameObject GoombaPrefab;
-	[SerializeField]
-	private GameObject SpikePrefab;
-
-	public Entity Player;
+	
 	public SmoothFollow CameraController;
 	public TextDisplay TextDisplay;
 	public Inventory Inventory;
@@ -28,10 +22,13 @@ public class Game : MonoBehaviour {
 	private Vector2 spawnPos;
 	private float playerInvincibilityTimer;
 
+	private EntityManager entityManager;
+	private MovingEntity player;
+	private Unit playerUnit;
+
 	private TilesetLookup tilesetLookup;
 	private TileMap tileMap;
 	private TileMapVisual tileMapVisual;
-	private Unit playerUnit;
 
 	protected void OnEnable() {
 		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
@@ -52,53 +49,70 @@ public class Game : MonoBehaviour {
 		}
 		localization.Load();
 
-		if( Player != null ) {
-			playerUnit = Player.GetComponent<Unit>();
-			foreach( var objectLayer in tileMap.ObjectLayers ) {
-				foreach( var layerObject in objectLayer.Objects ) {
-					if( layerObject.ObjectType == "SpawnPoint" ) {
-						spawnPos = LayerToWorldPos( layerObject.Position );
-					}
-					if( layerObject.ObjectType == "Goomba" ) {
-						InstantiateTileMapObject<Unit>( GoombaPrefab, layerObject, SpawnUnit );
-					}
-					if( layerObject.ObjectType == "Item" ) {
-						InstantiateTileMapObject<Pickup>( PickupPrefab, layerObject, ( pickup ) => {
-							foreach( var prop in layerObject.Properties ) {
-								if( prop.Name == "ItemType" ) {
-									pickup.ItemType = Item.ItemTypeFromString( prop.Value );
-								}
-							}
-						} );
-					}
-					if( layerObject.ObjectType == "Spike" ) {
-						InstantiateTileMapObject( SpikePrefab, layerObject );
+		if( entityManager == null ) {
+			entityManager = gameObject.GetComponent<EntityManager>();
+			entityManager.OnEntityCollided += OnEntityCollided;
+		}
+
+		foreach( var objectLayer in tileMap.ObjectLayers ) {
+			foreach( var layerObject in objectLayer.Objects ) {
+				Vector2 worldPos = LayerToWorldPos( layerObject.Position );
+
+				if( layerObject.ObjectType == "SpawnPoint" ) {
+					spawnPos = worldPos;
+				}
+
+				if( layerObject.ObjectType == "Goomba" ) {
+					var goomba = entityManager.Spawn<Unit>( "Goomba" );
+					goomba.transform.position = worldPos;
+				}
+
+				if( layerObject.ObjectType == "Item" ) {
+					var pickup = entityManager.Spawn<Pickup>( "Pickup" );
+					pickup.transform.position = worldPos;
+					if( layerObject.Properties.ContainsKey( "ItemType" ) ) {
+						pickup.ItemType = Item.ItemTypeFromString( layerObject.Properties[ "ItemType" ] );
 					}
 				}
+
+				if( layerObject.ObjectType == "Spike" ) {
+					var obstacle = entityManager.Spawn<Obstacle>( "Spike" );
+					obstacle.transform.position = worldPos;
+				}
 			}
+		}
+
+		player = entityManager.Spawn<MovingEntity>( "Player" );
+		if( player != null ) {
+			var cameraScript = Camera.main.GetComponent<SmoothFollow>();
+			cameraScript.target = player.CharController.transform;
+			playerUnit = player.GetComponent<Unit>();
 			RespawnPlayer( spawnPos );
 		}
 	}
 
 	protected void OnDisable() {
-		if( Player != null ) {
-			Player.CharController.onTriggerEnterEvent -= OnPlayerEnteredTrigger;
+		if( player != null ) {
+			player.CharController.onTriggerEnterEvent -= OnPlayerEnteredTrigger;
 		}
+		player = null;
+		playerUnit = null;
+		entityManager.RemoveAllEntities();
 	}
 
 	protected void Update() {
 		UpdateInput();
-		if( Player != null && tileMapVisual != null ) {
-			tileMapVisual.DoLightSource( EntityPos( Player ) + new Vector2i( 0, -1 ), lightRadius, Color.white, Easing.Mode.In, lightAlgo );
+		if( player != null && tileMapVisual != null ) {
+			tileMapVisual.DoLightSource( EntityPos( player ) + new Vector2i( 0, -1 ), lightRadius, Color.white, Easing.Mode.In, lightAlgo );
 		}
 		if( playerUnit != null && playerInvincibilityTimer > 0.0f ) {
 			playerInvincibilityTimer -= Time.deltaTime;
 			if( playerInvincibilityTimer <= 0.0f ) {
 				playerUnit.Invincible = false;
-				Player.Visual.color = Color.white;
+				player.Visual.color = Color.white;
 			} else {
 				playerUnit.Invincible = true;
-				Player.Visual.color = new Color( 0.8f, 0.0f, 0.0f );
+				player.Visual.color = new Color( 0.8f, 0.0f, 0.0f );
 			}
 		}
 	}
@@ -108,7 +122,7 @@ public class Game : MonoBehaviour {
 			guiState.ShowInventory = !guiState.ShowInventory;
 		}
 
-		if( Player == null ) {
+		if( player == null ) {
 			return;
 		}
 
@@ -116,14 +130,14 @@ public class Game : MonoBehaviour {
 			RespawnPlayer( spawnPos );
 		}
 		if( playerUnit != null && playerUnit.Dead ) {
-			Player.RequestedHorizontalSpeed = 0.0f;
-			Player.RequestedJump = false;
+			player.RequestedHorizontalSpeed = 0.0f;
+			player.RequestedJump = false;
 			return;
 		}
 
-		Player.RequestedHorizontalSpeed = Input.GetKey( KeyCode.LeftArrow ) ? -1.0f :
+		player.RequestedHorizontalSpeed = Input.GetKey( KeyCode.LeftArrow ) ? -1.0f :
 			Input.GetKey( KeyCode.RightArrow ) ? 1.0f : 0.0f;
-		Player.RequestedJump = Input.GetKey( KeyCode.UpArrow );
+		player.RequestedJump = Input.GetKey( KeyCode.UpArrow );
 		if( Input.GetKey( KeyCode.DownArrow ) && CameraController != null ) {
 			CameraController.extraCameraOffset = new Vector3( 0.0f, 2.0f, 0.0f );
 		} else {
@@ -131,7 +145,7 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	private void OnEntityCollided( Entity collidingEntity, RaycastHit2D hit ) {
+	private void OnEntityCollided( MovingEntity collidingEntity, RaycastHit2D hit ) {
 		var collidingUnit = collidingEntity.GetComponent<Unit>();
 
 		if( collidingUnit == null ) {
@@ -162,12 +176,12 @@ public class Game : MonoBehaviour {
 
 		if( obstacle.KnockForce > 0.0f ) {
 			Vector3 force = normal * obstacle.KnockForce;
-			unit.GetComponent<Entity>().CharController.move( force );
+			unit.GetComponent<MovingEntity>().CharController.move( force );
 		}
 
 		// TODO: Make the invulnerability thing per-unit
 		if( unit == playerUnit && obstacle.Damage > 0.0f ) {
-			bool wasDamaged = DamageUnit( unit, obstacle.Damage );
+			bool wasDamaged = entityManager.DamageUnit( unit, obstacle.Damage );
 			if( wasDamaged && unit == playerUnit ) {
 				unit.Invincible = true;
 				playerInvincibilityTimer = 2.0f;
@@ -176,10 +190,10 @@ public class Game : MonoBehaviour {
 	}
 
 	private void HandleUnitUnitCollision( Unit a, Unit b, Vector2 normal ) {
-		bool wasDamaged = DamageUnit( a, b.Damage );
+		bool wasDamaged = entityManager.DamageUnit( a, b.Damage );
 		if( wasDamaged ) {
 			Vector3 force = normal * 0.05f + Vector2.up * 0.1f;
-			a.GetComponent<Entity>().CharController.move( force );
+			a.GetComponent<MovingEntity>().CharController.move( force );
 			if( a == playerUnit ) {
 				string name = localization.Get( b.LocalizedNameId );
 				if( name == null ) {
@@ -216,32 +230,6 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	private T InstantiateTileMapObject<T>( GameObject prefab, SA.TileMapObject layerObject, System.Action<T> setup ) where T : Component {
-		var go = InstantiateTileMapObject( prefab, layerObject );
-		T comp = null;
-		if( go != null ) {
-			comp = go.GetComponent<T>();
-			if( comp == null ) {
-				Destroy( go );
-				return null;
-			}
-			if( setup != null ) {
-				setup( comp );
-			}
-		}
-		return comp;
-	}
-
-	private GameObject InstantiateTileMapObject( GameObject prefab, SA.TileMapObject layerObject ) {
-		if( prefab == null ) {
-			return null;
-		}
-		
-		var go = GameObject.Instantiate( prefab );
-		go.transform.position = LayerToWorldPos( layerObject.Position );
-		return go;
-	}
-	
 	// Pickups
 
 	private void DestroyPickup( Pickup pickup ) {
@@ -260,7 +248,7 @@ public class Game : MonoBehaviour {
 		                     Mathf.FloorToInt( ( pos.y * pixelsPerUnit ) / tileMap.TileSize.height ) );
 	}
 
-	private Vector2i EntityPos( Entity entity ) {
+	private Vector2i EntityPos( MovingEntity entity ) {
 		return PosToTilePos( entity.transform.position );
 	}
 
@@ -273,59 +261,21 @@ public class Game : MonoBehaviour {
 	}
 
 	private void RespawnPlayer( Vector2 pos ) {
-		if( Player == null ) {
+		if( player == null ) {
 			return;
 		}
-		Player.CharController.GetComponent<Transform>().position = pos;
-		Player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
+		player.CharController.GetComponent<Transform>().position = pos;
+		player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
 		if( playerUnit != null ) {
-			SpawnUnit( playerUnit );
+			entityManager.RespawnUnit( playerUnit );
 		}
-	}
-
-	private void SpawnEntity( Entity entity ) {
-		entity.Visual.enabled = true;
-
-		var charController = entity.GetComponentInChildren<CharacterController2D>();
-
-		var weakEntity = new System.WeakReference( entity as object );
-		charController.onControllerCollidedEvent += ( hit ) => {
-			if( weakEntity.IsAlive ) {
-				OnEntityCollided( weakEntity.Target as Entity, hit );
-			}
-		};
-	}
-
-	private void SpawnUnit( Unit unit ) {
-		var entity = unit.GetComponent<Entity>();
-		SpawnEntity( entity );
-		unit.HealthPoints = unit.MaxHealthPoints;
-		unit.Dead = false;
-	}
-
-	private bool DamageUnit( Unit damagedUnit, float damageAmount ) {
-		if( damagedUnit.Invincible ) {
-			return false;
-		}
-		damagedUnit.HealthPoints -= damageAmount;
-		if( damagedUnit.HealthPoints < 0.0f || Mathf.Approximately( damagedUnit.HealthPoints, 0.0f ) ) {
-			KillUnit( damagedUnit );
-		}
-		return !Mathf.Approximately( damageAmount, 0.0f );
-	}
-
-	private void KillUnit( Unit dyingUnit ) {
-		var entity = dyingUnit.GetComponent<Entity>();
-		entity.Visual.enabled = false;
-		dyingUnit.HealthPoints = 0.0f;
-		dyingUnit.Dead = true;
 	}
 
 	// TODO: Temp
 	protected void OnGUI() {
 		if( !guiState.ShowInventory ) {
-			if( Player != null ) {
-				GUILayout.Label( "Playerpos: " + EntityPos( Player ) );
+			if( player != null ) {
+				GUILayout.Label( "Playerpos: " + EntityPos( player ) );
 			}
 
 			if( playerUnit != null ) {
