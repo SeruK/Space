@@ -125,7 +125,6 @@ MonoBehaviour:
   lightAlgo: 2
   tileMaterial: {fileID: 2100000, guid: 5f270465738ec43cf9254c55217361df, type: 2}
   TileMapVisualPrefab: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
-  Player: {fileID: 0}
   CameraController: {fileID: 0}
   TextDisplay: {fileID: 11400000}
   Inventory: {fileID: 11420576}
@@ -159,7 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01a81cdbc936ee64797cb0b6e16cb1a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerPrefab: {fileID: 0}
+  PlayerPrefab: {fileID: 100000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
   PickupPrefab: {fileID: 100000, guid: f1208f32ee1b6624fa0f46d763cdd13f, type: 2}
   GoombaPrefab: {fileID: 167524, guid: 309db16e91a625140abaad8ca0e58ca2, type: 2}
   SpikePrefab: {fileID: 100002, guid: 28024fa8e660e6149a38564742f42a9b, type: 2}
