@@ -140,24 +140,42 @@ public class Game : MonoBehaviour {
 
 		var obstacle = hit.collider.GetComponentInChildren<Obstacle>();
 		if( obstacle != null ) {
-			if( obstacle.KnockForce > 0.0f ) {
-				Vector3 force = hit.normal * obstacle.KnockForce;
-				collidingEntity.CharController.move( force );
-				if( collidingEntity == Player ) {
-					TextDisplay.TypeTextThenDisplayFor( "Collided with " + obstacle.name, 3.0f );
-				}
-			}
+			HandleUnitObstacleCollision( collidingUnit, obstacle, hit.normal );
 		}
 
 		var unit = hit.collider.GetComponentInChildren<Unit>();
 		// Handle all Unit collisions from both ends
 		if( unit != null ) {
-			HandleUnitCollision( collidingUnit, unit, hit.normal );
-			HandleUnitCollision( unit, collidingUnit, -hit.normal );
+			HandleUnitUnitCollision( collidingUnit, unit, hit.normal );
+			HandleUnitUnitCollision( unit, collidingUnit, -hit.normal );
 		}
 	}
 
-	private void HandleUnitCollision( Unit a, Unit b, Vector2 normal ) {
+	private void HandleUnitObstacleCollision( Unit unit, Obstacle obstacle, Vector2 normal ) {
+		if( Vector2.Dot( normal, Vector2.up ) < 0.3f ) {
+			return;
+		}
+
+		if( unit == playerUnit ) {
+			TextDisplay.TypeTextThenDisplayFor( "Collided with " + obstacle.name, 3.0f );
+		}
+
+		if( obstacle.KnockForce > 0.0f ) {
+			Vector3 force = normal * obstacle.KnockForce;
+			unit.GetComponent<Entity>().CharController.move( force );
+		}
+
+		// TODO: Make the invulnerability thing per-unit
+		if( unit == playerUnit && obstacle.Damage > 0.0f ) {
+			bool wasDamaged = DamageUnit( unit, obstacle.Damage );
+			if( wasDamaged && unit == playerUnit ) {
+				unit.Invincible = true;
+				playerInvincibilityTimer = 2.0f;
+			}
+		}
+	}
+
+	private void HandleUnitUnitCollision( Unit a, Unit b, Vector2 normal ) {
 		bool wasDamaged = DamageUnit( a, b.Damage );
 		if( wasDamaged ) {
 			Vector3 force = normal * 0.05f + Vector2.up * 0.1f;
@@ -167,7 +185,7 @@ public class Game : MonoBehaviour {
 				if( name == null ) {
 					name = b.LocalizedNameId;
 				}
-				TextDisplay.TypeTextThenDisplayFor( "Collided with " + name, 3.0f );
+				TextDisplay.TypeTextThenDisplayFor( "Attacked by " + name, 3.0f );
 				a.Invincible = true;
 				playerInvincibilityTimer = 2.0f;
 			}

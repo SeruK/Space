@@ -9,7 +9,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 400000}
   - 212: {fileID: 21200000}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,7 +27,7 @@ GameObject:
   - 50: {fileID: 5000000}
   - 61: {fileID: 6100000}
   - 114: {fileID: 11400000}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Spike
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 0
-  knockForce: .100000001
+  knockForce: .200000003
 --- !u!212 &21200000
 SpriteRenderer:
   m_ObjectHideFlags: 1
