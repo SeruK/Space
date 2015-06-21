@@ -23,7 +23,7 @@ public class Game : MonoBehaviour {
 	private float playerInvincibilityTimer;
 
 	private EntityManager entityManager;
-	private MovingEntity player;
+	private Entity player;
 	private Unit playerUnit;
 
 	private TilesetLookup tilesetLookup;
@@ -51,8 +51,8 @@ public class Game : MonoBehaviour {
 
 		if( entityManager == null ) {
 			entityManager = gameObject.GetComponent<EntityManager>();
-			entityManager.OnEntityCollided += OnEntityCollided;
 		}
+		entityManager.OnEntityCollided += OnEntityCollided;
 
 		foreach( var objectLayer in tileMap.ObjectLayers ) {
 			foreach( var layerObject in objectLayer.Objects ) {
@@ -82,16 +82,17 @@ public class Game : MonoBehaviour {
 			}
 		}
 
-		player = entityManager.Spawn<MovingEntity>( "Player" );
+		player = entityManager.Spawn<Entity>( "Player" );
 		if( player != null ) {
-			var cameraScript = Camera.main.GetComponent<SmoothFollow>();
-			cameraScript.target = player.CharController.transform;
+			Camera.main.GetComponent<SmoothFollow>().target = player.CharController.transform;
 			playerUnit = player.GetComponent<Unit>();
 			RespawnPlayer( spawnPos );
+			player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
 		}
 	}
 
 	protected void OnDisable() {
+		Camera.main.GetComponent<SmoothFollow>().target = null;
 		if( player != null ) {
 			player.CharController.onTriggerEnterEvent -= OnPlayerEnteredTrigger;
 		}
@@ -145,7 +146,7 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	private void OnEntityCollided( MovingEntity collidingEntity, RaycastHit2D hit ) {
+	private void OnEntityCollided( Entity collidingEntity, RaycastHit2D hit ) {
 		var collidingUnit = collidingEntity.GetComponent<Unit>();
 
 		if( collidingUnit == null ) {
@@ -176,7 +177,7 @@ public class Game : MonoBehaviour {
 
 		if( obstacle.KnockForce > 0.0f ) {
 			Vector3 force = normal * obstacle.KnockForce;
-			unit.GetComponent<MovingEntity>().CharController.move( force );
+			unit.GetComponent<Entity>().CharController.move( force );
 		}
 
 		// TODO: Make the invulnerability thing per-unit
@@ -193,7 +194,7 @@ public class Game : MonoBehaviour {
 		bool wasDamaged = entityManager.DamageUnit( a, b.Damage );
 		if( wasDamaged ) {
 			Vector3 force = normal * 0.05f + Vector2.up * 0.1f;
-			a.GetComponent<MovingEntity>().CharController.move( force );
+			a.GetComponent<Entity>().CharController.move( force );
 			if( a == playerUnit ) {
 				string name = localization.Get( b.LocalizedNameId );
 				if( name == null ) {
@@ -226,16 +227,10 @@ public class Game : MonoBehaviour {
 				Inventory.AddItem( pickup.ItemType );
 			}
 
-			DestroyPickup( pickup );
+			entityManager.RemoveEntity( pickup );
 		}
 	}
-
-	// Pickups
-
-	private void DestroyPickup( Pickup pickup ) {
-		Destroy( pickup.gameObject );
-	}
-
+	
 	private class GUIState {
 		public bool ShowInventory = false;
 	}
@@ -248,7 +243,7 @@ public class Game : MonoBehaviour {
 		                     Mathf.FloorToInt( ( pos.y * pixelsPerUnit ) / tileMap.TileSize.height ) );
 	}
 
-	private Vector2i EntityPos( MovingEntity entity ) {
+	private Vector2i EntityPos( Entity entity ) {
 		return PosToTilePos( entity.transform.position );
 	}
 

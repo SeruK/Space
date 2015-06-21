@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using SA;
 
 public class EntityManager : MonoBehaviour {
-	public delegate void EntityCollisionHandler( MovingEntity collidingEntity, RaycastHit2D hit );
+	public delegate void EntityCollisionHandler( Entity collidingEntity, RaycastHit2D hit );
 
 	[SerializeField]
 	private GameObject PlayerPrefab;
@@ -17,11 +17,11 @@ public class EntityManager : MonoBehaviour {
 	public EntityCollisionHandler OnEntityCollided;
 
 	private int currentEntityId;
-	private Dictionary<int, MovingEntity> entities;
+	private Dictionary<int, BaseEntity> entities;
 
 	protected void OnEnable() {
 		currentEntityId = 0;
-		entities = new Dictionary<int, MovingEntity>();
+		entities = new Dictionary<int, BaseEntity>();
 	}
 
 	protected void OnDisable() {
@@ -46,20 +46,28 @@ public class EntityManager : MonoBehaviour {
 		var unit = obj as Unit;
 		if( unit != null ) {
 			RespawnUnit( unit );
-		} else {
-			var entity = obj as MovingEntity;
-			if( entity != null ) {
-				RespawnEntity( entity );
-			}
+			return;
+		}
+		var entity = obj as Entity;
+		if( entity != null ) {
+			RespawnEntity( entity );
+			return;
+		}
+		var baseEntity = obj as BaseEntity;
+		if( baseEntity != null ) {
+			RespawnBaseEntity( baseEntity );
 		}
 	}
 
-	public void RespawnEntity( MovingEntity entity ) {
-		if( entity.EntityId != -1 ) {
-			++currentEntityId;
-			entity.SetEntityId( currentEntityId );
-			entities[ currentEntityId ] = entity;
-		}
+	public void RespawnUnit( Unit unit ) {
+		var entity = unit.GetComponent<Entity>();
+		RespawnEntity( entity );
+		unit.HealthPoints = unit.MaxHealthPoints;
+		unit.Dead = false;
+	}
+
+	public void RespawnEntity( Entity entity ) {
+		RespawnBaseEntity( entity );
 		entity.Visual.enabled = true;
 		
 		var charController = entity.GetComponentInChildren<CharacterController2D>();
@@ -68,17 +76,18 @@ public class EntityManager : MonoBehaviour {
 		charController.onControllerCollidedEvent += ( hit ) => {
 			if( weakEntity.IsAlive ) {
 				if( OnEntityCollided != null ) {
-					OnEntityCollided( weakEntity.Target as MovingEntity, hit );
+					OnEntityCollided( weakEntity.Target as Entity, hit );
 				}
 			}
 		};
 	}
-	
-	public void RespawnUnit( Unit unit ) {
-		var entity = unit.GetComponent<MovingEntity>();
-		RespawnEntity( entity );
-		unit.HealthPoints = unit.MaxHealthPoints;
-		unit.Dead = false;
+
+	private void RespawnBaseEntity( BaseEntity entity ) {
+		if( entity.EntityId == -1 ) {
+			++currentEntityId;
+			entity.SetEntityId( currentEntityId );
+			entities[ currentEntityId ] = entity;
+		}
 	}
 	
 	public bool DamageUnit( Unit damagedUnit, float damageAmount ) {
@@ -93,7 +102,7 @@ public class EntityManager : MonoBehaviour {
 	}
 	
 	public void KillUnit( Unit dyingUnit ) {
-		var entity = dyingUnit.GetComponent<MovingEntity>();
+		var entity = dyingUnit.GetComponent<Entity>();
 		entity.Visual.enabled = false;
 		dyingUnit.HealthPoints = 0.0f;
 		dyingUnit.Dead = true;
@@ -101,7 +110,7 @@ public class EntityManager : MonoBehaviour {
 
 	// Removal
 
-	public void RemoveEntity( MovingEntity entity ) {
+	public void RemoveEntity( BaseEntity entity ) {
 		if( entities.ContainsKey( entity.EntityId ) ) {
 			entities.Remove( entity.EntityId );
 		}
@@ -109,16 +118,21 @@ public class EntityManager : MonoBehaviour {
 	}
 
 	public void RemoveAllEntities() {
-		var entitiesList = entities.Values;
-		entities.Clear();
-		foreach( var entity in entitiesList ) {
+		foreach( var entity in entities.Values ) {
 			RemoveEntityInternal( entity );
 		}
+		entities.Clear();
 	}
 
-	private void RemoveEntityInternal( MovingEntity entity ) {
+	private void RemoveEntityInternal( BaseEntity entity ) {
+		if( entity == null ) {
+			DebugUtil.LogWarn( "Entity was already null when attempting to remove it." );
+			return;
+		}
 		entity.SetEntityId( -1 );
-		Destroy( entity.gameObject );
+		if( entity ) {
+			Destroy( entity.gameObject );
+		}
 	}
 
 	// Instantiation

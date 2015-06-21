@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Obstacle : MonoBehaviour {
+public class Obstacle : BaseEntity {
 	[SerializeField]
 	private float damage;
 	[SerializeField]
@@ -10,7 +10,6 @@ public class Obstacle : MonoBehaviour {
 	public float Damage {
 		get { return damage; }
 	}
-
 	public float KnockForce {
 		get { return knockForce; }
 	}

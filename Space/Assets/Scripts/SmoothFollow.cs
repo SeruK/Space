@@ -30,6 +30,9 @@ public class SmoothFollow : MonoBehaviour
 
 
 	void updateCameraPosition()	{
+		if( target == null ) {
+			return;
+		}
 		// TODO: Cache this
 		var playerController = target.GetComponent<CharacterController2D>();
 
