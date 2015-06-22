@@ -217,7 +217,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			tileMapColorLookup[ tileMapVisual ] = colors;
 		}
 		
-		SA.FieldOfView.LightenPoint(lightOrigin, radius, 0u, width, height,(x, y) => {
+		SA.FieldOfView.LightenPoint(lightOrigin, radius, 3u, width, height,(x, y) => {
 			return TileAtTilePos((int)x, (int)y) == 0u ? false : true;
 		}, (x, y, visible) => {
 			int gridPosX = (int)( x ) / tileMapTileSize.width;
@@ -260,7 +260,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			} else {
 				a = (byte)( 255.0f * f );	
 				
-				colors[ localIndex ] = new Color32( 255, 0, 0, a );
+				colors[ localIndex ] = new Color32( 0, 0, 0, a );
 			}
 		});
 

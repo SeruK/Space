@@ -60,7 +60,7 @@ public class Game : MonoBehaviour {
 
 		tileMapGrid.CreateGrid();
 		var midgroundTiles = tileMap.MidgroundLayer.Tiles;
-//		GenerateMountainTiles( ref midgroundTiles, 3, 3, 30, 30 );
+		GenerateMountainTiles( ref midgroundTiles, 3, 3, 30, 30 );
 		SetTileMapAt( tileMap, 3, 3 );
 		GenerateTileMapAt( 1, 3 );
 		GenerateTileMapAt( 2, 3 );
@@ -99,7 +99,7 @@ public class Game : MonoBehaviour {
 			float a = Simplex.GenerateOne1D( offsetX, freq, octaves, lacunarity, gain, amplitude );
 			int yHeight = Mathf.FloorToInt( ( h / 2 ) + ( h / 2 ) * a );
 			yHeight = Mathf.Min( yHeight, h - 1 );
-			for( int y = ( h - 1 ); y >= yHeight; --y ) {
+			for( int y = 0; y < yHeight; ++y ) {
 				int tileIndex = x + y * w;
 				if( Tile.UUID( tiles[ tileIndex ] ) != 0u ) {
 					break;
@@ -156,7 +156,7 @@ public class Game : MonoBehaviour {
 	protected void Update() {
 		UpdateInput();
 		if( player != null && tileMapGrid != null ) {
-			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, -1 );
+			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, 1 );
 
 			tileMapGrid.DoLightSource( lightPos, lightRadius, Color.white, Easing.Mode.In, lightAlgo );
 		}

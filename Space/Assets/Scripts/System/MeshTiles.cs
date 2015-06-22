@@ -185,9 +185,9 @@ public class MeshTiles : MonoBehaviour
 			uint y = i / width;
 			
 			float minX = meshSize*x;
-			float minY = meshSize*(height-y);
+			float minY = meshSize*y;
 			float maxX = minX + meshSize;
-			float maxY = (meshSize*(height-y) + meshSize);
+			float maxY = minY + meshSize;
 
 			uint vertexIndex = i*4u;
 			
