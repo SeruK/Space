@@ -105,7 +105,7 @@ public class MeshTiles : MonoBehaviour
 		ClampSizeToMaxVertices(ref Width, ref Height);
 		
 		uint width = Width;
-		uint height = Height;
+//		uint height = Height;
 		
 		/* * * * * * * * * * * * * * * * * */
 		

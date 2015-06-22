@@ -13,6 +13,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 	private Size2i tileMapTileSize;
 
 	private TileMapVisual[] grid;
+	private Dictionary<int, Color32[]> lightmap;
 
 	public void CreateGrid() {
 		var oldRoot = transform.FindChild( "TileMapsRoot" );
@@ -44,6 +45,8 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			grid[ i ] = tileMapVisual;
 			tileMapVisual.TileMaterial = tileMaterial;
 		}
+
+		lightmap = new Dictionary<int, Color32[]>();
 	}
 
 	public void SetTileMapAt( TileMap tileMap, TilesetLookup tilesetLookup, int x, int y ) {
@@ -184,37 +187,37 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 		byte g = (byte)(lightColor.g * 255.0f * lightColor.a);
 		byte b = (byte)(lightColor.b * 255.0f * lightColor.a);
 
-		var tileMapColorLookup = new Dictionary<TileMapVisual, Color32[]>();
-		
-		for( int tileMapVisualIndex = 0; tileMapVisualIndex < grid.Length; ++tileMapVisualIndex) {
-			TileMapVisual tileMapVisual = grid[ tileMapVisualIndex ];
+		for( int gridIndex = 0; gridIndex < grid.Length; ++gridIndex) {
+			TileMapVisual tileMapVisual = grid[ gridIndex ];
 			if( tileMapVisual == null || tileMapVisual.TileMap == null ) {
 				continue;
 			}
 
-			Color32[] colors = new Color32[ tileMapTileSize.width * tileMapTileSize.height ];
-			for( int i = 0; i < colors.Length; ++i )
-			{
-				byte zero = (byte)0;
-				var color = new Color32( zero, zero, zero, 255 );
-				
-				colors[ i ] = color;
+			Color32[] colors = null;
+
+			if( lightmap.ContainsKey( gridIndex ) ) {
+				colors = lightmap[ gridIndex ];
+			} else {
+				colors = new Color32[ tileMapTileSize.width * tileMapTileSize.height ];
+				for( int i = 0; i < colors.Length; ++i ) {
+					byte zero = (byte)0;
+					var color = new Color32( zero, zero, zero, 255 );
+					colors[ i ] = color;
+				}
+				lightmap[ gridIndex ] = colors;
 			}
 
-			int posX = ( tileMapVisualIndex % size.width ) * tileMapTileSize.width;
-			int posY = ( tileMapVisualIndex / size.width ) * tileMapTileSize.height;
+			int posX = ( gridIndex % size.width ) * tileMapTileSize.width;
+			int posY = ( gridIndex / size.width ) * tileMapTileSize.height;
 			Recti bounds = new Recti( posX, posY, tileMapTileSize.width, tileMapTileSize.height );
 			if( bounds.ContainsPoint( new Vector2i( lightX, lightY ) ) ) {
 				int localX = lightX - posX;
-				// Flipperoo
 				int localY = ( (int)lightY - posY ) ;
 				int localIndex = localX + localY * tileMapTileSize.width;
 				System.UInt32 tile = Tile.UUID( tileMapVisual.TileMap.MidgroundLayer.Tiles[ localIndex ] );
 
 				colors[ localIndex ] = new Color32( r, g, b, tile == 0u ? (byte)0 : (byte)255 );
 			}
-
-			tileMapColorLookup[ tileMapVisual ] = colors;
 		}
 		
 		SA.FieldOfView.LightenPoint(lightOrigin, radius, 3u, width, height,(x, y) => {
@@ -237,7 +240,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			float f = ((float)(Vector2.Distance(lightOriginFloat, new Vector2((int)x,(int)y))) / (float) radius);
 			f = Easing.Alpha(f, lightMode, lightAlgo);
 
-			Color32[] colors = tileMapColorLookup[ tileMapVisual ];
+			Color32[] colors = lightmap[ gridIndex ];
 
 			int tileMapTileX = gridPosX * tileMapTileSize.width;
 			int tileMapTileY = gridPosY * tileMapTileSize.height;
@@ -263,9 +266,15 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 				colors[ localIndex ] = new Color32( 0, 0, 0, a );
 			}
 		});
+	}
 
-		foreach( var kvp in tileMapColorLookup ) {
-			var tileMapVisual = kvp.Key;
+	public void ApplyLightMap() {
+		if( lightmap == null ) {
+			return;
+		}
+
+		foreach( var kvp in lightmap ) {
+			var tileMapVisual = grid[ kvp.Key ];
 			foreach( Transform child in tileMapVisual.transform ) {
 				if( child.gameObject.name != "Midground" ) {
 					continue;
@@ -274,5 +283,15 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 				meshTiles.TileColors = kvp.Value;
 			}
 		}
+
+		lightmap.Clear();
+	}
+
+	private Color32 Blend( Color32 c1, Color32 c2 ) {
+		byte r = (byte)((((int)c1.r) + ((int)c2.r)) / 2);
+		byte g = (byte)((((int)c1.g) + ((int)c2.b)) / 2);
+		byte b = (byte)((((int)c1.b) + ((int)c2.b)) / 2);
+		byte a = (byte)((((int)c1.a) + ((int)c2.a)) / 2);
+		return new Color32( r, g, b, a );
 	}
 }

@@ -46,6 +46,7 @@ public class TileMapVisual : MonoBehaviour {
 			meshTiles.StartGeneratingMeshes( createColliders );
 
 			if( !isMidground ) {
+				// TODO: Share material between textures on the same z
 				int MIDGROUND_RENDER_QUEUE = 2500;
 				int midgroundDiff = layerIndex - tileMap.MidgroundLayerIndex;
 				var renderer = meshTiles.GetComponent<MeshRenderer>();

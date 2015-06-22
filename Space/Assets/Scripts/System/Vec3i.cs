@@ -150,7 +150,7 @@ namespace SA
 		{
 			return new Vector2i(-a.x, -a.y);
 		}
-		
+
 		public override bool Equals (object other)
 		{
 			if (!(other is Vector2i))

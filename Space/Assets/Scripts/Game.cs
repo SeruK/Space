@@ -109,6 +109,10 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	private void GenerateDungeonTiles( ref System.UInt32[] tiles, int gridX, int gridY, int w, int h ) {
+
+	}
+
 	private void CreateTileMapObjects( TileMap tileMap ) {
 		if( tileMap.ObjectLayers == null ) {
 			return;
@@ -160,6 +164,8 @@ public class Game : MonoBehaviour {
 
 			tileMapGrid.DoLightSource( lightPos, lightRadius, Color.white, Easing.Mode.In, lightAlgo );
 		}
+
+		tileMapGrid.ApplyLightMap();
 
 		if( playerUnit != null && playerInvincibilityTimer > 0.0f ) {
 			playerInvincibilityTimer -= Time.deltaTime;
