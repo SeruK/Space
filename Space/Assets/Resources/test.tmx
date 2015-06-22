@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="20" tileheight="20" backgroundcolor="#aa00ff" nextobjectid="16">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="20" tileheight="20" backgroundcolor="#aa00ff" nextobjectid="26">
  <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
  <layer name="Background" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztjjEKACAMxAr6CP//UhEcOlTUWl1MIOByjSJ/kw29N06au93d/ag52852Ufvs3Iz6nhvN0k3qffPfupuUK90Ii+GLrlcAAAAAiKUCx+IDmQ==
+   eJztjjEKACAMxAr6CP//UhEcOlTUWl1MIOByjSIAEE029N44ae52d/ej5mw720Xts3Mz6ntuNEs3qffNf+tuUq50IyyGL7peAQAAfqYCWyoDmQ==
   </data>
  </layer>
  <layer name="Midground" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztkD0OgCAMRuvqggOrd+NoHsWjyUJCmn5Ffh3sS76EVOlrITK+YgPnGZ48mo//twI+nye6UVodZxbuTcT+l3Q31kOtj++04j0l5yz30RGvpKbP/rI2ImhnyedAzQnftHlHvHfqj/yaE7nzHmj+kqfk7N27xWUYhmEYf+UBAvgRNw==
+   eJztkDEOgCAMRevKggOrd/NoHsWjyWJCSkEoaV3+S35CCvQViAAAYJ2tsbbwlOn5+DkP+HyJ6G5F6ziKcO9L7n9Jd3P9nPXxN3n8p+S0cu8LSZ3M9AmDNctIvtioRWHPet7w4dckCv1H/gCpQz96tXj7NDMA4MEDy6EXlw==
   </data>
  </layer>
  <layer name="Foreground" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztzTENAAAIBLG3gX+jaGACkna85RJgUw379y8AAHc0ENwAZQ==
+   eJztzTENAAAMw7DSGH+iwzBpTyX7zJMEAH7Msbd/AaDdAvd+AGU=
   </data>
  </layer>
  <objectgroup name="Object Layer 1">
-  <object id="7" type="Goomba" x="108" y="120" width="18" height="17"/>
-  <object id="10" name="Gun" type="Item" x="113" y="42">
+  <object id="21" type="Goomba" x="123.5" y="236" width="18" height="17"/>
+  <object id="22" name="Gun" type="Item" x="128.5" y="158">
    <properties>
     <property name="ItemType" value="Gun"/>
    </properties>
    <ellipse/>
   </object>
-  <object id="11" type="Spike" x="505" y="158" width="18" height="18"/>
-  <object id="12" type="SpawnPoint" x="357" y="147" width="14" height="20">
+  <object id="23" type="Spike" x="520.5" y="274" width="18" height="18"/>
+  <object id="24" type="SpawnPoint" x="372.5" y="263" width="14" height="20">
    <ellipse/>
   </object>
-  <object id="15" type="Spike" x="535" y="157" width="18" height="18"/>
+  <object id="25" type="Spike" x="550.5" y="273" width="18" height="18"/>
  </objectgroup>
 </map>

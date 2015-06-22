@@ -66,6 +66,12 @@ public class Game : MonoBehaviour {
 		GenerateTileMapAt( 2, 3 );
 		GenerateTileMapAt( 4, 3 );
 		GenerateTileMapAt( 5, 3 );
+		// Dungeons
+		GenerateTileMapAt( 1, 2 );
+		GenerateTileMapAt( 2, 2 );
+		GenerateTileMapAt( 3, 2 );
+		GenerateTileMapAt( 4, 2 );
+		GenerateTileMapAt( 5, 2 );
 
 		RespawnPlayer( spawnPos );
 	}
@@ -79,8 +85,11 @@ public class Game : MonoBehaviour {
 		int w = 30; int h = 30;
 		var tiles = new System.UInt32[ w * h ];
 
-		GenerateMountainTiles( ref tiles, gridX, gridY, w, h );
-
+		if( gridY < 3 ) {
+			GenerateDungeonTiles( ref tiles, gridX, gridY, w, h );
+		} else {
+			GenerateMountainTiles( ref tiles, gridX, gridY, w, h );
+		}
 		var tileLayer = new TileLayer( "Midground", 1.0f, true, null, tiles );
 		var tileMap = new TileMap( new Size2i( w, h ), new Size2i( 20, 20 ), Color.clear, null, null, new TileLayer[] { tileLayer }, null, 0 );
 		SetTileMapAt( tileMap, gridX, gridY );
@@ -104,13 +113,33 @@ public class Game : MonoBehaviour {
 				if( Tile.UUID( tiles[ tileIndex ] ) != 0u ) {
 					break;
 				}
-				tiles[ tileIndex ] = 1u;
+				tiles[ tileIndex ] = 16u;
 			}
 		}
 	}
 
 	private void GenerateDungeonTiles( ref System.UInt32[] tiles, int gridX, int gridY, int w, int h ) {
+		float freq = 0.1f;
+		int octaves = 5;
+		float lacunarity = 2.0f;//range(2.0f, 3.0f);
+		float gain = 0.8f;//range(0.6f, 0.7f); // increases "noise", helps decrease the blockiness of it all
+		float amplitude = 10.0f;//range(6.0f, 8.0f); // higher number decrease "thickness" of the paths created
 
+		Vector2i offset = new Vector2i( gridX * w, gridY * h );
+
+		// Start from bottom, generate upwards until we hit something
+		for( int x = 0; x < w; ++x ) {
+			for( int y = 0; y < h; ++y ) {
+				int tileIndex = x + y * w;
+				if( Tile.UUID( tiles[ tileIndex ] ) != 0u ) {
+					continue;
+				}
+
+				float a = Simplex.GenerateOne2D( offset.x + x, offset.y + y, freq, octaves, lacunarity, gain, amplitude );
+				a = ( 1.0f + a ) / 2.0f;
+				tiles[ tileIndex ] = a < 0.5f ? 0u : 16u;
+			}
+		}
 	}
 
 	private void CreateTileMapObjects( TileMap tileMap ) {
@@ -159,13 +188,13 @@ public class Game : MonoBehaviour {
 
 	protected void Update() {
 		UpdateInput();
-		if( player != null && tileMapGrid != null ) {
-			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, 1 );
-
-			tileMapGrid.DoLightSource( lightPos, lightRadius, Color.white, Easing.Mode.In, lightAlgo );
-		}
-
-		tileMapGrid.ApplyLightMap();
+//		if( player != null && tileMapGrid != null ) {
+//			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, 1 );
+//
+//			tileMapGrid.DoLightSource( lightPos, lightRadius, Color.white, Easing.Mode.In, lightAlgo );
+//		}
+//
+//		tileMapGrid.ApplyLightMap();
 
 		if( playerUnit != null && playerInvincibilityTimer > 0.0f ) {
 			playerInvincibilityTimer -= Time.deltaTime;
