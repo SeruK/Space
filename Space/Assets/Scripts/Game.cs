@@ -58,7 +58,7 @@ public class Game : MonoBehaviour {
 		RespawnPlayer( spawnPos );
 
 		var secondTileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
-		SetTileMapAt( secondTileMap, 1, 1 );
+		SetTileMapAt( secondTileMap, 1, 0 );
 	}
 
 	private void SetTileMapAt( TileMap tileMap, int x, int y ) {
@@ -111,21 +111,9 @@ public class Game : MonoBehaviour {
 		if( player != null && tileMapGrid != null ) {
 			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, -1 );
 
-			foreach( TileMapVisual tileMapVisual in tileMapGrid ) {
-				if( tileMapVisual == null || tileMapVisual.TileMap == null ) {
-					continue;
-				}
-				TileMap tileMap = tileMapVisual.TileMap;
-				Recti tileMapTileBounds = tileMapGrid.TileMapTileBounds( tileMap );
-				if( tileMapTileBounds.ContainsPoint( lightPos ) ) {
-					Vector2i localLightPos = lightPos - tileMapTileBounds.origin;
-					tileMapVisual.DoLightSource( localLightPos , lightRadius, Color.white, Easing.Mode.In, lightAlgo );
-				}
-			}
+			tileMapGrid.DoLightSource( lightPos, lightRadius, Color.white, Easing.Mode.In, lightAlgo );
 		}
-//		if( player != null && tileMapVisual != null ) {
-//			tileMapVisual.DoLightSource( EntityPos( player ) + new Vector2i( 0, -1 ), lightRadius, Color.white, Easing.Mode.In, lightAlgo );
-//		}
+
 		if( playerUnit != null && playerInvincibilityTimer > 0.0f ) {
 			playerInvincibilityTimer -= Time.deltaTime;
 			if( playerInvincibilityTimer <= 0.0f ) {

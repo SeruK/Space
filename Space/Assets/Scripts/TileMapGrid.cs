@@ -65,17 +65,26 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 	public TileMap TileMapAtWorldPos( Vector2 worldPos ) {
 		return TileMapAtTilePos( WorldPosToTilePos( worldPos ) );
 	}
-
+	
 	public TileMap TileMapAtTilePos( Vector2i tilePos ) {
-		tilePos.x /= tileMapTileSize.width;
-		tilePos.y /= tileMapTileSize.height;
+		return TileMapAtTilePos( tilePos.x, tilePos.y );
+	}
+
+	public TileMap TileMapAtTilePos( int x, int y ) {
+		var v = TileMapVisualAtTilePos( x, y );
+		return v == null ? null : v.TileMap;
+	}
+
+	public TileMapVisual TileMapVisualAtTilePos( int x, int y ) {
+		x /= tileMapTileSize.width;
+		y /= tileMapTileSize.height;
 		
-		int index = tilePos.x + tilePos.y * size.width;
+		int index = x + y * size.width;
 		if( index < 0 || index >= tileMapVisuals.Length ) {
 			return null;
 		}
 		
-		return tileMapVisuals[ index ].TileMap;
+		return tileMapVisuals[ index ];
 	}
 
 	public Recti TileMapTileBounds( TileMap tileMap ) {
@@ -106,6 +115,22 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 		}
 
 		return tileMapGridPos;
+	}
+
+	public System.UInt32 TileAtTilePos( int x, int y ) {
+		TileMap tileMap = TileMapAtTilePos( x, y );
+		if( tileMap == null ) {
+			return 0;
+		}
+
+		int gridPosX = (int)( x ) / tileMapTileSize.width;
+		int gridPosY = (int)( y ) / tileMapTileSize.height;
+		int tileMapTileX = gridPosX * tileMapTileSize.width;
+		int tileMapTileY = gridPosY * tileMapTileSize.height;
+		int localX = (int)x - tileMapTileX;
+		int localY = (int)y - tileMapTileY;
+
+		return Tile.UUID( tileMap.MidgroundLayer.Tiles[ localX + localY * tileMapTileSize.width ] );
 	}
 
 	// TODO: Move this somewhere
@@ -142,5 +167,112 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 
 	System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
 		return GetEnumerator();
+	}
+
+	// Light Sources
+	public void DoLightSource( Vector2i position, float lightRadius, Color lightColor, Easing.Mode lightMode = Easing.Mode.In, Easing.Algorithm lightAlgo = Easing.Algorithm.Linear ) {
+		uint width = (uint)( size.width * tileMapTileSize.width );
+		uint height = (uint)( size.height * tileMapTileSize.height );
+		int lightX = position.x;
+		int lightY = position.y;
+
+		uint radius = (uint)Mathf.Max( lightRadius, 1 );
+		Vector2i lightOrigin = new Vector2i( lightX, lightY );
+		Vector2  lightOriginFloat = new Vector2( position.x, position.y );
+		
+		byte r = (byte)(lightColor.r * 255.0f * lightColor.a);
+		byte g = (byte)(lightColor.g * 255.0f * lightColor.a);
+		byte b = (byte)(lightColor.b * 255.0f * lightColor.a);
+
+		var tileMapColorLookup = new Dictionary<TileMapVisual, Color32[]>();
+		
+		for( int tileMapVisualIndex = 0; tileMapVisualIndex < tileMapVisuals.Length; ++tileMapVisualIndex) {
+			TileMapVisual tileMapVisual = tileMapVisuals[ tileMapVisualIndex ];
+			if( tileMapVisual == null || tileMapVisual.TileMap == null ) {
+				continue;
+			}
+
+			Color32[] colors = new Color32[ tileMapTileSize.width * tileMapTileSize.height ];
+			for( int i = 0; i < colors.Length; ++i )
+			{
+				byte zero = (byte)0;
+				var color = new Color32( zero, zero, zero, 255 );
+				
+				colors[ i ] = color;
+			}
+
+			int posX = ( tileMapVisualIndex % size.width ) * tileMapTileSize.width;
+			int posY = ( tileMapVisualIndex / size.width ) * tileMapTileSize.height;
+			Recti bounds = new Recti( posX, posY, tileMapTileSize.width, tileMapTileSize.height );
+			if( bounds.ContainsPoint( new Vector2i( lightX, lightY ) ) ) {
+				int localX = lightX - posX;
+				// Flipperoo
+				int localY = tileMapTileSize.height - (int)lightY - posY;
+				int localIndex = localX + localY * tileMapTileSize.width;
+				System.UInt32 tile = Tile.UUID( tileMapVisual.TileMap.MidgroundLayer.Tiles[ localIndex ] );
+
+				colors[ localIndex ] = new Color32( r, g, b, tile == 0u ? (byte)0 : (byte)255 );
+			}
+
+			tileMapColorLookup[ tileMapVisual ] = colors;
+		}
+		
+		SA.FieldOfView.LightenPoint(lightOrigin, radius, 0u, width, height,(x, y) => {
+			return TileAtTilePos((int)x, (int)y) == 0u ? false : true;
+		}, (x, y, visible) => {
+			int gridPosX = (int)( x ) / tileMapTileSize.width;
+			int gridPosY = (int)( y ) / tileMapTileSize.height;
+			int gridIndex = gridPosX + gridPosY * size.width;
+
+			if( gridIndex < 0 || gridIndex > tileMapVisuals.Length ) {
+				return;
+			}
+
+			TileMapVisual tileMapVisual = tileMapVisuals[ gridIndex ];
+
+			if( tileMapVisual.TileMap == null ) {
+				return;
+			}
+
+			float f = ((float)(Vector2.Distance(lightOriginFloat, new Vector2((int)x,(int)y))) / (float) radius);
+			f = Easing.Alpha(f, lightMode, lightAlgo);
+
+			Color32[] colors = tileMapColorLookup[ tileMapVisual ];
+
+			int tileMapTileX = gridPosX * tileMapTileSize.width;
+			int tileMapTileY = gridPosY * tileMapTileSize.height;
+			int localX = (int)x - tileMapTileX;
+			// Flipperoo
+			int localY = tileMapTileSize.height - (int)y - tileMapTileY;
+			int localIndex = localX + localY * tileMapTileSize.width;
+
+			System.UInt32 tile = Tile.UUID( tileMapVisual.TileMap.MidgroundLayer.Tiles[ localIndex ] );
+
+			bool tileSolid = tile > 0u;
+
+			byte r2 = r;
+			byte g2 = g;
+			byte b2 = b;
+			byte a = 255;
+			
+			if( tileSolid ) {
+				colors[ localIndex ] = Color32.Lerp(new Color32( r2, g2, b2, a ), new Color32( 0, 0, 0, 255 ), f );
+			} else {
+				a = (byte)( 255.0f * f );	
+				
+				colors[ localIndex ] = new Color32( 0, 0, 0, a );
+			}
+		});
+
+		foreach( var kvp in tileMapColorLookup ) {
+			var tileMapVisual = kvp.Key;
+			foreach( Transform child in tileMapVisual.transform ) {
+				if( child.gameObject.name != "Midground" ) {
+					continue;
+				}
+				var meshTiles = child.GetComponent<MeshTiles>();
+				meshTiles.TileColors = kvp.Value;
+			}
+		}
 	}
 }
