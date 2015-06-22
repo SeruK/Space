@@ -4,6 +4,10 @@ using SA;
 public class TileMapVisual : MonoBehaviour {
 	public Material TileMaterial;
 
+	public TileMap TileMap {
+		get { return tileMap; }
+	}
+
 	private TileMap tileMap;
 	private TilesetLookup tilesetLookup;
 

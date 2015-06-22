@@ -2,6 +2,7 @@
 using SA;
 
 [RequireComponent( typeof(EntityManager) )]
+[RequireComponent( typeof(TileMapGrid) )]
 public class Game : MonoBehaviour {
 	[SerializeField]
 	private GUIStyle inventoryStyle;
@@ -10,7 +11,7 @@ public class Game : MonoBehaviour {
 	[SerializeField]
 	private Easing.Algorithm lightAlgo;
 	[SerializeField]
-	private Material tileMaterial;
+	private TileMapGrid tileMapGrid;
 
 	[SerializeField]
 	private GameObject TileMapVisualPrefab;
@@ -27,22 +28,12 @@ public class Game : MonoBehaviour {
 	private Unit playerUnit;
 
 	private TilesetLookup tilesetLookup;
-	private TileMap tileMap;
-	private TileMapVisual tileMapVisual;
 
 	protected void OnEnable() {
 		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
 		tilesetLookup = new SA.TilesetLookup();
-		tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
+		TileMap tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
 		DebugUtil.Log( "tilemap: " + tileMap );
-
-		if( tileMapVisual != null ) {
-			Destroy( tileMapVisual.gameObject );
-		}
-		var tileMapGO = GameObject.Instantiate( TileMapVisualPrefab );
-		tileMapVisual = tileMapGO.GetComponent<TileMapVisual>();
-		tileMapVisual.TileMaterial = tileMaterial;
-		tileMapVisual.CreateWithTileMap( tileMap, tilesetLookup );
 
 		if( localization == null ) {
 			localization = gameObject.AddComponent<Localization>();
@@ -54,19 +45,41 @@ public class Game : MonoBehaviour {
 		}
 		entityManager.OnEntityCollided += OnEntityCollided;
 
+		player = entityManager.Spawn<Entity>( "Player" );
+		if( player != null ) {
+			Camera.main.GetComponent<SmoothFollow>().target = player.CharController.transform;
+			playerUnit = player.GetComponent<Unit>();
+			player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
+		}
+
+		tileMapGrid.CreateGrid();
+		SetTileMapAt( tileMap, 0, 0 );
+
+		RespawnPlayer( spawnPos );
+
+		var secondTileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
+		SetTileMapAt( secondTileMap, 1, 1 );
+	}
+
+	private void SetTileMapAt( TileMap tileMap, int x, int y ) {
+		tileMapGrid.SetTileMapAt( tileMap, tilesetLookup, x, y );
+		CreateTileMapObjects( tileMap );
+	}
+
+	private void CreateTileMapObjects( TileMap tileMap ) {
 		foreach( var objectLayer in tileMap.ObjectLayers ) {
 			foreach( var layerObject in objectLayer.Objects ) {
-				Vector2 worldPos = LayerToWorldPos( layerObject.Position );
-
+				Vector2 worldPos = tileMapGrid.LayerToWorldPos( tileMap, objectLayer, layerObject.Position );
+				
 				if( layerObject.ObjectType == "SpawnPoint" ) {
 					spawnPos = worldPos;
 				}
-
+				
 				if( layerObject.ObjectType == "Goomba" ) {
 					var goomba = entityManager.Spawn<Unit>( "Goomba" );
 					goomba.transform.position = worldPos;
 				}
-
+				
 				if( layerObject.ObjectType == "Item" ) {
 					var pickup = entityManager.Spawn<Pickup>( "Pickup" );
 					pickup.transform.position = worldPos;
@@ -74,20 +87,12 @@ public class Game : MonoBehaviour {
 						pickup.ItemType = Item.ItemTypeFromString( layerObject.Properties[ "ItemType" ] );
 					}
 				}
-
+				
 				if( layerObject.ObjectType == "Spike" ) {
 					var obstacle = entityManager.Spawn<Obstacle>( "Spike" );
 					obstacle.transform.position = worldPos;
 				}
 			}
-		}
-
-		player = entityManager.Spawn<Entity>( "Player" );
-		if( player != null ) {
-			Camera.main.GetComponent<SmoothFollow>().target = player.CharController.transform;
-			playerUnit = player.GetComponent<Unit>();
-			RespawnPlayer( spawnPos );
-			player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
 		}
 	}
 
@@ -103,9 +108,9 @@ public class Game : MonoBehaviour {
 
 	protected void Update() {
 		UpdateInput();
-		if( player != null && tileMapVisual != null ) {
-			tileMapVisual.DoLightSource( EntityPos( player ) + new Vector2i( 0, -1 ), lightRadius, Color.white, Easing.Mode.In, lightAlgo );
-		}
+//		if( player != null && tileMapVisual != null ) {
+//			tileMapVisual.DoLightSource( EntityPos( player ) + new Vector2i( 0, -1 ), lightRadius, Color.white, Easing.Mode.In, lightAlgo );
+//		}
 		if( playerUnit != null && playerInvincibilityTimer > 0.0f ) {
 			playerInvincibilityTimer -= Time.deltaTime;
 			if( playerInvincibilityTimer <= 0.0f ) {
@@ -238,21 +243,14 @@ public class Game : MonoBehaviour {
 	GUIState guiState = new GUIState();
 
 	private Vector2i PosToTilePos( Vector2 pos ) {
-		float pixelsPerUnit = 20.0f;
-		return new Vector2i( Mathf.FloorToInt( ( pos.x * pixelsPerUnit ) / tileMap.TileSize.width ),
-		                     Mathf.FloorToInt( ( pos.y * pixelsPerUnit ) / tileMap.TileSize.height ) );
+		const float PIXELS_PER_UNIT = 20.0f;
+		const float TILE_SIZE = 20.0f;
+		return new Vector2i( Mathf.FloorToInt( ( pos.x * PIXELS_PER_UNIT ) / TILE_SIZE ),
+		                     Mathf.FloorToInt( ( pos.y * PIXELS_PER_UNIT ) / TILE_SIZE ) );
 	}
 
 	private Vector2i EntityPos( Entity entity ) {
 		return PosToTilePos( entity.transform.position );
-	}
-
-	private Vector2 LayerToWorldPos( Vector2 layerPos ) {
-		float pixelsPerUnit = 20.0f;
-		// Flipperoo
-		layerPos.y = ( tileMap.Size.height * tileMap.TileSize.height ) - layerPos.y;
-		layerPos /= pixelsPerUnit;
-		return layerPos;
 	}
 
 	private void RespawnPlayer( Vector2 pos ) {
@@ -271,6 +269,7 @@ public class Game : MonoBehaviour {
 		if( !guiState.ShowInventory ) {
 			if( player != null ) {
 				GUILayout.Label( "Playerpos: " + EntityPos( player ) );
+				GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
 			}
 
 			if( playerUnit != null ) {
