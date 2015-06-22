@@ -12,7 +12,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 	[SerializeField]
 	private Size2i tileMapTileSize;
 
-	private TileMapVisual[] tileMapVisuals;
+	private TileMapVisual[] grid;
 
 	public void CreateGrid() {
 		var oldRoot = transform.FindChild( "TileMapsRoot" );
@@ -25,7 +25,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 		root.transform.position = transform.position;
 		root.transform.parent = transform;
 		
-		tileMapVisuals = new TileMapVisual[ size.width * size.height ];
+		grid = new TileMapVisual[ size.width * size.height ];
 		
 		for( int i = 0; i < size.width * size.height; ++i ) {
 			Vector2i tileMapPos = new Vector2i( i % size.width, i / size.width );
@@ -41,7 +41,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			tileMapVisualGo.transform.localPosition = tileMapLocalPos;
 			
 			var tileMapVisual = tileMapVisualGo.AddComponent<TileMapVisual>();
-			tileMapVisuals[ i ] = tileMapVisual;
+			grid[ i ] = tileMapVisual;
 			tileMapVisual.TileMaterial = tileMaterial;
 		}
 	}
@@ -58,7 +58,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 		}
 
 		int index = x + y * size.width;
-		var tileMapVisual = tileMapVisuals[ index ];
+		var tileMapVisual = grid[ index ];
 		tileMapVisual.CreateWithTileMap( tileMap, tilesetLookup );
 	}
 
@@ -80,11 +80,11 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 		y /= tileMapTileSize.height;
 		
 		int index = x + y * size.width;
-		if( index < 0 || index >= tileMapVisuals.Length ) {
+		if( index < 0 || index >= grid.Length ) {
 			return null;
 		}
 		
-		return tileMapVisuals[ index ];
+		return grid[ index ];
 	}
 
 	public Recti TileMapTileBounds( TileMap tileMap ) {
@@ -106,7 +106,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			return tileMapGridPos;
 		}
 
-		int index = System.Array.FindIndex( tileMapVisuals, ( visual ) => {
+		int index = System.Array.FindIndex( grid, ( visual ) => {
 			return visual.TileMap == tileMap;
 		} );
 
@@ -159,9 +159,9 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 
 	// Iteration
 	public IEnumerator<TileMapVisual> GetEnumerator() {
-		int length = tileMapVisuals.Length;
+		int length = grid.Length;
 		for( int i = 0; i < length; ++i ) {
-			yield return tileMapVisuals[ i ];
+			yield return grid[ i ];
 		}
 	}
 
@@ -186,8 +186,8 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 
 		var tileMapColorLookup = new Dictionary<TileMapVisual, Color32[]>();
 		
-		for( int tileMapVisualIndex = 0; tileMapVisualIndex < tileMapVisuals.Length; ++tileMapVisualIndex) {
-			TileMapVisual tileMapVisual = tileMapVisuals[ tileMapVisualIndex ];
+		for( int tileMapVisualIndex = 0; tileMapVisualIndex < grid.Length; ++tileMapVisualIndex) {
+			TileMapVisual tileMapVisual = grid[ tileMapVisualIndex ];
 			if( tileMapVisual == null || tileMapVisual.TileMap == null ) {
 				continue;
 			}
@@ -207,7 +207,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			if( bounds.ContainsPoint( new Vector2i( lightX, lightY ) ) ) {
 				int localX = lightX - posX;
 				// Flipperoo
-				int localY = ( tileMapTileSize.height - 1 ) - (int)lightY - posY;
+				int localY = ( tileMapTileSize.height - 1 ) - ( (int)lightY - posY ) ;
 				int localIndex = localX + localY * tileMapTileSize.width;
 				System.UInt32 tile = Tile.UUID( tileMapVisual.TileMap.MidgroundLayer.Tiles[ localIndex ] );
 
@@ -224,11 +224,11 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			int gridPosY = (int)( y ) / tileMapTileSize.height;
 			int gridIndex = gridPosX + gridPosY * size.width;
 
-			if( gridIndex < 0 || gridIndex > tileMapVisuals.Length ) {
+			if( gridIndex < 0 || gridIndex > grid.Length ) {
 				return;
 			}
 
-			TileMapVisual tileMapVisual = tileMapVisuals[ gridIndex ];
+			TileMapVisual tileMapVisual = grid[ gridIndex ];
 
 			if( tileMapVisual.TileMap == null ) {
 				return;
@@ -243,7 +243,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			int tileMapTileY = gridPosY * tileMapTileSize.height;
 			int localX = (int)x - tileMapTileX;
 			// Flipperoo
-			int localY = ( tileMapTileSize.height - 1 ) - (int)y - tileMapTileY;
+			int localY = ( tileMapTileSize.height - 1 ) - ( (int)y - tileMapTileY );
 			int localIndex = localX + localY * tileMapTileSize.width;
 
 			System.UInt32 tile = Tile.UUID( tileMapVisual.TileMap.MidgroundLayer.Tiles[ localIndex ] );

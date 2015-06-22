@@ -59,7 +59,7 @@ public class Game : MonoBehaviour {
 		}
 
 		tileMapGrid.CreateGrid();
-		SetTileMapAt( tileMap, 0, 0 );
+		SetTileMapAt( tileMap, 0, 3 );
 
 		RespawnPlayer( spawnPos );
 
