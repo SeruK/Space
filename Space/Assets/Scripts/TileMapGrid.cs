@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SA;
 
-public class TileMapGrid : MonoBehaviour {
+public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 	[SerializeField]
 	private GameObject tileMapVisualPrefab;
 	[SerializeField]
@@ -78,6 +78,36 @@ public class TileMapGrid : MonoBehaviour {
 		return tileMapVisuals[ index ].TileMap;
 	}
 
+	public Recti TileMapTileBounds( TileMap tileMap ) {
+		Vector2i tp = TileMapTilePos( tileMap );
+		return new Recti( tp.x, tp.y, tileMapTileSize.width, tileMapTileSize.height );
+	}
+
+	private Vector2i TileMapTilePos( TileMap tileMap ) {
+		Vector2i tileMapGridPos = TileMapGridPos( tileMap );
+		tileMapGridPos.x *= tileMapTileSize.width;
+		tileMapGridPos.y *= tileMapTileSize.height;
+		return tileMapGridPos;
+	}
+
+	private Vector2i TileMapGridPos( TileMap tileMap ) {
+		var tileMapGridPos = new Vector2i( 0, 0 );
+
+		if( tileMap == null ) {
+			return tileMapGridPos;
+		}
+
+		int index = System.Array.FindIndex( tileMapVisuals, ( visual ) => {
+			return visual.TileMap == tileMap;
+		} );
+
+		if( index != -1 ) {
+			tileMapGridPos = new Vector2i( index % size.width, index / size.width );
+		}
+
+		return tileMapGridPos;
+	}
+
 	// TODO: Move this somewhere
 	private Vector2i WorldPosToTilePos( Vector2 pos ) {
 		const float PIXELS_PER_UNIT = 20.0f;
@@ -90,15 +120,7 @@ public class TileMapGrid : MonoBehaviour {
 		const float PIXELS_PER_UNIT = 20.0f;
 		const float TILE_SIZE_PIXELS = 20.0f;
 
-		var tileMapGridPos = new Vector2i( 0, 0 );
-
-		int index = System.Array.FindIndex( tileMapVisuals, ( visual ) => {
-			return visual.TileMap == tileMap;
-		} );
-
-		if( index != -1 ) {
-			tileMapGridPos = new Vector2i( index % size.width, index / size.width );
-		}
+		var tileMapGridPos = TileMapGridPos( tileMap );
 
 		Vector2 tileMapLocalPos = (Vector2)tileMapGridPos;
 		tileMapLocalPos.Scale( (Vector2)tileMapTileSize );
@@ -108,5 +130,17 @@ public class TileMapGrid : MonoBehaviour {
 		layerPos /= PIXELS_PER_UNIT;
 
 		return ( tileMapLocalPos + layerPos ) + (Vector2)transform.position;
+	}
+
+	// Iteration
+	public IEnumerator<TileMapVisual> GetEnumerator() {
+		int length = tileMapVisuals.Length;
+		for( int i = 0; i < length; ++i ) {
+			yield return tileMapVisuals[ i ];
+		}
+	}
+
+	System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+		return GetEnumerator();
 	}
 }

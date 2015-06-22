@@ -69,5 +69,9 @@ namespace SA
 		{
 			get { return new Recti(0,0,0,0); }
 		}
+
+		public bool ContainsPoint( Vector2i p ) {
+			return MinX <= p.x && MaxX >= p.x && MinY <= p.y && MaxY >= p.y;
+		}
 	}
 }

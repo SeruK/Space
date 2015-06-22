@@ -108,6 +108,21 @@ public class Game : MonoBehaviour {
 
 	protected void Update() {
 		UpdateInput();
+		if( player != null && tileMapGrid != null ) {
+			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, -1 );
+
+			foreach( TileMapVisual tileMapVisual in tileMapGrid ) {
+				if( tileMapVisual == null || tileMapVisual.TileMap == null ) {
+					continue;
+				}
+				TileMap tileMap = tileMapVisual.TileMap;
+				Recti tileMapTileBounds = tileMapGrid.TileMapTileBounds( tileMap );
+				if( tileMapTileBounds.ContainsPoint( lightPos ) ) {
+					Vector2i localLightPos = lightPos - tileMapTileBounds.origin;
+					tileMapVisual.DoLightSource( localLightPos , lightRadius, Color.white, Easing.Mode.In, lightAlgo );
+				}
+			}
+		}
 //		if( player != null && tileMapVisual != null ) {
 //			tileMapVisual.DoLightSource( EntityPos( player ) + new Vector2i( 0, -1 ), lightRadius, Color.white, Easing.Mode.In, lightAlgo );
 //		}
