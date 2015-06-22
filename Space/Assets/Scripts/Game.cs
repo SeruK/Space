@@ -59,12 +59,15 @@ public class Game : MonoBehaviour {
 		}
 
 		tileMapGrid.CreateGrid();
-		SetTileMapAt( tileMap, 0, 3 );
+		var midgroundTiles = tileMap.MidgroundLayer.Tiles;
+//		GenerateMountainTiles( ref midgroundTiles, 3, 3, 30, 30 );
+		SetTileMapAt( tileMap, 3, 3 );
+		GenerateTileMapAt( 1, 3 );
+		GenerateTileMapAt( 2, 3 );
+		GenerateTileMapAt( 4, 3 );
+		GenerateTileMapAt( 5, 3 );
 
 		RespawnPlayer( spawnPos );
-
-		var secondTileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
-		SetTileMapAt( secondTileMap, 1, 0 );
 	}
 
 	private void SetTileMapAt( TileMap tileMap, int x, int y ) {
@@ -72,7 +75,45 @@ public class Game : MonoBehaviour {
 		CreateTileMapObjects( tileMap );
 	}
 
+	private void GenerateTileMapAt( int gridX, int gridY ) {
+		int w = 30; int h = 30;
+		var tiles = new System.UInt32[ w * h ];
+
+		GenerateMountainTiles( ref tiles, gridX, gridY, w, h );
+
+		var tileLayer = new TileLayer( "Midground", 1.0f, true, null, tiles );
+		var tileMap = new TileMap( new Size2i( w, h ), new Size2i( 20, 20 ), Color.clear, null, null, new TileLayer[] { tileLayer }, null, 0 );
+		SetTileMapAt( tileMap, gridX, gridY );
+	}
+
+	private void GenerateMountainTiles( ref System.UInt32[] tiles, int gridX, int gridY, int w, int h ) {
+		float freq = 0.1f;
+		int octaves = 5;
+		float lacunarity = 2.0f;//range(2.0f, 3.0f);
+		float gain = 0.6f;//range(0.6f, 0.7f); // increases "noise", helps decrease the blockiness of it all
+		float amplitude = 2.0f;//range(6.0f, 8.0f); // higher number decrease "thickness" of the paths created
+
+		// Start from bottom, generate upwards until we hit something
+		for( int x = 0; x < w; ++x ) {
+			float offsetX = gridX * w + x;
+			float a = Simplex.GenerateOne1D( offsetX, freq, octaves, lacunarity, gain, amplitude );
+			int yHeight = Mathf.FloorToInt( ( h / 2 ) + ( h / 2 ) * a );
+			yHeight = Mathf.Min( yHeight, h - 1 );
+			for( int y = ( h - 1 ); y >= yHeight; --y ) {
+				int tileIndex = x + y * w;
+				if( Tile.UUID( tiles[ tileIndex ] ) != 0u ) {
+					break;
+				}
+				tiles[ tileIndex ] = 1u;
+			}
+		}
+	}
+
 	private void CreateTileMapObjects( TileMap tileMap ) {
+		if( tileMap.ObjectLayers == null ) {
+			return;
+		}
+
 		foreach( var objectLayer in tileMap.ObjectLayers ) {
 			foreach( var layerObject in objectLayer.Objects ) {
 				Vector2 worldPos = tileMapGrid.LayerToWorldPos( tileMap, objectLayer, layerObject.Position );

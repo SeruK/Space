@@ -207,7 +207,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			if( bounds.ContainsPoint( new Vector2i( lightX, lightY ) ) ) {
 				int localX = lightX - posX;
 				// Flipperoo
-				int localY = ( tileMapTileSize.height - 1 ) - ( (int)lightY - posY ) ;
+				int localY = ( (int)lightY - posY ) ;
 				int localIndex = localX + localY * tileMapTileSize.width;
 				System.UInt32 tile = Tile.UUID( tileMapVisual.TileMap.MidgroundLayer.Tiles[ localIndex ] );
 
@@ -243,7 +243,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			int tileMapTileY = gridPosY * tileMapTileSize.height;
 			int localX = (int)x - tileMapTileX;
 			// Flipperoo
-			int localY = ( tileMapTileSize.height - 1 ) - ( (int)y - tileMapTileY );
+			int localY = ( (int)y - tileMapTileY );
 			int localIndex = localX + localY * tileMapTileSize.width;
 
 			System.UInt32 tile = Tile.UUID( tileMapVisual.TileMap.MidgroundLayer.Tiles[ localIndex ] );
@@ -260,7 +260,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			} else {
 				a = (byte)( 255.0f * f );	
 				
-				colors[ localIndex ] = new Color32( 0, 0, 0, a );
+				colors[ localIndex ] = new Color32( 255, 0, 0, a );
 			}
 		});
 
