@@ -12,6 +12,8 @@ public class Game : MonoBehaviour {
 	private Easing.Algorithm lightAlgo;
 	[SerializeField]
 	private TileMapGrid tileMapGrid;
+	[SerializeField]
+	private SpriteRenderer spaceRenderer;
 
 	[SerializeField]
 	private GameObject TileMapVisualPrefab;
@@ -30,6 +32,10 @@ public class Game : MonoBehaviour {
 	private TilesetLookup tilesetLookup;
 
 	protected void OnEnable() {
+		if( spaceRenderer != null ) {
+			spaceRenderer.material.renderQueue = 1000;
+		}
+
 		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
 		tilesetLookup = new SA.TilesetLookup();
 		TileMap tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
