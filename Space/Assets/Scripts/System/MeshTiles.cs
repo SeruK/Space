@@ -105,7 +105,7 @@ public class MeshTiles : MonoBehaviour
 		ClampSizeToMaxVertices(ref Width, ref Height);
 		
 		uint width = Width;
-//		uint height = Height;
+		uint height = Height;
 		
 		/* * * * * * * * * * * * * * * * * */
 		
@@ -135,7 +135,12 @@ public class MeshTiles : MonoBehaviour
 				p.x = 0;
 				++p.y;
 			}
-		} while( baseSprite == null );
+		} while( baseSprite == null && p.x < width && p.y < height );
+
+		if( baseSprite == null ) {
+			DebugUtil.LogWarn( "Empty tile layer" );
+			yield break;
+		}
 
 		Texture2D textureAtlas = baseSprite.texture;
 

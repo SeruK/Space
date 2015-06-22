@@ -3,17 +3,17 @@
  <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
  <layer name="Background" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztjjEKACAMxAr6CP//UhEcOlTUWl1MIOByjSIAEE029N44ae52d/ej5mw720Xts3Mz6ntuNEs3qffNf+tuUq50IyyGL7peAQAAfqYCWyoDmQ==
+   eJzt0kEOgCAMRFFO4IL7H5aYaMJiWjoVgcX8pAtN5bGwFKXOqD4zezd61ui86N7dBcY7r4J31g5jInfkoGfWjNrWeN9HXHQHxrV8xn0n4/Z2xvzizpgdpmdn/lM25K5I7rp2mL2tlFJ/1QBKAw3Z
   </data>
  </layer>
  <layer name="Midground" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztkDEOgCAMRevKggOrd/NoHsWjyWJCSkEoaV3+S35CCvQViAAAYJ2tsbbwlOn5+DkP+HyJ6G5F6ziKcO9L7n9Jd3P9nPXxN3n8p+S0cu8LSZ3M9AmDNctIvtioRWHPet7w4dckCv1H/gCpQz96tXj7NDMA4MEDy6EXlw==
+   eJztkDEOwCAMA8PKkn6A/3+zK0oDRaExHXySJRQQZxAhhJB9ymCd4ekz89lzCLx+X9O6WG8G9k2I//ScWe7rB6mLM3QHHczU2cvuW1/8kahz/8ofMM/IQW8UtC/SgRAEN60dEIc=
   </data>
  </layer>
  <layer name="Foreground" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztzTENAAAMw7DSGH+iwzBpTyX7zJMEAH7Msbd/AaDdAvd+AGU=
+   eJztwQEBAAAAgiD/r25IQAEAAPBoDhAAAQ==
   </data>
  </layer>
  <objectgroup name="Object Layer 1">
