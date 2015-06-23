@@ -197,7 +197,7 @@ public class Game : MonoBehaviour {
 	protected void Update() {
 		UpdateInput();
 		if( player != null && tileMapGrid != null ) {
-			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, 1 );
+			Vector2i lightPos = EntityTilePos( player ) + new Vector2i( 0, 1 );
 
 			tileMapGrid.DoLightSource( lightPos, lightRadius, Color.white, Easing.Mode.In, lightAlgo );
 		}
@@ -216,17 +216,36 @@ public class Game : MonoBehaviour {
 		}
 
 		if( requestedDig ) {
-			var digPos = EntityPos( player ) + aimVector;
-			var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( digPos.x, digPos.y );
-			if( tileMapVisual != null ) {
-				var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
-				int localX = digPos.x - gridPos.x;
-				int localY = digPos.y - gridPos.y;
-
-				DebugUtil.Log( "Destroying: " + digPos + " | " + new Vector2i( localX, localY ) );
-				tileMapVisual.UpdateTile( localX, localY, 0u );
+			Vector2i playerTilePos = EntityTilePos( player );
+			Vector2i digPos = playerTilePos + aimVector;
+			if( !TryDig( digPos ) ) {
+				if( aimVector.x == 0 && aimVector.y != 0 ) {
+					Vector2 tileCenterPos = TilePosToPos( playerTilePos ) + new Vector2( 0.5f, 0.5f );
+					Vector2 playerPos = EntityPos( player );
+					float diff = playerPos.x - tileCenterPos.x;
+					digPos += new Vector2i( diff < 0.0f ? -1 : 1, 0 );
+					TryDig( digPos );
+				}
 			}
 		}
+	}
+
+	private bool TryDig( Vector2i digPos ) {
+		if( Tile.UUID( tileMapGrid.TileAtTilePos( digPos ) ) == 0u ) {
+			return false;
+		}
+
+		var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( digPos.x, digPos.y );
+		if( tileMapVisual != null ) {
+			var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
+			int localX = digPos.x - gridPos.x;
+			int localY = digPos.y - gridPos.y;
+			
+			DebugUtil.Log( "Destroying: " + digPos + " | " + new Vector2i( localX, localY ) );
+			tileMapVisual.UpdateTile( localX, localY, 0u );
+			return true;
+		}
+		return false;
 	}
 
 	protected void UpdateInput() {
@@ -254,11 +273,11 @@ public class Game : MonoBehaviour {
 		bool right = Input.GetKey( KeyCode.RightArrow );
 		bool up    = Input.GetKey( KeyCode.UpArrow );
 		bool down  = Input.GetKey( KeyCode.DownArrow );
-		requestedDig = Input.GetKey( KeyCode.W );
+		requestedDig = Input.GetKeyDown( KeyCode.W );
 
 		aimVector.Set( left ? -1 : right ? 1 : 0, down ? -1 : up ? 1 : 0 );
 
-		Vector2i aimTilePos = EntityPos( player ) + aimVector;
+		Vector2i aimTilePos = EntityTilePos( player ) + aimVector;
 
 		bool aimingAtTile = Tile.UUID( tileMapGrid.TileAtTilePos( aimTilePos ) ) != 0u;
 
@@ -361,6 +380,13 @@ public class Game : MonoBehaviour {
 
 	GUIState guiState = new GUIState();
 
+	private Vector2 TilePosToPos( Vector2i tilePos ) {
+		const float PIXELS_PER_UNIT = 20.0f;
+		const float TILE_SIZE = 20.0f;
+		return new Vector2( ( tilePos.x * TILE_SIZE ) / PIXELS_PER_UNIT,
+		                    ( tilePos.y * TILE_SIZE ) / PIXELS_PER_UNIT );
+	}
+
 	private Vector2i PosToTilePos( Vector2 pos ) {
 		const float PIXELS_PER_UNIT = 20.0f;
 		const float TILE_SIZE = 20.0f;
@@ -368,8 +394,12 @@ public class Game : MonoBehaviour {
 		                     Mathf.FloorToInt( ( pos.y * PIXELS_PER_UNIT ) / TILE_SIZE ) );
 	}
 
-	private Vector2i EntityPos( Entity entity ) {
-		return PosToTilePos( entity.transform.position + new Vector3( 0.0f, 0.5f ) );
+	private Vector2i EntityTilePos( Entity entity ) {
+		return PosToTilePos( EntityPos( entity ) );
+	}
+
+	private Vector2 EntityPos( Entity entity ) {
+		return entity.transform.position + new Vector3( 0.0f, 0.5f );
 	}
 
 	private void RespawnPlayer( Vector2 pos ) {
@@ -388,7 +418,7 @@ public class Game : MonoBehaviour {
 			return;
 		}
 
-		Vector2i tilePos = EntityPos( player );
+		Vector2i tilePos = EntityTilePos( player );
 
 		Gizmos.color = Color.yellow;
 		Vector2i aimTilePos = tilePos + aimVector;
@@ -405,7 +435,7 @@ public class Game : MonoBehaviour {
 		if( !guiState.ShowInventory ) {
 			guiState.ShowInventory = GUILayout.Button( "Inventory" );
 			if( player != null ) {
-				GUILayout.Label( "Playerpos: " + EntityPos( player ) );
+				GUILayout.Label( "Playerpos: " + EntityTilePos( player ) );
 				GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
 			}
 			
