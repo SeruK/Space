@@ -178,9 +178,11 @@ public class Game : MonoBehaviour {
 	}
 
 	protected void OnDisable() {
-		var cameraScript = Camera.main.GetComponent<SmoothFollow>();
-		if( cameraScript != null ) {
-			cameraScript.target = null;
+		if( Camera.main ) {
+			var cameraScript = Camera.main.GetComponent<SmoothFollow>();
+			if( cameraScript != null ) {
+				cameraScript.target = null;
+			}
 		}
 		if( player != null ) {
 			player.CharController.onTriggerEnterEvent -= OnPlayerEnteredTrigger;
@@ -213,17 +215,15 @@ public class Game : MonoBehaviour {
 
 		if( guiState.DestroyRandomTile ) {
 			guiState.DestroyRandomTile = false;
-			var tilePos = EntityPos( player );
-			var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( tilePos.x, tilePos.y );
+			var digPos = EntityPos( player ) - new Vector2i( 0, 1 );
+			var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( digPos.x, digPos.y );
 			if( tileMapVisual != null ) {
 				var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
-				int x = tilePos.x - gridPos.x;
-				int y = tilePos.y - gridPos.y - 1;
+				int localX = digPos.x - gridPos.x;
+				int localY = digPos.y - gridPos.y;
 
-				if( y >= 0 ) {
-					DebugUtil.Log( "Destroying: " + new Vector2i( x, y ) );
-					tileMapVisual.UpdateTile( x, y, 0u );
-				}
+				DebugUtil.Log( "Destroying: " + digPos + " | " + new Vector2i( localX, localY ) );
+				tileMapVisual.UpdateTile( localX, localY, 0u );
 			}
 		}
 	}
@@ -248,11 +248,15 @@ public class Game : MonoBehaviour {
 
 		player.RequestedHorizontalSpeed = Input.GetKey( KeyCode.LeftArrow ) ? -1.0f :
 			Input.GetKey( KeyCode.RightArrow ) ? 1.0f : 0.0f;
-		player.RequestedJump = Input.GetKey( KeyCode.UpArrow );
-		if( Input.GetKey( KeyCode.DownArrow ) && CameraController != null ) {
-			CameraController.extraCameraOffset = new Vector3( 0.0f, 2.0f, 0.0f );
-		} else {
-			CameraController.extraCameraOffset = Vector3.zero;
+		player.RequestedJump = Input.GetKey( KeyCode.Space );
+		if( CameraController != null ) {
+			if( Input.GetKey( KeyCode.DownArrow ) ) {
+				CameraController.extraCameraOffset = new Vector3( 0.0f, 2.0f, 0.0f );
+			} else if( Input.GetKey( KeyCode.UpArrow ) ) {
+				CameraController.extraCameraOffset = new Vector3( 0.0f, -2.0f, 0.0f );
+			} else {
+				CameraController.extraCameraOffset = Vector3.zero;
+			}
 		}
 	}
 
