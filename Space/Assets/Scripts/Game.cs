@@ -49,6 +49,7 @@ public class Game : MonoBehaviour {
 		if( entityManager == null ) {
 			entityManager = gameObject.GetComponent<EntityManager>();
 		}
+		entityManager.Reinitialize();
 		entityManager.OnEntityCollided += OnEntityCollided;
 
 		player = entityManager.Spawn<Entity>( "Player" );
@@ -177,7 +178,10 @@ public class Game : MonoBehaviour {
 	}
 
 	protected void OnDisable() {
-		Camera.main.GetComponent<SmoothFollow>().target = null;
+		var cameraScript = Camera.main.GetComponent<SmoothFollow>();
+		if( cameraScript != null ) {
+			cameraScript.target = null;
+		}
 		if( player != null ) {
 			player.CharController.onTriggerEnterEvent -= OnPlayerEnteredTrigger;
 		}
@@ -188,13 +192,13 @@ public class Game : MonoBehaviour {
 
 	protected void Update() {
 		UpdateInput();
-//		if( player != null && tileMapGrid != null ) {
-//			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, 1 );
-//
-//			tileMapGrid.DoLightSource( lightPos, lightRadius, Color.white, Easing.Mode.In, lightAlgo );
-//		}
-//
-//		tileMapGrid.ApplyLightMap();
+		if( player != null && tileMapGrid != null ) {
+			Vector2i lightPos = EntityPos( player ) + new Vector2i( 0, 1 );
+
+			tileMapGrid.DoLightSource( lightPos, lightRadius, Color.white, Easing.Mode.In, lightAlgo );
+		}
+
+		tileMapGrid.ApplyLightMap();
 
 		if( playerUnit != null && playerInvincibilityTimer > 0.0f ) {
 			playerInvincibilityTimer -= Time.deltaTime;
@@ -204,6 +208,22 @@ public class Game : MonoBehaviour {
 			} else {
 				playerUnit.Invincible = true;
 				player.Visual.color = new Color( 0.8f, 0.0f, 0.0f );
+			}
+		}
+
+		if( guiState.DestroyRandomTile ) {
+			guiState.DestroyRandomTile = false;
+			var tilePos = EntityPos( player );
+			var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( tilePos.x, tilePos.y );
+			if( tileMapVisual != null ) {
+				var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
+				int x = tilePos.x - gridPos.x;
+				int y = tilePos.y - gridPos.y - 1;
+
+				if( y >= 0 ) {
+					DebugUtil.Log( "Destroying: " + new Vector2i( x, y ) );
+					tileMapVisual.UpdateTile( x, y, 0u );
+				}
 			}
 		}
 	}
@@ -323,6 +343,7 @@ public class Game : MonoBehaviour {
 	
 	private class GUIState {
 		public bool ShowInventory = false;
+		public bool DestroyRandomTile = false;
 	}
 
 	GUIState guiState = new GUIState();
@@ -335,7 +356,7 @@ public class Game : MonoBehaviour {
 	}
 
 	private Vector2i EntityPos( Entity entity ) {
-		return PosToTilePos( entity.transform.position );
+		return PosToTilePos( entity.transform.position + new Vector3( 0.0f, 0.5f ) );
 	}
 
 	private void RespawnPlayer( Vector2 pos ) {
@@ -349,14 +370,24 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	protected void OnDrawGizmos() {
+		if( player == null ) {
+			return;
+		}
+		Vector2i tilePos = EntityPos( player );
+		Vector2  pos = new Vector2( 0.5f, 0.5f ) + (Vector2)tilePos;
+		Gizmos.DrawWireCube( pos, new Vector3( 1.0f, 1.0f ) );
+	}
+
 	// TODO: Temp
 	protected void OnGUI() {
 		if( !guiState.ShowInventory ) {
+			guiState.ShowInventory = GUILayout.Button( "Inventory" );
 			if( player != null ) {
 				GUILayout.Label( "Playerpos: " + EntityPos( player ) );
 				GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
 			}
-
+			
 			if( playerUnit != null ) {
 				float hpFrac = playerUnit.HealthPoints / playerUnit.MaxHealthPoints;
 				float barWidth = 100.0f;
@@ -366,8 +397,7 @@ public class Game : MonoBehaviour {
 				GUI.DrawTexture( new Rect( Screen.width - 10.0f - barWidth, barHeight - 10.0f, barWidth * hpFrac, barHeight ), Texture2D.whiteTexture );
 				GUI.color = Color.white;
 			}
-
-			guiState.ShowInventory = GUILayout.Button( "Inventory" );
+			guiState.DestroyRandomTile = GUILayout.Button( "Destroy random tile" );
 			return;
 		}
 

@@ -63,4 +63,17 @@ public class TileMapVisual : MonoBehaviour {
 			meshTiles.TileColors = colors;
 		}
 	}
+
+	public void UpdateTile( int x, int y, System.UInt32 value ) {
+		Transform midground = transform.FindChild( "Midground" );
+		if( midground == null ) {
+			return;
+		}
+		var meshTiles = midground.GetComponent<MeshTiles>();
+		if( meshTiles != null ) {
+			tileMap.MidgroundLayer.Tiles[ x + y * tileMap.Size.width ] = value;
+			bool createCollider = true;
+			meshTiles.UpdateTileAt( (uint)x, (uint)y, createCollider );
+		}
+	}
 }
