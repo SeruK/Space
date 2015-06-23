@@ -120,6 +120,10 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 		return tileMapGridPos;
 	}
 
+	public System.UInt32 TileAtTilePos( Vector2i tilePos ) {
+		return TileAtTilePos( tilePos.x, tilePos.y );
+	}
+
 	public System.UInt32 TileAtTilePos( int x, int y ) {
 		TileMap tileMap = TileMapAtTilePos( x, y );
 		if( tileMap == null ) {

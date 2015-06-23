@@ -24,6 +24,8 @@ public class Game : MonoBehaviour {
 	private Localization localization;
 	private Vector2 spawnPos;
 	private float playerInvincibilityTimer;
+	private Vector2i aimVector;
+	private bool requestedDig;
 
 	private EntityManager entityManager;
 	private Entity player;
@@ -213,9 +215,8 @@ public class Game : MonoBehaviour {
 			}
 		}
 
-		if( guiState.DestroyRandomTile ) {
-			guiState.DestroyRandomTile = false;
-			var digPos = EntityPos( player ) - new Vector2i( 0, 1 );
+		if( requestedDig ) {
+			var digPos = EntityPos( player ) + aimVector;
 			var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( digPos.x, digPos.y );
 			if( tileMapVisual != null ) {
 				var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
@@ -229,6 +230,9 @@ public class Game : MonoBehaviour {
 	}
 
 	protected void UpdateInput() {
+		aimVector.Set( 0, 0 );
+		requestedDig = false;
+
 		if( Input.GetKeyDown( KeyCode.Escape ) ) {
 			guiState.ShowInventory = !guiState.ShowInventory;
 		}
@@ -246,17 +250,22 @@ public class Game : MonoBehaviour {
 			return;
 		}
 
-		player.RequestedHorizontalSpeed = Input.GetKey( KeyCode.LeftArrow ) ? -1.0f :
-			Input.GetKey( KeyCode.RightArrow ) ? 1.0f : 0.0f;
+		bool left  = Input.GetKey( KeyCode.LeftArrow );
+		bool right = Input.GetKey( KeyCode.RightArrow );
+		bool up    = Input.GetKey( KeyCode.UpArrow );
+		bool down  = Input.GetKey( KeyCode.DownArrow );
+		requestedDig = Input.GetKey( KeyCode.W );
+
+		aimVector.Set( left ? -1 : right ? 1 : 0, down ? -1 : up ? 1 : 0 );
+
+		Vector2i aimTilePos = EntityPos( player ) + aimVector;
+
+		bool aimingAtTile = Tile.UUID( tileMapGrid.TileAtTilePos( aimTilePos ) ) != 0u;
+
+		player.RequestedHorizontalSpeed = aimingAtTile ? 0.0f : left ? -1.0f : right ? 1.0f : 0.0f;
 		player.RequestedJump = Input.GetKey( KeyCode.Space );
 		if( CameraController != null ) {
-			if( Input.GetKey( KeyCode.DownArrow ) ) {
-				CameraController.extraCameraOffset = new Vector3( 0.0f, 2.0f, 0.0f );
-			} else if( Input.GetKey( KeyCode.UpArrow ) ) {
-				CameraController.extraCameraOffset = new Vector3( 0.0f, -2.0f, 0.0f );
-			} else {
-				CameraController.extraCameraOffset = Vector3.zero;
-			}
+			CameraController.extraCameraOffset = new Vector3( 0.0f, 2.0f * -aimVector.y );
 		}
 	}
 
@@ -378,7 +387,15 @@ public class Game : MonoBehaviour {
 		if( player == null ) {
 			return;
 		}
+
 		Vector2i tilePos = EntityPos( player );
+
+		Gizmos.color = Color.yellow;
+		Vector2i aimTilePos = tilePos + aimVector;
+		Vector2  aimPos = new Vector2( 0.5f, 0.5f ) + (Vector2)aimTilePos;
+		Gizmos.DrawWireCube( aimPos, new Vector3( 1.0f, 1.0f ) );
+
+		Gizmos.color = Color.white;
 		Vector2  pos = new Vector2( 0.5f, 0.5f ) + (Vector2)tilePos;
 		Gizmos.DrawWireCube( pos, new Vector3( 1.0f, 1.0f ) );
 	}
