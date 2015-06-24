@@ -196,6 +196,8 @@ public class Game : MonoBehaviour {
 
 	protected void Update() {
 		UpdateInput();
+		tileMapGrid.DoGlobalLight();
+
 		if( player != null && tileMapGrid != null ) {
 			Vector2i lightPos = EntityTilePos( player ) + new Vector2i( 0, 1 );
 
