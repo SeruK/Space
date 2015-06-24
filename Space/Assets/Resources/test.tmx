@@ -8,7 +8,7 @@
  </layer>
  <layer name="Midground" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJztkDEOwCAMA8PKkn6A/3+zK0oDRaExHXySJRQQZxAhhJB9ymCd4ekz89lzCLx+X9O6WG8G9k2I//ScWe7rB6mLM3QHHczU2cvuW1/8kahz/8ofMM/IQW8UtC/SgRAEN60dEIc=
+   eJztkD0OgDAIRnHtgoOrd/NoHsWj2cGhoaANCi7fS760oT+PlggAAN4zGfMIT5s7n9yXgdbf16xNpDcC+SbLswQ7NXd1bte4e12zM9V5eM/KlMFaZDQfGzVW1qL7LQ9+T1i5f+QPkD70o9dLts/TAwAZnOUvEoc=
   </data>
  </layer>
  <layer name="Foreground" width="30" height="30">

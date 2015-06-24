@@ -32,9 +32,9 @@ public class TileMapVisual : MonoBehaviour {
 			meshTiles.Height = (uint)tileMap.Size.height;
 			meshTiles.SpriteAt = (x, y) => {
 				int tileIndex = (int)( x + y * tileMap.Size.width );
-				System.UInt32 tile = Tile.UUID( tileLayer.Tiles[ tileIndex ] );
+				System.UInt32 tile = tileLayer.Tiles[ tileIndex ];
 
-				Sprite sprite = tilesetLookup.Tiles[ (int)tile ].TileSprite;
+				Sprite sprite = tilesetLookup.Tiles[ (int)Tile.UUID( tile ) ].TileSprite;
 				var spriteData = new MeshTiles.SpriteData( sprite,
 				                                           Tile.FlippedHori( tile ),
 				                                           Tile.FlippedVert( tile ),

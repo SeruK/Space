@@ -253,13 +253,20 @@ public class MeshTiles : MonoBehaviour
 		int bottomLeftVertex  = (int)vertexIndex + 1;
 		int topRightVertex    = (int)vertexIndex + 2;
 		int topLeftVertex     = (int)vertexIndex + 3;
-		
-		vertices[bottomRightVertex] = new Vector3(maxX, maxY, 0.0f);
-		vertices[bottomLeftVertex] = new Vector3(minX, maxY, 0.0f);
-		vertices[topRightVertex] = new Vector3(maxX, minY, 0.0f);
-		vertices[topLeftVertex] = new Vector3(minX, minY, 0.0f);
-		
+
 		SpriteData spriteData = SpriteAt( x, y );
+
+		if( !spriteData.FlippedDiag ) {
+			vertices[bottomRightVertex] = new Vector3(maxX, maxY, 0.0f);
+			vertices[bottomLeftVertex]  = new Vector3(minX, maxY, 0.0f);
+			vertices[topRightVertex]    = new Vector3(maxX, minY, 0.0f);
+			vertices[topLeftVertex]     = new Vector3(minX, minY, 0.0f);
+		} else {
+			vertices[bottomRightVertex] = new Vector3(minX, maxY, 0.0f);
+			vertices[bottomLeftVertex]  = new Vector3(minX, minY, 0.0f);
+			vertices[topRightVertex]    = new Vector3(maxX, maxY, 0.0f);
+			vertices[topLeftVertex]     = new Vector3(maxX, minY, 0.0f);
+		}
 		
 		Rect texRect = new Rect(0, 0, 0, 0);
 		if( spriteData.Sprite != null ) {
@@ -280,17 +287,28 @@ public class MeshTiles : MonoBehaviour
 				boxCollider.size = new Vector2( meshSize, meshSize );
 			}
 		}
-		
-		// TODO: Diagonal flipping
-		
+
+		bool flipHori = false;
+		bool flipVert = false;
+
 		if( spriteData.FlippedHori ) {
+			flipHori = !spriteData.FlippedDiag;
+			flipVert = spriteData.FlippedDiag;
+		}
+		
+		if( spriteData.FlippedVert ) {
+			flipVert = !spriteData.FlippedDiag;
+			flipHori = spriteData.FlippedDiag;
+		}
+
+		if( flipHori ) {
 			float xMin = texRect.xMin;
 			float xMax = texRect.xMax;
 			texRect.xMin = xMax;
 			texRect.xMax = xMin;
 		}
-		
-		if( spriteData.FlippedVert ) {
+
+		if( flipVert ) {
 			float yMin = texRect.yMin;
 			float yMax = texRect.yMax;
 			texRect.yMin = yMax;
