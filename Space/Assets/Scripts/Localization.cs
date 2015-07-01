@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class Localization : MonoBehaviour {
+public class Localization {
 	private Dictionary<string, string> lines;
 
 	public void Load() {
@@ -81,5 +81,24 @@ public class Localization : MonoBehaviour {
 		}
 
 		return null;
+	}
+
+	public void Set( string id, string value ) {
+		if( lines == null ) {
+			DebugUtil.LogError( "Localization not loaded" );
+			return;
+		}
+
+		if( string.IsNullOrEmpty( id ) || value == null ) {
+			DebugUtil.LogError( "Invalid id or value" );
+			return;
+		}
+
+		if( lines.ContainsKey( id ) ) {
+			DebugUtil.LogWarn( "Localization id already existed: " + id + ", overwriting" );
+		}
+
+		DebugUtil.Log( string.Format( "Adding Line: [{0}] = \"{1}\"", id, value ) );
+		lines[ id ] = value;
 	}
 }

@@ -1,0 +1,16 @@
+﻿{
+	"characters": {
+		"char_aniara": { "text_color": "#FF0000" }
+	},
+	"conversations": {
+		"conv_test": {
+			"aliases": {
+				"char_aniara": "a"
+			},
+			"entries": [
+				{ "a": "This is and test." },
+				{ "b": "This is your test." }
+			]
+		}
+	}
+}

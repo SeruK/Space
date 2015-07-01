@@ -32,8 +32,13 @@ public class TextDisplay : MonoBehaviour
 	private Vector2 currentTextGlitchOffset;
 
 	public void TypeTextThenDisplayFor( string text, float displayFor ) {
+		TypeTextThenDisplayFor( text, displayFor, Color.white );
+	}
+
+	public void TypeTextThenDisplayFor( string text, float displayFor, Color textColor ) {
 		textToDisplay = text;
 		textClearTime = displayFor;
+		guiText.color = textColor;
 	}
 
 	protected void OnEnable() {
