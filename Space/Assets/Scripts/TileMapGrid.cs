@@ -32,13 +32,10 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			Vector2i tileMapPos = new Vector2i( i % size.width, i / size.width );
 			var tileMapVisualGo = new GameObject( tileMapPos.ToString() );
 			tileMapVisualGo.transform.parent = root.transform;
-			
-			// TODO: Make this a constant somewhere
-			const float TILE_SIZE_PIXELS = 20.0f;
-			const float PIXELS_PER_UNIT = 20.0f;
+
 			Vector2 tileMapLocalPos = (Vector2)tileMapTileSize;
 			tileMapLocalPos.Scale( (Vector2) tileMapPos );
-			tileMapLocalPos = ( TILE_SIZE_PIXELS * tileMapLocalPos  ) / PIXELS_PER_UNIT;
+			tileMapLocalPos = ( Constants.TILE_SIZE * tileMapLocalPos  ) / Constants.PIXELS_PER_UNIT;
 			tileMapVisualGo.transform.localPosition = tileMapLocalPos;
 			
 			var tileMapVisual = tileMapVisualGo.AddComponent<TileMapVisual>();
@@ -142,24 +139,19 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 
 	// TODO: Move this somewhere
 	private Vector2i WorldPosToTilePos( Vector2 pos ) {
-		const float PIXELS_PER_UNIT = 20.0f;
-		const float TILE_SIZE = 20.0f;
-		return new Vector2i( Mathf.FloorToInt( ( pos.x * PIXELS_PER_UNIT ) / TILE_SIZE ),
-		                     Mathf.FloorToInt( ( pos.y * PIXELS_PER_UNIT ) / TILE_SIZE ) );
+		return new Vector2i( Mathf.FloorToInt( ( pos.x * Constants.PIXELS_PER_UNIT ) / Constants.TILE_SIZE ),
+		                     Mathf.FloorToInt( ( pos.y * Constants.PIXELS_PER_UNIT ) / Constants.TILE_SIZE ) );
 	}
 
 	public Vector2 LayerToWorldPos( TileMap tileMap, Layer layer, Vector2 layerPos ) {
-		const float PIXELS_PER_UNIT = 20.0f;
-		const float TILE_SIZE_PIXELS = 20.0f;
-
 		var tileMapGridPos = TileMapGridPos( tileMap );
 
 		Vector2 tileMapLocalPos = (Vector2)tileMapGridPos;
 		tileMapLocalPos.Scale( (Vector2)tileMapTileSize );
-		tileMapLocalPos = ( TILE_SIZE_PIXELS * tileMapLocalPos  ) / PIXELS_PER_UNIT;
+		tileMapLocalPos = ( Constants.TILE_SIZE * tileMapLocalPos  ) / Constants.PIXELS_PER_UNIT;
 
-		layerPos.y = ( tileMapTileSize.height * TILE_SIZE_PIXELS ) - layerPos.y;
-		layerPos /= PIXELS_PER_UNIT;
+		layerPos.y = ( tileMapTileSize.height * Constants.TILE_SIZE ) - layerPos.y;
+		layerPos /= Constants.PIXELS_PER_UNIT;
 
 		return ( tileMapLocalPos + layerPos ) + (Vector2)transform.position;
 	}

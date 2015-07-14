@@ -44,7 +44,7 @@ public class Game : MonoBehaviour {
 		DebugUtil.Log( "tilemap: " + tileMap );
 
 		if( localization == null ) {
-			localization = gameObject.AddComponent<Localization>();
+			localization = new Localization();
 		}
 		localization.Load();
 
@@ -368,7 +368,7 @@ public class Game : MonoBehaviour {
 			}
 
 			if( Inventory != null ) {
-				Inventory.AddItem( pickup.ItemType );
+				Inventory.AddItem( pickup.ItemType, 1 );
 			}
 
 			entityManager.RemoveEntity( pickup );
@@ -383,17 +383,13 @@ public class Game : MonoBehaviour {
 	GUIState guiState = new GUIState();
 
 	private Vector2 TilePosToPos( Vector2i tilePos ) {
-		const float PIXELS_PER_UNIT = 20.0f;
-		const float TILE_SIZE = 20.0f;
-		return new Vector2( ( tilePos.x * TILE_SIZE ) / PIXELS_PER_UNIT,
-		                    ( tilePos.y * TILE_SIZE ) / PIXELS_PER_UNIT );
+		return new Vector2( ( tilePos.x * Constants.TILE_SIZE ) / Constants.PIXELS_PER_UNIT,
+		                    ( tilePos.y * Constants.TILE_SIZE ) / Constants.PIXELS_PER_UNIT );
 	}
 
 	private Vector2i PosToTilePos( Vector2 pos ) {
-		const float PIXELS_PER_UNIT = 20.0f;
-		const float TILE_SIZE = 20.0f;
-		return new Vector2i( Mathf.FloorToInt( ( pos.x * PIXELS_PER_UNIT ) / TILE_SIZE ),
-		                     Mathf.FloorToInt( ( pos.y * PIXELS_PER_UNIT ) / TILE_SIZE ) );
+		return new Vector2i( Mathf.FloorToInt( ( pos.x * Constants.PIXELS_PER_UNIT ) / Constants.TILE_SIZE ),
+		                     Mathf.FloorToInt( ( pos.y * Constants.PIXELS_PER_UNIT ) / Constants.TILE_SIZE ) );
 	}
 
 	private Vector2i EntityTilePos( Entity entity ) {
@@ -456,17 +452,17 @@ public class Game : MonoBehaviour {
 
 		GUILayout.BeginVertical();
 		GUILayout.Space( 10.0f );
-		for( int y = 0; y < Inventory.Items.Rank; ++y ) {
-			var items = Inventory.Items;
-			int w = items.GetLength( y );
-
+		for( int y = 0; y < Inventory.Height; ++y ) {
 			GUILayout.BeginHorizontal();
 			GUILayout.Space( 10.0f );
-			for( int x = 0; x < w; ++x ) {
+			for( int x = 0; x < Inventory.Width; ++x ) {
 				GUILayout.BeginVertical();
 
+				InventoryItem invItem = Inventory.ItemAt( x, y );
+				Item.ItemType itemType = invItem.ItemType;
+
 				string buttonText = "";
-				Sprite sprite = Inventory.GetItemSprite( items[ y, x ] );
+				Sprite sprite = Inventory.GetItemSprite( itemType, tilesetLookup );
 				GUILayout.Button( buttonText, GUILayout.Width( 48.0f ), GUILayout.Height( 48.0f ) );
 
 				var lastRect = GUILayoutUtility.GetLastRect();	
@@ -484,7 +480,7 @@ public class Game : MonoBehaviour {
 					textRect.height /= sprite.texture.height;
 					GUI.DrawTextureWithTexCoords( lastRectRel, sprite.texture, textRect );
 				}
-				var itemType = items[ y, x ];
+
 				string itemName = itemType == Item.ItemType.None ? "" :
 					System.Enum.GetName( typeof(Item.ItemType), itemType );
 				GUILayout.Label( itemName, inventoryStyle, GUILayout.Width( lastRect.width ) );
