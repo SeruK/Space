@@ -9,7 +9,8 @@ public static class Item {
 		Binoculars,
 		Compass,
 		AlienMeat,
-		DataDisc
+		DataDisc,
+		TILE = 256
 	}
 
 	public static ItemType ItemTypeFromString( string str ) {
@@ -23,10 +24,38 @@ public static class Item {
 	}
 
 	public static string LocalizedNameId( ItemType itemType ) {
+		if( IsTile( itemType ) ) {
+			return "item_tile_" + TileUUIDFromItem( itemType ).ToString().PadLeft( 4, '0' );
+		}
+
 		return "item_" + System.Enum.GetName( typeof( ItemType ), itemType );
 	}
 
 	public static string FallbackName( ItemType itemType ) {
+		if( IsTile( itemType ) ) {
+			return "item_tile_" + TileUUIDFromItem( itemType ).ToString().PadLeft( 4, '0' );
+		}
+
 		return System.Enum.GetName( typeof( ItemType ), itemType );
+	}
+
+	public static bool IsTile( ItemType itemType ) {
+		return (int)itemType >= (int)ItemType.TILE;
+	}
+
+	public static System.UInt32 TileUUIDFromItem( ItemType itemType, System.UInt32 defaultUUID ) {
+		if( !IsTile( itemType ) ) {
+			return defaultUUID;
+		}
+		return (uint)itemType - (uint)ItemType.TILE;
+	}
+
+	public static System.UInt32 TileUUIDFromItem( ItemType itemType ) {
+		DebugUtil.Assert( IsTile( itemType ) );
+		return (uint)itemType - (uint)ItemType.TILE;
+	}
+
+	public static ItemType ItemFromTileUUID( System.UInt32 uuid ) {
+		return (ItemType)( uuid + (uint)ItemType.TILE );
 	}
 }
