@@ -18,7 +18,7 @@
  </layer>
  <objectgroup name="Object Layer 1">
   <object id="21" type="Goomba" x="123.5" y="236" width="18" height="17"/>
-  <object id="22" name="Gun" type="Item" x="128.5" y="158">
+  <object id="22" name="Gun" type="Item" x="446.5" y="267">
    <properties>
     <property name="ItemType" value="Gun"/>
    </properties>

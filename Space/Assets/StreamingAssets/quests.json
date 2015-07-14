@@ -7,13 +7,13 @@
 				"objective_type": "GetItem",
 				"item_type": "Gun",
 				"amount": 1,
-				"sub_objectives": [
+				/* "sub_objectives": [
 					{
 						"objective_type": "KillEntity",
 						"entity_type": "goomba",
 						"amount": 1
 					}
-				]
+				] */
 			}
 		],
 		"next_quest": "main_quest_02"

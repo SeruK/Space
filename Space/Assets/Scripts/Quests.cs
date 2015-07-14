@@ -57,10 +57,12 @@ public class Quest {
 
 public class Quests {
 	private class OngoingQuest {
+		public readonly string QuestId;
 		public readonly Quest Quest;
 		public List<string> CompletedObjectivesIds;
 
-		public OngoingQuest( Quest quest ) {
+		public OngoingQuest( string questId, Quest quest ) {
+			this.QuestId = questId;
 			this.Quest = quest;
 			CompletedObjectivesIds = new List<string>();
 		}
@@ -79,19 +81,27 @@ public class Quests {
 		}
 
 		DebugUtil.Log( "Starting quest: " + id );
-		currentQuests.Add( new OngoingQuest( quests[ id ] ) );
+		currentQuests.Add( new OngoingQuest( id, quests[ id ] ) );
 	}
 
 	public void AquiredItem( ItemType item ) {
+		var completedQuests = new List<OngoingQuest>();
 		foreach( OngoingQuest quest in currentQuests ) {
-			TryCompleteQuest( quest, ( Objective objective ) => {
+			bool completed = TryCompleteQuest( quest, ( Objective objective ) => {
 				return objective.ObjectiveType == Objective.ObjType.GetItem &&
 				       objective.ItemType == item;
 			} );
+
+			if( completed ) {
+				completedQuests.Add( quest );
+			}
+		}
+		foreach( var completedQuest in completedQuests ) {
+			QuestCompleted( completedQuest );
 		}
 	}
 
-	private void TryCompleteQuest( OngoingQuest quest, System.Func<Objective, bool> didCompleteObjective ) {
+	private bool TryCompleteQuest( OngoingQuest quest, System.Func<Objective, bool> didCompleteObjective ) {
 		bool objectivesLeft = FindIncompleteObjectives( quest, quest.Quest.Objectives, ( Objective foundObjective ) => {
 			if( didCompleteObjective( foundObjective ) ) {
 				DebugUtil.Log( "Finished objective: " + foundObjective.Id );
@@ -100,10 +110,8 @@ public class Quests {
 			}
 			return false;
 		} );
-		
-		if( !objectivesLeft ) {
-			QuestCompleted( quest );
-		}
+
+		return !objectivesLeft;
 	}
 
 	private bool FindIncompleteObjectives( OngoingQuest quest, Objective[] objectives, System.Func<Objective, bool> onFound ) {
@@ -127,8 +135,12 @@ public class Quests {
 	}
 
 	private void QuestCompleted( OngoingQuest quest ) {
-		DebugUtil.Log( "Completed quest: " + quest.Quest.TitleId );
-		StartQuest( quest.Quest.NextQuestId );
+		DebugUtil.Log( "Completed quest: " + quest.QuestId );
+
+		string nextId = quest.Quest.NextQuestId;
+		currentQuests.Remove( quest );
+
+		StartQuest( nextId );
 	}
 
 	public void Load( Localization localization ) {
@@ -181,7 +193,7 @@ public class Quests {
 			int amount = jsonAmount == null ? 0 : jsonAmount.AsInt;
 
 			JSONNode jsonSubs = jsonObjective[ "sub_objectives" ];
-			Objective[] subObjectives = null;
+			Objective[] subObjectives = new Objective[ 0 ];
 			if( jsonSubs != null ) {
 				subObjectives = ReadObjectives( localization, jsonSubs.AsArray, objectiveId );
 			}
@@ -195,7 +207,6 @@ public class Quests {
 				title = title ?? string.Format( format, amount, GetItemName( localization, itemType ) );
 				objectivesList.Add( new Objective( objectiveId, titleId, itemType, amount, subObjectives ) );
 			} else if( objectiveType == "KillEntity" ) {
-				// TODO: Get proper name
 				string entityType = jsonObjective[ "entity_type" ];
 				string entityName = localization.Get( entityType );
 				string format = localization.Get( KILL_ENTITY_FORMAT_ID );
