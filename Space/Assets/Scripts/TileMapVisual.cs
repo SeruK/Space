@@ -9,11 +9,9 @@ public class TileMapVisual : MonoBehaviour {
 	}
 
 	private TileMap tileMap;
-	private TilesetLookup tilesetLookup;
 
 	public void CreateWithTileMap( TileMap tileMap, TilesetLookup tilesetLookup ) {
 		this.tileMap = tileMap;
-		this.tilesetLookup = tilesetLookup;
 
 		foreach( Transform child in transform ) {
 			Destroy( child.gameObject );
