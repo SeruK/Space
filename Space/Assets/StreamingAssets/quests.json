@@ -1,0 +1,21 @@
+{
+	"main_quest_01": {
+		"title": "Find the gun",
+		"desc": "You need to find a gun dude.",
+		"objectives": [
+			{
+				"objective_type": "GetItem",
+				"item_type": "Gun",
+				"amount": 1,
+				"sub_objectives": [
+					{
+						"objective_type": "KillEntity",
+						"entity_type": "goomba",
+						"amount": 1
+					}
+				]
+			}
+		],
+		"next_quest": "main_quest_02"
+	}
+}

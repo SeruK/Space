@@ -21,7 +21,10 @@ public class Game : MonoBehaviour {
 	public SmoothFollow CameraController;
 	public TextDisplay TextDisplay;
 	public Inventory Inventory;
+
 	private Localization localization;
+	private Conversations conversations;
+	private Quests quests;
 	private Vector2 spawnPos;
 	private float playerInvincibilityTimer;
 	private Vector2i aimVector;
@@ -47,6 +50,16 @@ public class Game : MonoBehaviour {
 			localization = new Localization();
 		}
 		localization.Load();
+
+		if( quests == null ) {
+			quests = new Quests();
+		}
+		quests.Load( localization );
+
+		if( conversations == null ) {
+			conversations = new Conversations();
+		}
+		conversations.Load( localization );
 
 		if( entityManager == null ) {
 			entityManager = gameObject.GetComponent<EntityManager>();

@@ -32,7 +32,7 @@ public class Conversation {
 }
 
 public class Conversations {
-	private string UNKNOWN_TALKER_ID = "char_unknown";
+	private static readonly string UNKNOWN_TALKER_ID = "char_unknown";
 
 	private Dictionary<string, ConversationCharacter> characters;
 	public Dictionary<string, Conversation> Convos;
@@ -84,7 +84,7 @@ public class Conversations {
 							talker = characters[ UNKNOWN_TALKER_ID ];
 						}
 
-						string generatedId = string.Format( "{0}_{1}",  convoId, entryCounter.ToString().PadLeft( 4, '0' ) );
+						string generatedId = string.Format( "conv_{0}_{1}",  convoId, entryCounter.ToString().PadLeft( 4, '0' ) );
 
 						localization.Set( generatedId, entryKvp.Value );
 
