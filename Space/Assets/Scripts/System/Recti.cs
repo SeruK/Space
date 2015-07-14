@@ -48,26 +48,33 @@ namespace SA
 		}
 		
 		public int MinX
-		{ get { return size.width < 0 ? origin.x + size.width : origin.x; } }
+		{ get { return size.width < 0 ? ( origin.x + size.width - 1 ) : origin.x; } }
 		
 		public int MaxX
-		{ get { return size.width < 0 ? origin.x : origin.x + size.width; } }
+		{ get { return size.width < 0 ? origin.x : ( origin.x + size.width - 1 ); } }
 		
 		public int MinY
-		{ get { return size.height < 0 ? origin.y + size.height : origin.y; } }
+		{ get { return size.height < 0 ? ( origin.y + size.height - 1 ) : origin.y; } }
 		
 		public int MaxY
-		{ get { return size.height < 0 ? origin.y : origin.y + size.height; } }
+		{ get { return size.height < 0 ? origin.y : ( origin.y + size.height - 1 ); } }
 		
 		public int MidX
-		{ get { return MaxX - Mathf.Abs(size.width/2); } }
+		{ get { return MinX + Mathf.Abs(size.width/2); } }
 		
 		public int MidY
-		{ get { return MaxY - Mathf.Abs(size.height/2); } }
+		{ get { return MinY + Mathf.Abs(size.height/2); } }
 		
 		public static Recti Zero
 		{
 			get { return new Recti(0,0,0,0); }
+		}
+
+		public bool ContainsPoint( Vector2i p ) {
+			if( Mathf.Abs( size.width ) + Mathf.Abs( size.height ) == 0 ) {
+				return false;
+			}
+			return MinX <= p.x && MaxX >= p.x && MinY <= p.y && MaxY >= p.y;
 		}
 	}
 }

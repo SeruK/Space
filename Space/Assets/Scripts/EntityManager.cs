@@ -19,13 +19,14 @@ public class EntityManager : MonoBehaviour {
 	private int currentEntityId;
 	private Dictionary<int, BaseEntity> entities;
 
-	protected void OnEnable() {
-		currentEntityId = 0;
-		entities = new Dictionary<int, BaseEntity>();
-	}
-
 	protected void OnDisable() {
 		RemoveAllEntities();
+	}
+
+	public void Reinitialize() {
+		RemoveAllEntities();
+		currentEntityId = 0;
+		entities = new Dictionary<int, BaseEntity>();
 	}
 
 	public T Spawn<T>( string name ) where T : Component {
@@ -118,6 +119,10 @@ public class EntityManager : MonoBehaviour {
 	}
 
 	public void RemoveAllEntities() {
+		if( entities == null ) {
+			return;
+		}
+
 		foreach( var entity in entities.Values ) {
 			RemoveEntityInternal( entity );
 		}

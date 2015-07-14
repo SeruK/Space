@@ -20,6 +20,10 @@ namespace SA
 		public static implicit operator Vector2i(Size2i v){
 			return new Vector2i(v.width, v.height);	
 		}
+
+		public static explicit operator Vector2(Size2i s){
+			return new Vector2((float)s.width, (float)s.height);
+		}
 		
 		override public string ToString()
 		{
@@ -112,6 +116,10 @@ namespace SA
 		public static explicit operator Vector2i(Vector2 v){
 			return new Vector2i((int)v.x, (int)v.y);	
 		}
+
+		public static explicit operator Vector2(Vector2i v){
+			return new Vector2((float)v.x, (float)v.y);
+		}
 		
 		override public string ToString()
 		{
@@ -142,7 +150,7 @@ namespace SA
 		{
 			return new Vector2i(-a.x, -a.y);
 		}
-		
+
 		public override bool Equals (object other)
 		{
 			if (!(other is Vector2i))

@@ -402,7 +402,7 @@ namespace SA {
 			var dataElement = tileLayer.Element( "data" );
 			// Check encoding etc
 			System.UInt32[] tiles = DecompressTiles( dataElement.Value, mapSize );
-			ResolveTiles( ref tiles, mapSize, tilesets, tilesetLookup );
+			tiles = ResolveTiles( tiles, mapSize, tilesets, tilesetLookup );
 
 			return new TileLayer( name, opacity, visible, properties, tiles );
 		}
@@ -515,7 +515,10 @@ namespace SA {
 			return tiles;
 		}
 
-		private static void ResolveTiles( ref System.UInt32[] tiles, Size2i mapSize, List<TilesetRef> tilesets, TilesetLookup tilesetLookup ) {
+		private static System.UInt32[] ResolveTiles( System.UInt32[] tiles, Size2i mapSize, List<TilesetRef> tilesets, TilesetLookup tilesetLookup ) {
+			// TODO: If double buffers proves an issue flip y somehow else
+			var resolvedTiles = new System.UInt32[ tiles.Length ];
+
 			for( int tileIndex = 0; tileIndex < tiles.Length; ++tileIndex ) {
 				System.UInt32 tileGID = tiles[ tileIndex ];
 				System.UInt32 flipMask = tileGID & Tile.FLIP_MASK;
@@ -527,19 +530,27 @@ namespace SA {
 					var tilesetRef = tilesets[ i ];
 
 					if( tilesetRef.FirstGID <= tileGID ) {
+						// Since Y is flipped in tiled, flip it back here
+						int x = tileIndex % mapSize.width;
+						int y = tileIndex / mapSize.width;
+						y = ( mapSize.height - 1 ) - y;
+						int resolvedTileIndex = x + y * mapSize.width;
+
 						System.UInt32 localGID = tileGID - tilesetRef.FirstGID;
 						if( localGID >= tilesetRef.Value.UUIDs.Length ) {
 //							Debug.LogWarning( "Tile at " + new SA.Vector2i( tileIndex % mapSize.width, tileIndex / mapSize.width ) + " has GID (" + localGID + ") > Assigned UUIDs (" + tilesetRef.Value.UUIDs.Length + ")" );
-							tiles[ tileIndex ] = 0u;
+							resolvedTiles[ resolvedTileIndex ] = 0u;
 							break;
 						}
 						System.UInt32 uuid = tilesetRef.Value.UUIDs[ localGID ];
 						uuid |= flipMask;
-						tiles[ tileIndex ] = uuid;
+						resolvedTiles[ resolvedTileIndex ] = uuid;
 						break;
 					}
 				}
 			}
+
+			return resolvedTiles;
 		}
 	}
 	
