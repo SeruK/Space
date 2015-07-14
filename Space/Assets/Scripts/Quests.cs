@@ -12,6 +12,7 @@ public class Objective {
 	
 	public readonly ObjType  ObjectiveType;
 
+	public readonly string   Id;
 	public readonly string   TitleId;
 
 	public readonly ItemType ItemType;
@@ -21,7 +22,8 @@ public class Objective {
 
 	public readonly Objective[] SubObjectives;
 
-	public Objective( string titleId, ItemType itemType, int amount, Objective[] subObjectives ) {
+	public Objective( string id, string titleId, ItemType itemType, int amount, Objective[] subObjectives ) {
+		this.Id = id;
 		this.TitleId = titleId;
 		this.ObjectiveType = ObjType.GetItem;
 		this.ItemType = itemType;
@@ -29,7 +31,8 @@ public class Objective {
 		this.SubObjectives = subObjectives;
 	}
 
-	public Objective( string titleId, string entityType, int amount, Objective[] subObjectives ) {
+	public Objective( string id, string titleId, string entityType, int amount, Objective[] subObjectives ) {
+		this.Id = id;
 		this.TitleId = titleId;
 		this.ObjectiveType = ObjType.KillEntity;
 		this.EntityType = entityType;
@@ -53,13 +56,84 @@ public class Quest {
 }
 
 public class Quests {
+	private class OngoingQuest {
+		public readonly Quest Quest;
+		public List<string> CompletedObjectivesIds;
+
+		public OngoingQuest( Quest quest ) {
+			this.Quest = quest;
+			CompletedObjectivesIds = new List<string>();
+		}
+	}
+
 	private static readonly string GET_ITEM_FORMAT_ID = "objective_get_item_format";
 	private static readonly string KILL_ENTITY_FORMAT_ID = "objective_kill_entity_format";
 
 	private Dictionary<string, Quest> quests;
+	private List<OngoingQuest> currentQuests;
+
+	public void StartQuest( string id ) {
+		if( !quests.ContainsKey( id ) ) {
+			DebugUtil.LogWarn( "No quest called " + id + " exists" );
+			return;
+		}
+
+		DebugUtil.Log( "Starting quest: " + id );
+		currentQuests.Add( new OngoingQuest( quests[ id ] ) );
+	}
+
+	public void AquiredItem( ItemType item ) {
+		foreach( OngoingQuest quest in currentQuests ) {
+			TryCompleteQuest( quest, ( Objective objective ) => {
+				return objective.ObjectiveType == Objective.ObjType.GetItem &&
+				       objective.ItemType == item;
+			} );
+		}
+	}
+
+	private void TryCompleteQuest( OngoingQuest quest, System.Func<Objective, bool> didCompleteObjective ) {
+		bool objectivesLeft = FindIncompleteObjectives( quest, quest.Quest.Objectives, ( Objective foundObjective ) => {
+			if( didCompleteObjective( foundObjective ) ) {
+				DebugUtil.Log( "Finished objective: " + foundObjective.Id );
+				quest.CompletedObjectivesIds.Add( foundObjective.Id );
+				return true;
+			}
+			return false;
+		} );
+		
+		if( !objectivesLeft ) {
+			QuestCompleted( quest );
+		}
+	}
+
+	private bool FindIncompleteObjectives( OngoingQuest quest, Objective[] objectives, System.Func<Objective, bool> onFound ) {
+		bool objectivesLeft = false;
+
+		foreach( var objective in objectives ) {
+			// Is the objective completed already?
+			if( quest.CompletedObjectivesIds.Exists( ( string completedId ) => { return completedId == objective.Id; } ) ) {
+				objectivesLeft = FindIncompleteObjectives( quest, objective.SubObjectives, onFound ) || objectivesLeft;
+				continue;
+			}
+
+			if( onFound( objective ) ) {
+				objectivesLeft = objectivesLeft || objective.SubObjectives.Length != 0;
+			} else {
+				objectivesLeft = true;
+			}
+		}
+
+		return objectivesLeft;
+	}
+
+	private void QuestCompleted( OngoingQuest quest ) {
+		DebugUtil.Log( "Completed quest: " + quest.Quest.TitleId );
+		StartQuest( quest.Quest.NextQuestId );
+	}
 
 	public void Load( Localization localization ) {
 		quests = new Dictionary<string, Quest>();
+		currentQuests = new List<OngoingQuest>();
 
 		var filePath = Path.Combine( Application.streamingAssetsPath, "quests.json" );
 		using( var file = new StreamReader( filePath ) ) {
@@ -119,14 +193,14 @@ public class Quests {
 				ItemType itemType = Item.ItemTypeFromString( jsonObjective[ "item_type" ] );
 				string format = localization.Get( GET_ITEM_FORMAT_ID );
 				title = title ?? string.Format( format, amount, GetItemName( localization, itemType ) );
-				objectivesList.Add( new Objective( titleId, itemType, amount, subObjectives ) );
+				objectivesList.Add( new Objective( objectiveId, titleId, itemType, amount, subObjectives ) );
 			} else if( objectiveType == "KillEntity" ) {
 				// TODO: Get proper name
 				string entityType = jsonObjective[ "entity_type" ];
 				string entityName = localization.Get( entityType );
 				string format = localization.Get( KILL_ENTITY_FORMAT_ID );
 				title = title ?? string.Format( format, amount, entityName );
-				objectivesList.Add( new Objective( titleId, entityType, amount, subObjectives ) );
+				objectivesList.Add( new Objective( objectiveId, titleId, entityType, amount, subObjectives ) );
 			}
 
 			localization.Set( titleId, title ?? "[OBJECTIVE_TITLE]" );

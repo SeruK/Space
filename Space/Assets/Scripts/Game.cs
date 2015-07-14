@@ -90,6 +90,8 @@ public class Game : MonoBehaviour {
 		GenerateTileMapAt( 5, 2 );
 
 		RespawnPlayer( spawnPos );
+
+		quests.StartQuest( "main_quest_01" );
 	}
 
 	private void SetTileMapAt( TileMap tileMap, int x, int y ) {
@@ -382,6 +384,7 @@ public class Game : MonoBehaviour {
 
 			if( Inventory != null ) {
 				Inventory.AddItem( pickup.ItemType, 1 );
+				quests.AquiredItem( pickup.ItemType );
 			}
 
 			entityManager.RemoveEntity( pickup );
