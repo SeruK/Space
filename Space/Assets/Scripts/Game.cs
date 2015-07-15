@@ -83,7 +83,8 @@ public class Game : MonoBehaviour {
 
 		tileMapGrid.CreateGrid();
 		var midgroundTiles = tileMap.MidgroundLayer.Tiles;
-		GenerateMountainTiles( ref midgroundTiles, 3, 3, 30, 30 );
+		var backgroundTiles = System.Array.Find( tileMap.TileLayers, ( TileLayer layer ) => { return layer.Name == "Background"; } ).Tiles;
+		GenerateMountainTiles( ref midgroundTiles, ref backgroundTiles, 3, 3, 30, 30 );
 		SetTileMapAt( tileMap, 3, 3 );
 		GenerateTileMapAt( 1, 3 );
 		GenerateTileMapAt( 2, 3 );
@@ -116,18 +117,22 @@ public class Game : MonoBehaviour {
 	private void GenerateTileMapAt( int gridX, int gridY ) {
 		int w = 30; int h = 30;
 		var tiles = new System.UInt32[ w * h ];
+		var bgTiles = new System.UInt32[ w * h ];
 
 		if( gridY < 3 ) {
-			GenerateDungeonTiles( ref tiles, gridX, gridY, w, h );
+			GenerateDungeonTiles( ref tiles, ref bgTiles, gridX, gridY, w, h );
 		} else {
-			GenerateMountainTiles( ref tiles, gridX, gridY, w, h );
+			GenerateMountainTiles( ref tiles, ref bgTiles, gridX, gridY, w, h );
 		}
 		var tileLayer = new TileLayer( "Midground", 1.0f, true, null, tiles );
-		var tileMap = new TileMap( new Size2i( w, h ), new Size2i( 20, 20 ), Color.clear, null, null, new TileLayer[] { tileLayer }, null, 0 );
+		var bgLayer = new TileLayer( "Background", 1.0f, true, null, bgTiles );
+		var tileLayers = new TileLayer[] { bgLayer, tileLayer };
+		int midgroundIndex = 1;
+		var tileMap = new TileMap( new Size2i( w, h ), new Size2i( 20, 20 ), Color.clear, null, null, tileLayers, null, midgroundIndex );
 		SetTileMapAt( tileMap, gridX, gridY );
 	}
 
-	private void GenerateMountainTiles( ref System.UInt32[] tiles, int gridX, int gridY, int w, int h ) {
+	private void GenerateMountainTiles( ref System.UInt32[] tiles, ref System.UInt32[] bgTiles, int gridX, int gridY, int w, int h ) {
 		float freq = 0.1f;
 		int octaves = 5;
 		float lacunarity = 2.0f;//range(2.0f, 3.0f);
@@ -147,10 +152,21 @@ public class Game : MonoBehaviour {
 				}
 				tiles[ tileIndex ] = 16u;
 			}
+			for( int y = 0; y < yHeight; ++y ) {
+				int tileIndex = x + y * w;
+				if( Tile.UUID( bgTiles[ tileIndex ] ) != 0u ) {
+					break;
+				}
+				bgTiles[ tileIndex ] = 14u;
+			}
 		}
 	}
 
-	private void GenerateDungeonTiles( ref System.UInt32[] tiles, int gridX, int gridY, int w, int h ) {
+	private void GenerateDungeonTiles( ref System.UInt32[] tiles, ref System.UInt32[] bgTiles, int gridX, int gridY, int w, int h ) {
+		for( int i = 0; i < w * h; ++i ) {
+			bgTiles[ i ] = 14u;
+		}
+
 		float freq = 0.1f;
 		int octaves = 5;
 		float lacunarity = 2.0f;//range(2.0f, 3.0f);
