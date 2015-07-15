@@ -36,6 +36,7 @@ public class Game : MonoBehaviour {
 	private float playerInvincibilityTimer;
 	private Vector2i aimVector;
 	private bool requestedDig;
+	private bool requestedPlaceItem;
 	private string displayedQuestId;
 
 	private EntityManager entityManager;
@@ -147,6 +148,15 @@ public class Game : MonoBehaviour {
 					TryDig( digPos );
 				}
 			}
+		} else if( requestedPlaceItem ) {
+			InventoryItem item = Inventory.ItemAt( guiState.SelectedItem.x, guiState.SelectedItem.y );
+			System.UInt32 uuid = Item.TileUUIDFromItem( item.ItemType, 0u );
+			if( uuid != 0u ) {
+				Inventory.RemoveSingleItem( guiState.SelectedItem );
+				Vector2i playerTilePos = EntityTilePos( player );
+				Vector2i aimPos = playerTilePos + aimVector;
+				TryPlaceTile( aimPos, uuid );
+			}
 		}
 	}
 
@@ -158,12 +168,7 @@ public class Game : MonoBehaviour {
 
 		var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( digPos.x, digPos.y );
 		if( tileMapVisual != null ) {
-			var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
-			int localX = digPos.x - gridPos.x;
-			int localY = digPos.y - gridPos.y;
-
-//			DebugUtil.Log( "Destroying: " + digPos + " | " + new Vector2i( localX, localY ) );
-			tileMapVisual.UpdateTile( localX, localY, 0u );
+			SetTile( tileMapVisual, digPos, 0u );
 			var pickup = entityManager.Spawn<Pickup>( "Pickup" );
 			pickup.GetComponent<SpriteRenderer>().sprite = tilesetLookup.Tiles[ (int)tileAtDigPos ].TileSprite;
 			pickup.ItemType = Item.ItemType.TILE;
@@ -177,9 +182,34 @@ public class Game : MonoBehaviour {
 		return false;
 	}
 
+	private bool TryPlaceTile( Vector2i tilePos, System.UInt32 tile ) {
+		if( Tile.UUID( tileMapGrid.TileAtTilePos( tilePos ) ) != 0u ) {
+			return false;
+		}
+		return TrySetTile( tilePos, tile );
+	}
+
+	private bool TrySetTile( Vector2i tilePos, System.UInt32 tile ) {
+		var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( tilePos.x, tilePos.y );
+		if( tileMapVisual == null ) {
+			return false;
+		}
+		SetTile( tileMapVisual, tilePos, tile );
+		return true;
+	} 
+
+	private void SetTile( TileMapVisual tileMapVisual, Vector2i tilePos, System.UInt32 tile ) {
+		var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
+		int localX = tilePos.x - gridPos.x;
+		int localY = tilePos.y - gridPos.y;
+		tileMapVisual.UpdateTile( localX, localY, tile );
+	}
+
 	protected void UpdateInput() {
+		bool standStill = Input.GetKey( KeyCode.LeftShift );
 		aimVector.Set( 0, 0 );
 		requestedDig = false;
+		requestedPlaceItem = false;
 
 		if( player != null ) {
 			player.RequestedHorizontalSpeed = 0.0f;
@@ -222,11 +252,15 @@ public class Game : MonoBehaviour {
 
 		aimVector.Set( left ? -1 : right ? 1 : 0, down ? -1 : up ? 1 : 0 );
 
+		if( aimVector.Magnitude > 0 ) {
+			requestedPlaceItem = Input.GetKeyDown( KeyCode.Q );
+		}
+
 		Vector2i aimTilePos = EntityTilePos( player ) + aimVector;
 
 		bool aimingAtTile = Tile.UUID( tileMapGrid.TileAtTilePos( aimTilePos ) ) != 0u;
 
-		player.RequestedHorizontalSpeed = aimingAtTile ? 0.0f : left ? -1.0f : right ? 1.0f : 0.0f;
+		player.RequestedHorizontalSpeed = aimingAtTile || standStill ? 0.0f : left ? -1.0f : right ? 1.0f : 0.0f;
 		player.RequestedJump = Input.GetKey( KeyCode.Space );
 		if( CameraController != null ) {
 			CameraController.extraCameraOffset = new Vector3( 0.0f, 2.0f * -aimVector.y );
@@ -356,7 +390,7 @@ public class Game : MonoBehaviour {
 	
 	private class GUIState {
 		public bool ShowInventory = false;
-		public bool ShowQuests = false;
+		public Vector2i SelectedItem;
 	}
 
 	GUIState guiState = new GUIState();
@@ -469,8 +503,12 @@ public class Game : MonoBehaviour {
 				
 				string buttonText = "";
 				Sprite sprite = Inventory.GetItemSprite( itemType, tilesetLookup );
-				GUILayout.Button( buttonText, GUILayout.Width( 48.0f ), GUILayout.Height( 48.0f ) );
-				
+				bool toggled = guiState.SelectedItem == new Vector2i( x, y );
+				toggled = GUILayout.Toggle( toggled, buttonText, GUILayout.Width( 48.0f ), GUILayout.Height( 48.0f ) );
+				if( toggled ) {
+					guiState.SelectedItem = new Vector2i( x, y );
+				}
+
 				var lastRect = GUILayoutUtility.GetLastRect();	
 				
 				if( sprite != null ) {
