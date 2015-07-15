@@ -75,6 +75,10 @@ public class Quests {
 		get { return currentQuests; }
 	}
 
+	public event System.Action<OngoingQuest> OnQuestStarted;
+	public event System.Action<OngoingQuest, Objective> OnObjectiveCompleted;
+	public event System.Action<OngoingQuest> OnQuestCompleted;
+
 	private Dictionary<string, Quest> quests;
 	private List<OngoingQuest> currentQuests;
 
@@ -85,7 +89,11 @@ public class Quests {
 		}
 
 		DebugUtil.Log( "Starting quest: " + id );
-		currentQuests.Add( new OngoingQuest( id, quests[ id ] ) );
+		var newQuest = new OngoingQuest( id, quests[ id ] );
+		currentQuests.Add( newQuest );
+		if( OnQuestStarted != null ) {
+			OnQuestStarted( newQuest );
+		}
 	}
 
 	public void AquiredItem( ItemType item ) {
@@ -110,6 +118,9 @@ public class Quests {
 			if( didCompleteObjective( foundObjective ) ) {
 				DebugUtil.Log( "Finished objective: " + foundObjective.Id );
 				quest.CompletedObjectivesIds.Add( foundObjective.Id );
+				if( OnObjectiveCompleted != null ) {
+					OnObjectiveCompleted( quest, foundObjective );
+				}
 				return true;
 			}
 			return false;
@@ -157,6 +168,10 @@ public class Quests {
 
 		string nextId = quest.Quest.NextQuestId;
 		currentQuests.Remove( quest );
+
+		if( OnQuestCompleted != null ) {
+			OnQuestCompleted( quest );
+		}
 
 		StartQuest( nextId );
 	}

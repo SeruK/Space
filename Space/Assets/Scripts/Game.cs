@@ -60,6 +60,9 @@ public class Game : MonoBehaviour {
 			quests = new Quests();
 		}
 		quests.Load( localization );
+		quests.OnQuestStarted += OnQuestStarted;
+		quests.OnObjectiveCompleted += OnObjectiveCompleted;
+		quests.OnQuestCompleted += OnQuestCompleted;
 
 		if( conversations == null ) {
 			conversations = new Conversations();
@@ -76,7 +79,6 @@ public class Game : MonoBehaviour {
 		if( player != null ) {
 			Camera.main.GetComponent<SmoothFollow>().target = player.CharController.transform;
 			playerUnit = player.GetComponent<Unit>();
-			player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
 		}
 
 		tileMapGrid.CreateGrid();
@@ -219,6 +221,9 @@ public class Game : MonoBehaviour {
 		player = null;
 		playerUnit = null;
 		entityManager.RemoveAllEntities();
+		quests.OnQuestStarted -= OnQuestStarted;
+		quests.OnObjectiveCompleted -= OnObjectiveCompleted;
+		quests.OnQuestCompleted -= OnQuestCompleted;
 	}
 
 	protected void Update() {
@@ -410,6 +415,21 @@ public class Game : MonoBehaviour {
 
 			entityManager.RemoveEntity( pickup );
 		}
+	}
+
+	private void OnQuestStarted( OngoingQuest quest ) {
+		string title = localization.Get( quest.Quest.TitleId );
+		TypeTextThenDisplayFor( "New quest:\n" + title, 3.0f );
+	}
+
+	private void OnObjectiveCompleted( OngoingQuest quest, Objective objective ) {
+		string title = localization.Get( objective.TitleId );
+		TypeTextThenDisplayFor( "Completed Objective:\n" + title, 3.0f );
+	}
+
+	private void OnQuestCompleted( OngoingQuest quest ) {
+		string title = localization.Get( quest.Quest.TitleId );
+		TypeTextThenDisplayFor( "Completed Quest:\n" + title, 3.0f );
 	}
 
 	private void TypeTextThenDisplayFor( string text, float displayFor ) {
