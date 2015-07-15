@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using SA;
+using System.Collections.Generic;
+using OngoingQuest = Quests.OngoingQuest;
 
 [RequireComponent( typeof(EntityManager) )]
 [RequireComponent( typeof(TileMapGrid) )]
@@ -31,6 +33,7 @@ public class Game : MonoBehaviour {
 	private float playerInvincibilityTimer;
 	private Vector2i aimVector;
 	private bool requestedDig;
+	private string displayedQuestId;
 
 	private EntityManager entityManager;
 	private Entity player;
@@ -93,11 +96,13 @@ public class Game : MonoBehaviour {
 
 		RespawnPlayer( spawnPos );
 
+		// TODO: Make this a method
 		quests.StartQuest( "main_quest_01" );
+		displayedQuestId = "main_quest_01";
 
 		if( convoGUI != null ) {
 			convoGUI.Reinitialize( localization );
-			convoGUI.SetConvo( conversations.Convos[ "conv_test" ] );
+//			convoGUI.SetConvo( conversations.Convos[ "conv_test" ] );
 		}
 	}
 
@@ -416,7 +421,7 @@ public class Game : MonoBehaviour {
 	
 	private class GUIState {
 		public bool ShowInventory = false;
-		public bool DestroyRandomTile = false;
+		public bool ShowQuests = false;
 	}
 
 	GUIState guiState = new GUIState();
@@ -475,8 +480,11 @@ public class Game : MonoBehaviour {
 			}
 		}
 
+		if( GUILayout.Button( "Inventory" ) ) {
+			guiState.ShowInventory = !guiState.ShowInventory;
+		}
+
 		if( !guiState.ShowInventory ) {
-			guiState.ShowInventory = GUILayout.Button( "Inventory" );
 			if( player != null ) {
 				GUILayout.Label( "Playerpos: " + EntityTilePos( player ) );
 				GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
@@ -491,10 +499,16 @@ public class Game : MonoBehaviour {
 				GUI.DrawTexture( new Rect( Screen.width - 10.0f - barWidth, barHeight - 10.0f, barWidth * hpFrac, barHeight ), Texture2D.whiteTexture );
 				GUI.color = Color.white;
 			}
-			guiState.DestroyRandomTile = GUILayout.Button( "Destroy random tile" );
-			return;
 		}
 
+		DrawCurrentQuest();
+
+		if( guiState.ShowInventory ) {
+			DrawInventory();
+		}
+	}
+
+	private void DrawInventory() {
 		GUILayout.BeginVertical();
 		GUILayout.Space( 10.0f );
 		for( int y = 0; y < Inventory.Height; ++y ) {
@@ -502,16 +516,16 @@ public class Game : MonoBehaviour {
 			GUILayout.Space( 10.0f );
 			for( int x = 0; x < Inventory.Width; ++x ) {
 				GUILayout.BeginVertical();
-
+				
 				InventoryItem invItem = Inventory.ItemAt( x, y );
 				Item.ItemType itemType = invItem.ItemType;
-
+				
 				string buttonText = "";
 				Sprite sprite = Inventory.GetItemSprite( itemType, tilesetLookup );
 				GUILayout.Button( buttonText, GUILayout.Width( 48.0f ), GUILayout.Height( 48.0f ) );
-
+				
 				var lastRect = GUILayoutUtility.GetLastRect();	
-
+				
 				if( sprite != null ) {
 					var lastRectRel = lastRect;
 					lastRectRel.xMin += 5.0f;
@@ -525,15 +539,46 @@ public class Game : MonoBehaviour {
 					textRect.height /= sprite.texture.height;
 					GUI.DrawTextureWithTexCoords( lastRectRel, sprite.texture, textRect );
 				}
-
+				
 				string itemName = itemType == Item.ItemType.None ? "" :
 					System.Enum.GetName( typeof(Item.ItemType), itemType );
 				GUILayout.Label( itemName, inventoryStyle, GUILayout.Width( lastRect.width ) );
-
+				
 				GUILayout.EndVertical();
 			}
 			GUILayout.EndHorizontal();
 		}
 		GUILayout.EndVertical();
+	}
+
+	private void DrawCurrentQuest() {
+		if( quests.CurrentQuests == null || string.IsNullOrEmpty( displayedQuestId ) ) {
+			return;
+		}
+
+		OngoingQuest displayedQuest = quests.CurrentQuests.Find( ( OngoingQuest q ) => {
+			return q.QuestId == displayedQuestId;
+		} );
+
+		if( displayedQuest == null ) {
+			return;
+		}
+
+		GUILayout.BeginArea( new Rect( 0, 0, Screen.width, Screen.height ) );
+
+		GUILayout.BeginVertical();
+		GUILayout.FlexibleSpace();
+		GUILayout.Label( "Current Objectives" );
+
+		var incompleteObjectives = new List<Objective>();
+		quests.AllIncompleteObjectives( displayedQuest, displayedQuest.Quest.Objectives, ref incompleteObjectives );
+		foreach( var objective in incompleteObjectives ) {
+			string title = localization.Get( objective.TitleId );
+			GUILayout.Label( title );
+		}
+
+		GUILayout.EndVertical();
+
+		GUILayout.EndArea();
 	}
 }

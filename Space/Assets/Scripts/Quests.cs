@@ -56,7 +56,7 @@ public class Quest {
 }
 
 public class Quests {
-	private class OngoingQuest {
+	public class OngoingQuest {
 		public readonly string QuestId;
 		public readonly Quest Quest;
 		public List<string> CompletedObjectivesIds;
@@ -70,6 +70,10 @@ public class Quests {
 
 	private static readonly string GET_ITEM_FORMAT_ID = "objective_get_item_format";
 	private static readonly string KILL_ENTITY_FORMAT_ID = "objective_kill_entity_format";
+
+	public List<OngoingQuest> CurrentQuests {
+		get { return currentQuests; }
+	}
 
 	private Dictionary<string, Quest> quests;
 	private List<OngoingQuest> currentQuests;
@@ -118,8 +122,7 @@ public class Quests {
 		bool objectivesLeft = false;
 
 		foreach( var objective in objectives ) {
-			// Is the objective completed already?
-			if( quest.CompletedObjectivesIds.Exists( ( string completedId ) => { return completedId == objective.Id; } ) ) {
+			if( QuestObjectiveCompleted( quest, objective ) ) {
 				objectivesLeft = FindIncompleteObjectives( quest, objective.SubObjectives, onFound ) || objectivesLeft;
 				continue;
 			}
@@ -132,6 +135,21 @@ public class Quests {
 		}
 
 		return objectivesLeft;
+	}
+
+	// TODO: Rework this for less messyness
+	public void AllIncompleteObjectives( OngoingQuest quest, Objective[] objectives, ref List<Objective> incompleteObjectives ) {
+		foreach( var objective in quest.Quest.Objectives ) {
+			if( QuestObjectiveCompleted( quest, objective ) ) {
+				AllIncompleteObjectives( quest, objective.SubObjectives, ref incompleteObjectives );
+				continue;
+			}
+			incompleteObjectives.Add( objective );
+		}
+	}
+
+	private bool QuestObjectiveCompleted( OngoingQuest quest, Objective objective ) {
+		return quest.CompletedObjectivesIds.Exists( ( string completedId ) => { return completedId == objective.Id; } );
 	}
 
 	private void QuestCompleted( OngoingQuest quest ) {
