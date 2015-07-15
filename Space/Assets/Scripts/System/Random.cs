@@ -39,14 +39,14 @@ namespace SA
 			
 			throw new Exception("Should never get here!");
 		}
-		
+
+		public static T InArray<T>(T[] array, RandomRangeMethod<UInt32> random)
+		{
+			return array[random((UInt32)array.Length)];
+		}
+
 		public static T WeightedInArray<T>(T[] array, UInt32[] weights, RandomRangeMethod<UInt32> random)
 		{
-			if(array == null || weights == null)
-			{
-				throw new Exception("Array or weights were null.");
-			}
-			
 			if(array.Length != weights.Length)
 			{
 				throw new Exception("Array["+array.Length+"] and weights["+weights.Length+"] were not the same lengths.");
