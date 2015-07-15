@@ -347,7 +347,7 @@ public class Game : MonoBehaviour {
 		}
 
 		if( unit == playerUnit ) {
-			TextDisplay.TypeTextThenDisplayFor( "Collided with " + obstacle.name, 3.0f );
+			TypeTextThenDisplayFor( "Collided with " + obstacle.name, 3.0f );
 		}
 
 		if( obstacle.KnockForce > 0.0f ) {
@@ -375,7 +375,7 @@ public class Game : MonoBehaviour {
 				if( name == null ) {
 					name = b.LocalizedNameId;
 				}
-				TextDisplay.TypeTextThenDisplayFor( "Attacked by " + name, 3.0f );
+				TypeTextThenDisplayFor( "Attacked by " + name, 3.0f );
 				a.Invincible = true;
 				playerInvincibilityTimer = 2.0f;
 			}
@@ -394,7 +394,7 @@ public class Game : MonoBehaviour {
 				}
 
 				if( !string.IsNullOrEmpty( lineToDisplay ) ) {
-					TextDisplay.TypeTextThenDisplayFor( lineToDisplay, 3.0f );
+					TypeTextThenDisplayFor( lineToDisplay, 3.0f );
 				}
 			}
 
@@ -405,6 +405,13 @@ public class Game : MonoBehaviour {
 
 			entityManager.RemoveEntity( pickup );
 		}
+	}
+
+	private void TypeTextThenDisplayFor( string text, float displayFor ) {
+		if( convoGUI != null && convoGUI.CurrentConvo != null ) {
+			return;
+		}
+		TextDisplay.TypeTextThenDisplayFor( text, displayFor );
 	}
 	
 	private class GUIState {
