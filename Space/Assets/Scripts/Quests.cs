@@ -14,6 +14,7 @@ public class Objective {
 
 	public readonly string   Id;
 	public readonly string   TitleId;
+	public readonly string   EndConvoId;
 
 	public readonly ItemType ItemType;
 	public readonly string   EntityType;
@@ -22,18 +23,20 @@ public class Objective {
 
 	public readonly Objective[] SubObjectives;
 
-	public Objective( string id, string titleId, ItemType itemType, int amount, Objective[] subObjectives ) {
+	public Objective( string id, string titleId, string endConvoId, ItemType itemType, int amount, Objective[] subObjectives ) {
 		this.Id = id;
 		this.TitleId = titleId;
+		this.EndConvoId = endConvoId;
 		this.ObjectiveType = ObjType.GetItem;
 		this.ItemType = itemType;
 		this.Amount = amount;
 		this.SubObjectives = subObjectives;
 	}
 
-	public Objective( string id, string titleId, string entityType, int amount, Objective[] subObjectives ) {
+	public Objective( string id, string titleId, string endConvoId, string entityType, int amount, Objective[] subObjectives ) {
 		this.Id = id;
 		this.TitleId = titleId;
+		this.EndConvoId = endConvoId;
 		this.ObjectiveType = ObjType.KillEntity;
 		this.EntityType = entityType;
 		this.Amount = amount;
@@ -44,12 +47,14 @@ public class Objective {
 public class Quest {
 	public readonly string TitleId;
 	public readonly string DescriptionId;
+	public readonly string StartConvoId;
 	public readonly Objective[] Objectives;
 	public readonly string NextQuestId;
 
-	public Quest( string titleId, string descriptionId, Objective[] objectives, string nextQuestId ) {
+	public Quest( string titleId, string descriptionId, string startConvoId, Objective[] objectives, string nextQuestId ) {
 		this.TitleId = titleId;
 		this.DescriptionId = descriptionId;
+		this.StartConvoId = startConvoId;
 		this.Objectives = objectives;
 		this.NextQuestId = nextQuestId;
 	}
@@ -205,9 +210,10 @@ public class Quests {
 
 				Objective[] objectives = ReadObjectives( localization, jsonQuest[ "objectives" ].AsArray, questId );
 
+				string startConvoId = jsonQuest[ "start_convo" ];
 				string nextQuestId = jsonQuest[ "next_quest" ];
 
-				quests[ questId ] = new Quest( generatedTitleId, generatedDescId, objectives, nextQuestId );
+				quests[ questId ] = new Quest( generatedTitleId, generatedDescId, startConvoId, objectives, nextQuestId );
 			}
 		}
 	}
@@ -225,6 +231,8 @@ public class Quests {
 			JSONNode jsonAmount = jsonObjective[ "amount" ];
 			int amount = jsonAmount == null ? 0 : jsonAmount.AsInt;
 
+			string endConvoId = jsonObjective[ "end_convo" ];
+
 			JSONNode jsonSubs = jsonObjective[ "sub_objectives" ];
 			Objective[] subObjectives = new Objective[ 0 ];
 			if( jsonSubs != null ) {
@@ -238,13 +246,13 @@ public class Quests {
 				ItemType itemType = Item.ItemTypeFromString( jsonObjective[ "item_type" ] );
 				string format = localization.Get( GET_ITEM_FORMAT_ID );
 				title = title ?? string.Format( format, amount, GetItemName( localization, itemType ) );
-				objectivesList.Add( new Objective( objectiveId, titleId, itemType, amount, subObjectives ) );
+				objectivesList.Add( new Objective( objectiveId, titleId, endConvoId, itemType, amount, subObjectives ) );
 			} else if( objectiveType == "KillEntity" ) {
 				string entityType = jsonObjective[ "entity_type" ];
 				string entityName = localization.Get( entityType );
 				string format = localization.Get( KILL_ENTITY_FORMAT_ID );
 				title = title ?? string.Format( format, amount, entityName );
-				objectivesList.Add( new Objective( objectiveId, titleId, entityType, amount, subObjectives ) );
+				objectivesList.Add( new Objective( objectiveId, titleId, endConvoId, entityType, amount, subObjectives ) );
 			}
 
 			localization.Set( titleId, title ?? "[OBJECTIVE_TITLE]" );

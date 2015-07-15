@@ -7,6 +7,8 @@ using OngoingQuest = Quests.OngoingQuest;
 [RequireComponent( typeof(TileMapGrid) )]
 public class Game : MonoBehaviour {
 	[SerializeField]
+	private GUISkin guiSkin;
+	[SerializeField]
 	private GUIStyle inventoryStyle;
 	[SerializeField]
 	private float lightRadius; //TODO: TEMP
@@ -99,14 +101,11 @@ public class Game : MonoBehaviour {
 
 		RespawnPlayer( spawnPos );
 
-		// TODO: Make this a method
-		quests.StartQuest( "main_quest_01" );
-		displayedQuestId = "main_quest_01";
-
 		if( convoGUI != null ) {
 			convoGUI.Reinitialize( localization );
-//			convoGUI.SetConvo( conversations.Convos[ "conv_test" ] );
 		}
+
+		quests.StartQuest( "main_quest_01" );
 	}
 
 	private void SetTileMapAt( TileMap tileMap, int x, int y ) {
@@ -291,7 +290,7 @@ public class Game : MonoBehaviour {
 			int localX = digPos.x - gridPos.x;
 			int localY = digPos.y - gridPos.y;
 			
-			DebugUtil.Log( "Destroying: " + digPos + " | " + new Vector2i( localX, localY ) );
+//			DebugUtil.Log( "Destroying: " + digPos + " | " + new Vector2i( localX, localY ) );
 			tileMapVisual.UpdateTile( localX, localY, 0u );
 			return true;
 		}
@@ -302,10 +301,17 @@ public class Game : MonoBehaviour {
 		aimVector.Set( 0, 0 );
 		requestedDig = false;
 
+		if( player != null ) {
+			player.RequestedHorizontalSpeed = 0.0f;
+			player.RequestedJump = false;
+		}
+
 		if( convoGUI != null ) {
 			if( convoGUI.CurrentConvo != null && convoGUI.CurrentConvo.Pauses ) {
 				if( Input.GetKeyDown( KeyCode.Space ) ) {
 					convoGUI.ForwardCurrentEntry();
+				} else if( Input.GetKeyDown( KeyCode.Escape ) ) {
+					convoGUI.EndConvo();
 				}
 				return;
 			}
@@ -434,13 +440,25 @@ public class Game : MonoBehaviour {
 	}
 
 	private void OnQuestStarted( OngoingQuest quest ) {
-		string title = localization.Get( quest.Quest.TitleId );
-		TypeTextThenDisplayFor( "New quest:\n" + title, 3.0f );
+		displayedQuestId = quest.QuestId;
+
+		if( !string.IsNullOrEmpty( quest.Quest.StartConvoId ) ) {
+			Conversation convo = conversations.Convos[ quest.Quest.StartConvoId ];
+			convoGUI.SetConvo( convo );
+		} else {
+			string title = localization.Get( quest.Quest.TitleId );
+			TypeTextThenDisplayFor( "New quest:\n" + title, 3.0f );
+		}
 	}
 
 	private void OnObjectiveCompleted( OngoingQuest quest, Objective objective ) {
-		string title = localization.Get( objective.TitleId );
-		TypeTextThenDisplayFor( "Completed Objective:\n" + title, 3.0f );
+		if( !string.IsNullOrEmpty( objective.EndConvoId ) ) {
+			Conversation convo = conversations.Convos[ objective.EndConvoId ];
+			convoGUI.SetConvo( convo );
+		} else {
+			string title = localization.Get( objective.TitleId );
+			TypeTextThenDisplayFor( "Completed Objective:\n" + title, 3.0f );
+		}
 	}
 
 	private void OnQuestCompleted( OngoingQuest quest ) {
@@ -510,6 +528,10 @@ public class Game : MonoBehaviour {
 
 	// TODO: Temp
 	protected void OnGUI() {
+		if( guiSkin != null ) {
+			GUI.skin = guiSkin;
+		}
+
 		if( convoGUI != null ) {
 			if( convoGUI.CurrentConvo != null ) {
 				return;
@@ -604,13 +626,21 @@ public class Game : MonoBehaviour {
 
 		GUILayout.BeginVertical();
 		GUILayout.FlexibleSpace();
-		GUILayout.Label( "Current Objectives" );
+
+		GUILayout.Label( "Current Quest" );
+
+		string questTitle = localization.Get( displayedQuest.Quest.TitleId );
+
+		GUILayout.Label( questTitle );
 
 		var incompleteObjectives = new List<Objective>();
 		quests.AllIncompleteObjectives( displayedQuest, displayedQuest.Quest.Objectives, ref incompleteObjectives );
 		foreach( var objective in incompleteObjectives ) {
+			GUILayout.BeginHorizontal();
+			GUILayout.Space( 10.0f );
 			string title = localization.Get( objective.TitleId );
-			GUILayout.Label( title );
+			GUILayout.Label( string.Format( "- {0}", title ) );
+			GUILayout.EndHorizontal();
 		}
 
 		GUILayout.EndVertical();

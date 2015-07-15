@@ -221,6 +221,12 @@ public class MeshTiles : MonoBehaviour
 		bool removeOldCollider = true;
 		UpdateTile( index, ref vertices, ref triangles, ref uvs, createCollider, removeOldCollider, Width, meshSize, oldColliders.gameObject );
 
+		Color32[] meshColors = meshFilter.mesh.colors32;
+		for( int z = 0; z < 4; ++z ) {
+			meshColors[ index * 4 + z] = new Color32( 0, 0, 0, 0 );
+		}
+		meshFilter.mesh.colors32 = meshColors;
+
 		meshFilter.mesh.vertices = vertices;
 		meshFilter.mesh.triangles = triangles;
 		meshFilter.mesh.uv = uvs;

@@ -42,6 +42,16 @@ public class ConversationGUI : MonoBehaviour {
 		}
 	}
 
+	public void EndConvo() {
+		if( currentConvo == null ) {
+			return;
+		}
+
+		DebugUtil.Log( "Conversation complete" );
+		textDisplay.ResetText();
+		SetConvo( null );
+	}
+
 	protected void Update() {
 		if( currentConvo == null ) {
 			return;
@@ -60,9 +70,7 @@ public class ConversationGUI : MonoBehaviour {
 		}
 
 		if( ++currentConvoEntryIndex >= currentConvo.Entries.Length ) {
-			DebugUtil.Log( "Conversation complete" );
-			textDisplay.ResetText();
-			SetConvo( null );
+			EndConvo();
 			return;
 		}
 

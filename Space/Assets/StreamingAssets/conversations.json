@@ -13,5 +13,27 @@
 				{ "b": "This is your test." }
 			]
 		}
+		"main_quest_01": {
+			"pause": true,
+			"aliases": {
+				"char_aniara": "a"
+			},
+			"entries": [
+				{ "a": "Awaken agent, sweetest agent-child" },
+				{ "a": "Your rebirth beckons Golden Age anew" },
+				{ "a": "He calls, Astraeus, 'pon his Maiden pure" },
+				{ "a": "Your quest forever bless'd; your coming boded" },
+				{ "a": "Now go bring Jupiter his reign once more" }
+			]
+		}
+		"main_quest_02": {
+			"pause": true,
+			"aliases": {
+				"char_aniara": "a"
+			},
+			"entries": [
+				{ "a": "You seek and find and you are cool and sweet" }
+			]
+		}
 	}
 }
