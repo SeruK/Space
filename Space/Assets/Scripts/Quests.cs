@@ -150,7 +150,7 @@ public class Quests {
 
 	// TODO: Rework this for less messyness
 	public void AllIncompleteObjectives( OngoingQuest quest, Objective[] objectives, ref List<Objective> incompleteObjectives ) {
-		foreach( var objective in quest.Quest.Objectives ) {
+		foreach( var objective in objectives ) {
 			if( QuestObjectiveCompleted( quest, objective ) ) {
 				AllIncompleteObjectives( quest, objective.SubObjectives, ref incompleteObjectives );
 				continue;
