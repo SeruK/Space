@@ -2,6 +2,7 @@
 using SA;
 using System.Collections.Generic;
 using OngoingQuest = Quests.OngoingQuest;
+using ItemType = Item.ItemType;
 
 [RequireComponent( typeof(EntityManager) )]
 [RequireComponent( typeof(TileMapGrid) )]
@@ -231,7 +232,7 @@ public class Game : MonoBehaviour {
 			}
 		}
 		if( player != null ) {
-			player.CharController.onTriggerEnterEvent -= OnPlayerEnteredTrigger;
+			player.CharController.onTriggerStayEvent -= OnPlayerStayTrigger;
 		}
 		player = null;
 		playerUnit = null;
@@ -280,7 +281,8 @@ public class Game : MonoBehaviour {
 	}
 
 	private bool TryDig( Vector2i digPos ) {
-		if( Tile.UUID( tileMapGrid.TileAtTilePos( digPos ) ) == 0u ) {
+		System.UInt32 tileAtDigPos = Tile.UUID( tileMapGrid.TileAtTilePos( digPos ) );
+		if( tileAtDigPos == 0u ) {
 			return false;
 		}
 
@@ -289,9 +291,17 @@ public class Game : MonoBehaviour {
 			var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
 			int localX = digPos.x - gridPos.x;
 			int localY = digPos.y - gridPos.y;
-			
+
 //			DebugUtil.Log( "Destroying: " + digPos + " | " + new Vector2i( localX, localY ) );
 			tileMapVisual.UpdateTile( localX, localY, 0u );
+			var pickup = entityManager.Spawn<Pickup>( "Pickup" );
+			pickup.GetComponent<SpriteRenderer>().sprite = tilesetLookup.Tiles[ (int)tileAtDigPos ].TileSprite;
+			pickup.ItemType = Item.ItemType.TILE;
+			pickup.TileUUID = tileAtDigPos;
+			pickup.noPickupTimer = 0.5f;
+			pickup.transform.position = TilePosToPos( digPos ) + new Vector2( 0.0f, 0.5f );
+			pickup.transform.localScale = new Vector2( 0.7f, 0.7f );
+
 			return true;
 		}
 		return false;
@@ -414,28 +424,29 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	protected void OnPlayerEnteredTrigger( Collider2D collider ) {
+	protected void OnPlayerStayTrigger( Collider2D collider ) {
 		var pickup = collider.GetComponentInChildren<Pickup>();
-		if( pickup != null ) {
-			if( TextDisplay != null ) {
-				string lineToDisplay = localization.Get( pickup.LocalizedLineId );
-
-				if( lineToDisplay == null && pickup.ItemType != Item.ItemType.None ) {
-					string localizedLine = localization.Get( Item.LocalizedNameId( pickup.ItemType ) );
-					lineToDisplay = "Picked up a " + ( localizedLine != null ? localizedLine : Item.FallbackName( pickup.ItemType ) );
-				}
-
-				if( !string.IsNullOrEmpty( lineToDisplay ) ) {
-					TypeTextThenDisplayFor( lineToDisplay, 3.0f );
-				}
+		if( pickup != null && pickup.Pickupable ) {
+			ItemType itemType = pickup.ItemType;
+			if( itemType == ItemType.TILE ) {
+				itemType = Item.ItemFromTileUUID( pickup.TileUUID );
 			}
 
-			if( Inventory != null ) {
-				Inventory.AddItem( pickup.ItemType, 1 );
-				quests.AquiredItem( pickup.ItemType );
-			}
+			if( Inventory.AddItem( itemType, 1 ) ) {
+				if( TextDisplay != null ) {
+					string lineToDisplay = localization.Get( pickup.LocalizedLineId );
 
-			entityManager.RemoveEntity( pickup );
+					if( lineToDisplay == null && itemType != ItemType.None ) {
+						lineToDisplay = "Picked up a " + GetItemName( itemType );
+					}
+
+					if( !string.IsNullOrEmpty( lineToDisplay ) ) {
+						TypeTextThenDisplayFor( lineToDisplay, 3.0f );
+					}
+				}
+				entityManager.RemoveEntity( pickup );
+				quests.AquiredItem( itemType );
+			}
 		}
 	}
 
@@ -503,7 +514,7 @@ public class Game : MonoBehaviour {
 			return;
 		}
 		player.CharController.GetComponent<Transform>().position = pos;
-		player.CharController.onTriggerEnterEvent += OnPlayerEnteredTrigger;
+		player.CharController.onTriggerStayEvent += OnPlayerStayTrigger;
 		if( playerUnit != null ) {
 			entityManager.RespawnUnit( playerUnit );
 		}
@@ -524,6 +535,14 @@ public class Game : MonoBehaviour {
 		Gizmos.color = Color.white;
 		Vector2  pos = new Vector2( 0.5f, 0.5f ) + (Vector2)tilePos;
 		Gizmos.DrawWireCube( pos, new Vector3( 1.0f, 1.0f ) );
+	}
+
+	private string GetItemName( Item.ItemType item ) {
+		string itemName = localization.Get( Item.LocalizedNameId( item ) );
+		if( itemName == null ) {
+			itemName = Item.FallbackName( item );
+		}
+		return itemName;
 	}
 
 	// TODO: Temp
@@ -598,8 +617,10 @@ public class Game : MonoBehaviour {
 					GUI.DrawTextureWithTexCoords( lastRectRel, sprite.texture, textRect );
 				}
 				
-				string itemName = itemType == Item.ItemType.None ? "" :
-					System.Enum.GetName( typeof(Item.ItemType), itemType );
+				string itemName = "";
+				if( invItem.ItemType != ItemType.None ) {
+					itemName = string.Format( "{0} x {1}", invItem.Amount, GetItemName( invItem.ItemType ) );
+				}
 				GUILayout.Label( itemName, inventoryStyle, GUILayout.Width( lastRect.width ) );
 				
 				GUILayout.EndVertical();

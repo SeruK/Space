@@ -33,7 +33,7 @@ public static class Item {
 
 	public static string FallbackName( ItemType itemType ) {
 		if( IsTile( itemType ) ) {
-			return "item_tile_" + TileUUIDFromItem( itemType ).ToString().PadLeft( 4, '0' );
+			return "Tile (" + TileUUIDFromItem( itemType ).ToString() + ")";
 		}
 
 		return System.Enum.GetName( typeof( ItemType ), itemType );
