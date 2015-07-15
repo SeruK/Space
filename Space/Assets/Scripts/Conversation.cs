@@ -25,9 +25,11 @@ public class ConversationEntry {
 
 public class Conversation {
 	public readonly ConversationEntry[] Entries;
+	public readonly bool Pauses;
 
-	public Conversation( ConversationEntry[] entries ) {
+	public Conversation( ConversationEntry[] entries, bool pauses ) {
 		this.Entries = entries;
+		this.Pauses = pauses;
 	}
 }
 
@@ -63,6 +65,9 @@ public class Conversations {
 				string convoId = kvp.Key;
 				JSONClass jsonConvo = kvp.Value.AsObject;
 
+				JSONNode jsonPause = jsonConvo[ "pause" ];
+				bool pauses = jsonPause == null ? false : jsonPause.AsBool;
+
 				var aliases = new Dictionary<string, ConversationCharacter>();
 				JSONClass jsonAliases = jsonConvo[ "aliases" ].AsObject;
 				foreach( KeyValuePair<string, JSONNode> aliasKvp in jsonAliases ) {
@@ -93,7 +98,7 @@ public class Conversations {
 					}
 				}
 
-				Convos.Add( convoId, new Conversation( entriesList.ToArray() ) );
+				Convos.Add( convoId, new Conversation( entriesList.ToArray(), pauses ) );
 			}
 		}
 	}

@@ -14,6 +14,8 @@ public class Game : MonoBehaviour {
 	private TileMapGrid tileMapGrid;
 	[SerializeField]
 	private SpriteRenderer spaceRenderer;
+	[SerializeField]
+	private ConversationGUI convoGUI;
 
 	[SerializeField]
 	private GameObject TileMapVisualPrefab;
@@ -92,6 +94,11 @@ public class Game : MonoBehaviour {
 		RespawnPlayer( spawnPos );
 
 		quests.StartQuest( "main_quest_01" );
+
+		if( convoGUI != null ) {
+			convoGUI.Reinitialize( localization );
+			convoGUI.SetConvo( conversations.Convos[ "conv_test" ] );
+		}
 	}
 
 	private void SetTileMapAt( TileMap tileMap, int x, int y ) {
@@ -268,6 +275,15 @@ public class Game : MonoBehaviour {
 	protected void UpdateInput() {
 		aimVector.Set( 0, 0 );
 		requestedDig = false;
+
+		if( convoGUI != null ) {
+			if( convoGUI.CurrentConvo != null && convoGUI.CurrentConvo.Pauses ) {
+				if( Input.GetKeyDown( KeyCode.Space ) ) {
+					convoGUI.ForwardCurrentEntry();
+				}
+				return;
+			}
+		}
 
 		if( Input.GetKeyDown( KeyCode.Escape ) ) {
 			guiState.ShowInventory = !guiState.ShowInventory;
@@ -446,6 +462,12 @@ public class Game : MonoBehaviour {
 
 	// TODO: Temp
 	protected void OnGUI() {
+		if( convoGUI != null ) {
+			if( convoGUI.CurrentConvo != null ) {
+				return;
+			}
+		}
+
 		if( !guiState.ShowInventory ) {
 			guiState.ShowInventory = GUILayout.Button( "Inventory" );
 			if( player != null ) {

@@ -4,6 +4,7 @@
 	},
 	"conversations": {
 		"conv_test": {
+			"pause": false,
 			"aliases": {
 				"char_aniara": "a"
 			},

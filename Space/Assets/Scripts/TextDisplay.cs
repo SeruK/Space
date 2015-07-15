@@ -16,9 +16,19 @@ public class TextDisplay : MonoBehaviour
 	[SerializeField]
 	private float    glitchTextOffset = 5.0f;
 
-	[SerializeField]
+	public bool TextFullyWritten {
+		get {
+			return textToDisplay == null ? true : currentTextLength == textToDisplay.Length;
+		}
+	}
+
+	public bool TextFinishedDisplaying {
+		get {
+			return TextFullyWritten && clearTextTimer <= 0.0f;
+		}
+	}
+
 	private string textToDisplay;
-	[SerializeField]
 	private float  textClearTime = 5.0f;
 	// Time until text is cleared
 	private float  clearTextTimer;
@@ -31,6 +41,10 @@ public class TextDisplay : MonoBehaviour
 	private float currentTextGlitchTimer;
 	private Vector2 currentTextGlitchOffset;
 
+	public void TypeText( string text, Color textColor ) {
+		TypeTextThenDisplayFor( text, -1.0f, textColor );
+	}
+
 	public void TypeTextThenDisplayFor( string text, float displayFor ) {
 		TypeTextThenDisplayFor( text, displayFor, Color.white );
 	}
@@ -38,7 +52,19 @@ public class TextDisplay : MonoBehaviour
 	public void TypeTextThenDisplayFor( string text, float displayFor, Color textColor ) {
 		textToDisplay = text;
 		textClearTime = displayFor;
+		clearTextTimer = -1.0f;
 		guiText.color = textColor;
+	}
+
+	public void ForceFinishCurrentText() {
+		if( textToDisplay != null ) {
+			guiText.text = textToDisplay;
+			currentTextLength = textToDisplay.Length;
+		}
+	}
+
+	public void ResetText() {
+		textToDisplay = "";
 	}
 
 	protected void OnEnable() {
@@ -112,12 +138,14 @@ public class TextDisplay : MonoBehaviour
 
 				// Have we finished typing the text?
 				if( currentTextLength == textToDisplay.Length ) {
-					clearTextTimer = textClearTime;
+					if( textClearTime > 0.0f ) {
+						clearTextTimer = textClearTime;
+					}
 				}
-			} else {
+			} else if( clearTextTimer > 0.0f ) {
 				clearTextTimer -= Time.deltaTime;
 				if( clearTextTimer <= 0.0f ) {
-					textToDisplay = "";
+					ResetText();
 				}
 			}
 		}
