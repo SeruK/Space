@@ -39,6 +39,7 @@ public class Game : MonoBehaviour {
 	private bool requestedPlaceItem;
 	private string displayedQuestId;
 	private bool waitForSpaceUp;
+	private Vector2i mouseTilePos;
 
 	private EntityManager entityManager;
 	private Entity player;
@@ -126,6 +127,9 @@ public class Game : MonoBehaviour {
 
 		tileMapGrid.ApplyLightMap();
 
+		Vector2i playerTilePos = EntityTilePos( player );
+		Vector2i aimPos = playerTilePos + aimVector;
+
 		if( playerUnit != null && playerInvincibilityTimer > 0.0f ) {
 			playerInvincibilityTimer -= Time.deltaTime;
 			if( playerInvincibilityTimer <= 0.0f ) {
@@ -138,15 +142,13 @@ public class Game : MonoBehaviour {
 		}
 
 		if( requestedDig ) {
-			Vector2i playerTilePos = EntityTilePos( player );
-			Vector2i digPos = playerTilePos + aimVector;
-			if( !TryDig( digPos ) ) {
+			if( !TryDig( aimPos ) ) {
 				if( aimVector.x == 0 && aimVector.y != 0 ) {
 					Vector2 tileCenterPos = TilePosToPos( playerTilePos ) + new Vector2( 0.5f, 0.5f );
 					Vector2 playerPos = EntityPos( player );
 					float diff = playerPos.x - tileCenterPos.x;
-					digPos += new Vector2i( diff < 0.0f ? -1 : 1, 0 );
-					TryDig( digPos );
+					aimPos += new Vector2i( diff < 0.0f ? -1 : 1, 0 );
+					TryDig( aimPos );
 				}
 			}
 		} else if( requestedPlaceItem ) {
@@ -154,8 +156,6 @@ public class Game : MonoBehaviour {
 			System.UInt32 uuid = Item.TileUUIDFromItem( item.ItemType, 0u );
 			if( uuid != 0u ) {
 				Inventory.RemoveSingleItem( guiState.SelectedItem );
-				Vector2i playerTilePos = EntityTilePos( player );
-				Vector2i aimPos = playerTilePos + aimVector;
 				TryPlaceTile( aimPos, uuid );
 			}
 		}
@@ -219,6 +219,8 @@ public class Game : MonoBehaviour {
 	}
 
 	protected void UpdateInput() {
+		mouseTilePos = tileMapGrid.WorldPosToTilePos( Camera.main.ScreenToWorldPoint( Input.mousePosition ) );
+
 		if( Input.GetKeyDown( KeyCode.Home ) ) {
 			guiState.ShowDebug = !guiState.ShowDebug;
 		}
@@ -500,8 +502,9 @@ public class Game : MonoBehaviour {
 		}
 
 		if( player != null && guiState.ShowDebug ) {
+			GUILayout.Label( "Mousepos: " + mouseTilePos );
 			GUILayout.Label( "Playerpos: " + EntityTilePos( player ) );
-			GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
+//			GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
 		}
 
 		if( !guiState.ShowInventory ) {
