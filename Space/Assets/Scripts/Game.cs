@@ -38,6 +38,7 @@ public class Game : MonoBehaviour {
 	private bool requestedDig;
 	private bool requestedPlaceItem;
 	private string displayedQuestId;
+	private bool waitForSpaceUp;
 
 	private EntityManager entityManager;
 	private Entity player;
@@ -219,6 +220,7 @@ public class Game : MonoBehaviour {
 		if( convoGUI != null ) {
 			if( convoGUI.CurrentConvo != null && convoGUI.CurrentConvo.Pauses ) {
 				if( Input.GetKeyDown( KeyCode.Space ) ) {
+					waitForSpaceUp = true;
 					convoGUI.ForwardCurrentEntry();
 				} else if( Input.GetKeyDown( KeyCode.Escape ) ) {
 					convoGUI.EndConvo();
@@ -227,7 +229,7 @@ public class Game : MonoBehaviour {
 			}
 		}
 
-		if( Input.GetKeyDown( KeyCode.Escape ) ) {
+		if( Input.GetKeyDown( KeyCode.I ) ) {
 			guiState.ShowInventory = !guiState.ShowInventory;
 		}
 
@@ -261,7 +263,14 @@ public class Game : MonoBehaviour {
 		bool aimingAtTile = Tile.UUID( tileMapGrid.TileAtTilePos( aimTilePos ) ) != 0u;
 
 		player.RequestedHorizontalSpeed = aimingAtTile || standStill ? 0.0f : left ? -1.0f : right ? 1.0f : 0.0f;
-		player.RequestedJump = Input.GetKey( KeyCode.Space );
+		bool spacePressed = Input.GetKey( KeyCode.Space );
+		if( waitForSpaceUp ) {
+			if( !spacePressed ) {
+				waitForSpaceUp = false;
+			}
+		} else {
+			player.RequestedJump = spacePressed;
+		}
 		if( CameraController != null ) {
 			CameraController.extraCameraOffset = new Vector3( 0.0f, 2.0f * -aimVector.y );
 		}
