@@ -200,6 +200,18 @@ public class Game : MonoBehaviour {
 	} 
 
 	private void SetTile( TileMapVisual tileMapVisual, Vector2i tilePos, System.UInt32 tile ) {
+		if( tile == 0u ) {
+			var obstaclesToRemove = new List<Obstacle>();
+			foreach( Obstacle obstacle in entityManager.Obstacles ) {
+				if( System.Array.IndexOf( obstacle.LockedToTiles, tilePos ) != -1 ) {
+					obstaclesToRemove.Add( obstacle );
+				}
+			}
+			foreach( Obstacle obstacle in obstaclesToRemove ) {
+				entityManager.RemoveEntity( obstacle );
+			}
+		}
+
 		var gridPos = tileMapGrid.TileMapTileBounds( tileMapVisual.TileMap ).origin;
 		int localX = tilePos.x - gridPos.x;
 		int localY = tilePos.y - gridPos.y;
@@ -207,6 +219,10 @@ public class Game : MonoBehaviour {
 	}
 
 	protected void UpdateInput() {
+		if( Input.GetKeyDown( KeyCode.Home ) ) {
+			guiState.ShowDebug = !guiState.ShowDebug;
+		}
+
 		bool standStill = Input.GetKey( KeyCode.LeftShift );
 		aimVector.Set( 0, 0 );
 		requestedDig = false;
@@ -403,10 +419,12 @@ public class Game : MonoBehaviour {
 		}
 		TextDisplay.TypeTextThenDisplayFor( text, displayFor );
 	}
-	
+
+	// TODO: Temp
 	private class GUIState {
-		public bool ShowInventory = false;
+		public bool ShowInventory;
 		public Vector2i SelectedItem;
+		public bool ShowDebug;
 	}
 
 	GUIState guiState = new GUIState();
@@ -481,12 +499,12 @@ public class Game : MonoBehaviour {
 			guiState.ShowInventory = !guiState.ShowInventory;
 		}
 
+		if( player != null && guiState.ShowDebug ) {
+			GUILayout.Label( "Playerpos: " + EntityTilePos( player ) );
+			GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
+		}
+
 		if( !guiState.ShowInventory ) {
-			if( player != null ) {
-//				GUILayout.Label( "Playerpos: " + EntityTilePos( player ) );
-//				GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
-			}
-			
 			if( playerUnit != null ) {
 				float hpFrac = playerUnit.HealthPoints / playerUnit.MaxHealthPoints;
 				float barWidth = 100.0f;
@@ -520,8 +538,6 @@ public class Game : MonoBehaviour {
 		if( displayedQuest == null ) {
 			return;
 		}
-
-
 
 		GUILayout.BeginVertical();
 		GUILayout.FlexibleSpace();

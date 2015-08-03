@@ -141,8 +141,9 @@ public class WorldGenerator {
 		
 		foreach( var objectLayer in tileMap.ObjectLayers ) {
 			foreach( var layerObject in objectLayer.Objects ) {
-				Vector2 worldPos = tileMapGrid.LayerToWorldPos( tileMap, objectLayer, layerObject.Position );
-				
+				Vector2 worldPosOffset = new Vector2( Constants.TILE_SIZE_UNITS / 2.0f, -Constants.TILE_SIZE_UNITS );
+				Vector2 worldPos = tileMapGrid.LayerToWorldPos( tileMap, objectLayer, layerObject.Position ) + worldPosOffset;
+
 				if( layerObject.ObjectType == "SpawnPoint" ) {
 					spawnPos = worldPos;
 				}
@@ -163,6 +164,7 @@ public class WorldGenerator {
 				if( layerObject.ObjectType == "Spike" ) {
 					var obstacle = entityManager.Spawn<Obstacle>( "Spike" );
 					obstacle.transform.position = worldPos;
+					obstacle.LockToTiles( tileMapGrid.WorldPosToTilePos( worldPos ) + new Vector2i( 0, -1 )  );
 				}
 			}
 		}

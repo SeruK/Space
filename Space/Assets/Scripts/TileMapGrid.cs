@@ -138,7 +138,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 	}
 
 	// TODO: Move this somewhere
-	private Vector2i WorldPosToTilePos( Vector2 pos ) {
+	public Vector2i WorldPosToTilePos( Vector2 pos ) {
 		return new Vector2i( Mathf.FloorToInt( ( pos.x * Constants.PIXELS_PER_UNIT ) / Constants.TILE_SIZE ),
 		                     Mathf.FloorToInt( ( pos.y * Constants.PIXELS_PER_UNIT ) / Constants.TILE_SIZE ) );
 	}

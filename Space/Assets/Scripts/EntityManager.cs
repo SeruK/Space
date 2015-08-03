@@ -15,9 +15,13 @@ public class EntityManager : MonoBehaviour {
 	private GameObject SpikePrefab;
 
 	public EntityCollisionHandler OnEntityCollided;
+	public Dictionary<int, Obstacle>.ValueCollection Obstacles {
+		get { return obstacles.Values; }
+	}
 
 	private int currentEntityId;
 	private Dictionary<int, BaseEntity> entities;
+	private Dictionary<int, Obstacle> obstacles;
 
 	protected void OnDisable() {
 		RemoveAllEntities();
@@ -27,6 +31,7 @@ public class EntityManager : MonoBehaviour {
 		RemoveAllEntities();
 		currentEntityId = 0;
 		entities = new Dictionary<int, BaseEntity>();
+		obstacles = new Dictionary<int, Obstacle>();
 	}
 
 	public T Spawn<T>( string name ) where T : Component {
@@ -44,6 +49,12 @@ public class EntityManager : MonoBehaviour {
 	}
 
 	private void RespawnObject( Component obj ) {
+		var obstacle = obj as Obstacle;
+		if( obstacle != null ) {
+			RespawnObstacle( obstacle );
+			return;
+		}
+
 		var unit = obj as Unit;
 		if( unit != null ) {
 			RespawnUnit( unit );
@@ -58,6 +69,11 @@ public class EntityManager : MonoBehaviour {
 		if( baseEntity != null ) {
 			RespawnBaseEntity( baseEntity );
 		}
+	}
+
+	public void RespawnObstacle( Obstacle obstacle ) {
+		RespawnBaseEntity( obstacle );
+		obstacles[ obstacle.EntityId ] = obstacle;
 	}
 
 	public void RespawnUnit( Unit unit ) {
@@ -112,6 +128,9 @@ public class EntityManager : MonoBehaviour {
 	// Removal
 
 	public void RemoveEntity( BaseEntity entity ) {
+		if( obstacles.ContainsKey( entity.EntityId ) ) {
+			obstacles.Remove( entity.EntityId );
+		}
 		if( entities.ContainsKey( entity.EntityId ) ) {
 			entities.Remove( entity.EntityId );
 		}
@@ -122,6 +141,8 @@ public class EntityManager : MonoBehaviour {
 		if( entities == null ) {
 			return;
 		}
+
+		obstacles.Clear();
 
 		foreach( var entity in entities.Values ) {
 			RemoveEntityInternal( entity );
