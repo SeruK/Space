@@ -274,6 +274,13 @@ public class Game : MonoBehaviour {
 		if( CameraController != null ) {
 			CameraController.extraCameraOffset = new Vector3( 0.0f, 2.0f * -aimVector.y );
 		}
+
+		for( int i = 0; i < Inventory.Width; ++i ) {
+			var keycode = (KeyCode)System.Enum.Parse( typeof( KeyCode ), "Alpha" + ( i + 1 ) );
+			if( Input.GetKeyDown( keycode ) ) {
+				guiState.SelectedItem = new Vector2i( i, 0 );
+			}
+		}
 	}
 
 	private void OnEntityCollided( Entity collidingEntity, RaycastHit2D hit ) {
@@ -491,64 +498,14 @@ public class Game : MonoBehaviour {
 			}
 		}
 
+		GUILayout.BeginArea( new Rect( 0, 0, Screen.width, Screen.height ) );
 		DrawCurrentQuest();
+		DrawEquipmentSlots();
+		GUILayout.EndArea();
 
 		if( guiState.ShowInventory ) {
 			DrawInventory();
 		}
-	}
-
-	private void DrawInventory() {
-		GUILayout.BeginVertical();
-		GUILayout.Space( 10.0f );
-		for( int y = 0; y < Inventory.Height; ++y ) {
-			GUILayout.BeginHorizontal();
-			GUILayout.Space( 10.0f );
-			for( int x = 0; x < Inventory.Width; ++x ) {
-				GUILayout.BeginVertical();
-				
-				InventoryItem invItem = Inventory.ItemAt( x, y );
-				Item.ItemType itemType = invItem.ItemType;
-				
-				string buttonText = "";
-				Sprite sprite = Inventory.GetItemSprite( itemType, tilesetLookup );
-				bool toggled = guiState.SelectedItem == new Vector2i( x, y );
-				toggled = GUILayout.Toggle( toggled, buttonText, GUILayout.Width( 48.0f ), GUILayout.Height( 48.0f ) );
-				if( toggled ) {
-					guiState.SelectedItem = new Vector2i( x, y );
-				}
-
-				var lastRect = GUILayoutUtility.GetLastRect();	
-				
-				if( sprite != null ) {
-					var lastRectRel = lastRect;
-					lastRectRel.xMin += 5.0f;
-					lastRectRel.xMax -= 5.0f;
-					lastRectRel.yMin += 5.0f;
-					lastRectRel.yMax -= 5.0f;
-					var textRect = sprite.textureRect;
-					textRect.x /= sprite.texture.width;
-					textRect.y /= sprite.texture.height;
-					textRect.width /= sprite.texture.width;
-					textRect.height /= sprite.texture.height;
-					GUI.DrawTextureWithTexCoords( lastRectRel, sprite.texture, textRect );
-				}
-				
-				string itemName = "";
-				if( invItem.ItemType != ItemType.None ) {
-					if( Item.StackAmount( invItem.ItemType ) == 1 ) {
-						itemName = GetItemName( invItem.ItemType );
-					} else {
-						itemName = string.Format( "{0} x {1}", invItem.Amount, GetItemName( invItem.ItemType ) );
-					}
-				}
-				GUILayout.Label( itemName, inventoryStyle, GUILayout.Width( lastRect.width ) );
-				
-				GUILayout.EndVertical();
-			}
-			GUILayout.EndHorizontal();
-		}
-		GUILayout.EndVertical();
 	}
 
 	private void DrawCurrentQuest() {
@@ -564,7 +521,7 @@ public class Game : MonoBehaviour {
 			return;
 		}
 
-		GUILayout.BeginArea( new Rect( 0, 0, Screen.width, Screen.height ) );
+
 
 		GUILayout.BeginVertical();
 		GUILayout.FlexibleSpace();
@@ -586,7 +543,70 @@ public class Game : MonoBehaviour {
 		}
 
 		GUILayout.EndVertical();
+	}
 
-		GUILayout.EndArea();
+	private void DrawEquipmentSlots() {
+		GUILayout.BeginVertical();
+		GUILayout.Space( 10.0f );
+		DrawInventoryRow( 0 );
+		GUILayout.EndVertical();
+	}
+
+	private void DrawInventory() {
+		GUILayout.BeginVertical();
+		GUILayout.Space( 10.0f );
+		for( int y = 0; y < Inventory.Height; ++y ) {
+			DrawInventoryRow( y );
+		}
+		GUILayout.EndVertical();
+	}
+
+	private void DrawInventoryRow( int y ) {
+		GUILayout.BeginHorizontal();
+		GUILayout.Space( 10.0f );
+		for( int x = 0; x < Inventory.Width; ++x ) {
+			GUILayout.BeginVertical();
+			
+			InventoryItem invItem = Inventory.ItemAt( x, y );
+			Item.ItemType itemType = invItem.ItemType;
+			
+			string buttonText = "";
+			Sprite sprite = Inventory.GetItemSprite( itemType, tilesetLookup );
+			bool toggled = guiState.SelectedItem == new Vector2i( x, y );
+			toggled = GUILayout.Toggle( toggled, buttonText, GUILayout.Width( 48.0f ), GUILayout.Height( 48.0f ) );
+			if( toggled ) {
+				guiState.SelectedItem = new Vector2i( x, y );
+			}
+			
+			var lastRect = GUILayoutUtility.GetLastRect();	
+			
+			if( sprite != null ) {
+				var lastRectRel = lastRect;
+				lastRectRel.xMin += 5.0f;
+				lastRectRel.xMax -= 5.0f;
+				lastRectRel.yMin += 5.0f;
+				lastRectRel.yMax -= 5.0f;
+				var textRect = sprite.textureRect;
+				textRect.x /= sprite.texture.width;
+				textRect.y /= sprite.texture.height;
+				textRect.width /= sprite.texture.width;
+				textRect.height /= sprite.texture.height;
+				GUI.DrawTextureWithTexCoords( lastRectRel, sprite.texture, textRect );
+			}
+			
+			string itemName = "";
+			if( invItem.ItemType != ItemType.None ) {
+				if( Item.StackAmount( invItem.ItemType ) == 1 ) {
+					itemName = GetItemName( invItem.ItemType );
+				} else {
+					itemName = string.Format( "{0} x {1}", invItem.Amount, GetItemName( invItem.ItemType ) );
+				}
+			}
+			GUILayout.Label( itemName, inventoryStyle, GUILayout.Width( lastRect.width ) );
+			
+			GUILayout.EndVertical();
+		}
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
 	}
 }
