@@ -59,6 +59,12 @@ public class Conversations {
 				characters[ id ] = new ConversationCharacter( id, textColor );
 			}
 
+			var aliases = new Dictionary<string, ConversationCharacter>();
+			JSONClass jsonAliases = root[ "aliases" ].AsObject;
+			foreach( KeyValuePair<string, JSONNode> aliasKvp in jsonAliases ) {
+				aliases[ aliasKvp.Value ] = characters[ aliasKvp.Key ];
+			}
+
 			JSONClass conversations = root[ "conversations" ].AsObject;
 
 			foreach( KeyValuePair<string, JSONNode> kvp in conversations ) {
@@ -67,12 +73,6 @@ public class Conversations {
 
 				JSONNode jsonPause = jsonConvo[ "pause" ];
 				bool pauses = jsonPause == null ? false : jsonPause.AsBool;
-
-				var aliases = new Dictionary<string, ConversationCharacter>();
-				JSONClass jsonAliases = jsonConvo[ "aliases" ].AsObject;
-				foreach( KeyValuePair<string, JSONNode> aliasKvp in jsonAliases ) {
-					aliases[ aliasKvp.Value ] = characters[ aliasKvp.Key ];
-				}
 
 				var entriesList = new List<ConversationEntry>();
 				JSONArray jsonEntries = jsonConvo[ "entries" ].AsArray;
