@@ -476,8 +476,8 @@ public class Game : MonoBehaviour {
 
 		if( !guiState.ShowInventory ) {
 			if( player != null ) {
-				GUILayout.Label( "Playerpos: " + EntityTilePos( player ) );
-				GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
+//				GUILayout.Label( "Playerpos: " + EntityTilePos( player ) );
+//				GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
 			}
 			
 			if( playerUnit != null ) {

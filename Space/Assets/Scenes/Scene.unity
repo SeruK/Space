@@ -251,6 +251,10 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 11420576, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
+      propertyPath: sprites.Array.size
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -308,6 +312,11 @@ Prefab:
       propertyPath: timePerCharacter
       value: .0399999991
       objectReference: {fileID: 0}
+    - target: {fileID: 11420576, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
+      propertyPath: sprites.Array.data[7]
+      value: 
+      objectReference: {fileID: 21300054, guid: f2862f9a183b1e64b83018df7b8f09e7,
+        type: 3}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0
