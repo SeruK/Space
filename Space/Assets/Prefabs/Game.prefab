@@ -13,8 +13,26 @@ GameObject:
   - 114: {fileID: 11400000}
   - 114: {fileID: 11420576}
   - 114: {fileID: 11467286}
+  - 114: {fileID: 11413340}
+  - 114: {fileID: 11432820}
   m_Layer: 0
   m_Name: Game
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &184640
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 4
+  m_Component:
+  - 4: {fileID: 434194}
+  - 212: {fileID: 21212664}
+  m_Layer: 0
+  m_Name: TileDamage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,8 +47,21 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 434194}
   m_Father: {fileID: 0}
+  m_RootOrder: 0
+--- !u!4 &434194
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 184640}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 117.5, y: 105.199997, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 400000}
   m_RootOrder: 0
 --- !u!114 &11400000
 MonoBehaviour:
@@ -44,13 +75,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   guiText: {fileID: 13200000}
-  timePerCharacter: .100000001
+  timePerCharacter: .0399999991
   glitchMaterial: {fileID: 2100000, guid: 11f28d708f0a1054f9c3f566ab8c128b, type: 3}
   glitchDuration: .0500000007
   glitchInterval: {x: .5, y: 1.5}
   glitchTextOffset: 5
-  textToDisplay: 
-  textClearTime: 5
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -62,6 +91,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc3e3ef329aef8c4d90b654705ef5710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  guiSkin: {fileID: 11400000, guid: a8d0ddb2bb60a404583a8f3712e0d1c7, type: 2}
   inventoryStyle:
     m_Name: 
     m_Normal:
@@ -123,11 +153,33 @@ MonoBehaviour:
     m_StretchHeight: 0
   lightRadius: 7
   lightAlgo: 2
-  tileMaterial: {fileID: 2100000, guid: 5f270465738ec43cf9254c55217361df, type: 2}
+  tileMapGrid: {fileID: 11413340}
+  spaceRenderer: {fileID: 0}
+  convoGUI: {fileID: 11432820}
+  tileDamageSprite: {fileID: 21212664}
   TileMapVisualPrefab: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
   CameraController: {fileID: 0}
   TextDisplay: {fileID: 11400000}
   Inventory: {fileID: 11420576}
+--- !u!114 &11413340
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4e17efbdf2a58c4d84fd75731cea824, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tileMapVisualPrefab: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
+  tileMaterial: {fileID: 2100000, guid: 5f270465738ec43cf9254c55217361df, type: 2}
+  size:
+    width: 6
+    height: 6
+  tileMapTileSize:
+    width: 30
+    height: 30
 --- !u!114 &11420576
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -147,6 +199,20 @@ MonoBehaviour:
   - {fileID: 21300014, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
   - {fileID: 21300016, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
   - {fileID: 21300014, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
+  - {fileID: 21300054, guid: f2862f9a183b1e64b83018df7b8f09e7, type: 3}
+  - {fileID: 0}
+--- !u!114 &11432820
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 100000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87bb2ce0e5a96be409da7cb45f70a02f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  textDisplay: {fileID: 11400000}
 --- !u!114 &11467286
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -185,6 +251,32 @@ GUIText:
     rgba: 4294967295
   m_PixelCorrect: 1
   m_RichText: 1
+--- !u!212 &21212664
+SpriteRenderer:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 184640}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000e000000000000000, type: 0}
+  m_SubsetIndices: 
+  m_StaticBatchRoot: {fileID: 0}
+  m_UseLightProbes: 1
+  m_ReflectionProbeUsage: 1
+  m_ProbeAnchor: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_ImportantGI: 0
+  m_AutoUVMaxDistance: .5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 9f9f1a7cd9aaff242a8c91a52fe7446a, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

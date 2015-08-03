@@ -251,10 +251,6 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 11420576, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: sprites.Array.size
-      value: 9
-      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -288,76 +284,13 @@ Prefab:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: CameraController
-      value: 
-      objectReference: {fileID: 190974038}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: tileMapGrid
-      value: 
-      objectReference: {fileID: 1489213485}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
       propertyPath: spaceRenderer
       value: 
       objectReference: {fileID: 90181518}
     - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: guiSkin
+      propertyPath: CameraController
       value: 
-      objectReference: {fileID: 11400000, guid: a8d0ddb2bb60a404583a8f3712e0d1c7,
-        type: 2}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: convoGUI
-      value: 
-      objectReference: {fileID: 1489213486}
-    - target: {fileID: 11400000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: timePerCharacter
-      value: .0399999991
-      objectReference: {fileID: 0}
-    - target: {fileID: 11420576, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: sprites.Array.data[7]
-      value: 
-      objectReference: {fileID: 21300054, guid: f2862f9a183b1e64b83018df7b8f09e7,
-        type: 3}
+      objectReference: {fileID: 190974038}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0
---- !u!1 &1489213484 stripped
-GameObject:
-  m_PrefabParentObject: {fileID: 100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-  m_PrefabInternal: {fileID: 1489213483}
---- !u!114 &1489213485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1489213484}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4e17efbdf2a58c4d84fd75731cea824, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tileMapVisualPrefab: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
-  tileMaterial: {fileID: 2100000, guid: 5f270465738ec43cf9254c55217361df, type: 2}
-  size:
-    width: 6
-    height: 6
-  tileMapTileSize:
-    width: 30
-    height: 30
---- !u!114 &1489213486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1489213484}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87bb2ce0e5a96be409da7cb45f70a02f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  textDisplay: {fileID: 1489213488}
---- !u!114 &1489213488 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 11400000, guid: 50c9165af117f8945ad0fb32e99b2ff0,
-    type: 2}
-  m_PrefabInternal: {fileID: 1489213483}
-  m_Script: {fileID: 11500000, guid: 7c785d0e480ac46499c53ac1f7f7a6c6, type: 3}

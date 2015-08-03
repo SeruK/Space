@@ -21,6 +21,8 @@ public class Game : MonoBehaviour {
 	private SpriteRenderer spaceRenderer;
 	[SerializeField]
 	private ConversationGUI convoGUI;
+	[SerializeField]
+	private SpriteRenderer tileDamageSprite;
 
 	[SerializeField]
 	private GameObject TileMapVisualPrefab;
@@ -28,6 +30,10 @@ public class Game : MonoBehaviour {
 	public SmoothFollow CameraController;
 	public TextDisplay TextDisplay;
 	public Inventory Inventory;
+
+	private ItemType equippedItemType {
+		get { return Inventory.ItemAt( guiState.SelectedItem.x, guiState.SelectedItem.y ).ItemType;  }
+	}
 
 	private Localization localization;
 	private Conversations conversations;
@@ -40,6 +46,8 @@ public class Game : MonoBehaviour {
 	private string displayedQuestId;
 	private bool waitForSpaceUp;
 	private Vector2i mouseTilePos;
+	private float currentDigDamage;
+	private Vector2i currentDigTile;
 
 	private EntityManager entityManager;
 	private Entity player;
@@ -141,7 +149,7 @@ public class Game : MonoBehaviour {
 			}
 		}
 
-		if( requestedDig ) {
+		if( requestedDig && equippedItemType == ItemType.Drill ) {
 			if( !TryDig( aimPos ) ) {
 				if( aimVector.x == 0 && aimVector.y != 0 ) {
 					Vector2 tileCenterPos = TilePosToPos( playerTilePos ) + new Vector2( 0.5f, 0.5f );
@@ -159,6 +167,9 @@ public class Game : MonoBehaviour {
 				TryPlaceTile( aimPos, uuid );
 			}
 		}
+
+		tileDamageSprite.transform.position = tileMapGrid.TilePosToWorldPos( currentDigTile );
+		tileDamageSprite.color = new Color( 1, 1, 1, currentDigDamage / 1.0f );
 	}
 
 	private bool TryDig( Vector2i digPos ) {
@@ -169,6 +180,18 @@ public class Game : MonoBehaviour {
 
 		var tileMapVisual = tileMapGrid.TileMapVisualAtTilePos( digPos.x, digPos.y );
 		if( tileMapVisual != null ) {
+			if( currentDigTile != digPos ) {
+				currentDigTile = digPos;
+				currentDigDamage = 0.0f;
+			}
+
+			// TODO: This properly
+			currentDigDamage += Time.deltaTime * 3.0f;
+			
+			if( currentDigDamage < 1.0f ) {
+				return true;
+			}
+
 			SetTile( tileMapVisual, digPos, 0u );
 			var pickup = entityManager.Spawn<Pickup>( "Pickup" );
 			pickup.GetComponent<SpriteRenderer>().sprite = tilesetLookup.Tiles[ (int)tileAtDigPos ].TileSprite;
@@ -177,6 +200,8 @@ public class Game : MonoBehaviour {
 			pickup.noPickupTimer = 0.5f;
 			pickup.transform.position = TilePosToPos( digPos ) + new Vector2( 0.0f, 0.5f );
 			pickup.transform.localScale = new Vector2( 0.7f, 0.7f );
+
+			currentDigDamage = 0.0f;
 
 			return true;
 		}
@@ -268,7 +293,7 @@ public class Game : MonoBehaviour {
 		bool right = Input.GetKey( KeyCode.RightArrow );
 		bool up    = Input.GetKey( KeyCode.UpArrow );
 		bool down  = Input.GetKey( KeyCode.DownArrow );
-		requestedDig = Input.GetKeyDown( KeyCode.W );
+		requestedDig = Input.GetKey( KeyCode.W );
 
 		aimVector.Set( left ? -1 : right ? 1 : 0, down ? -1 : up ? 1 : 0 );
 
@@ -504,6 +529,8 @@ public class Game : MonoBehaviour {
 		if( player != null && guiState.ShowDebug ) {
 			GUILayout.Label( "Mousepos: " + mouseTilePos );
 			GUILayout.Label( "Playerpos: " + EntityTilePos( player ) );
+			GUILayout.Label( "Dig force: " + currentDigDamage );
+			GUILayout.Label( "Dig tile: " + currentDigTile );
 //			GUILayout.Label( "PlayerTileMap: " + tileMapGrid.TileMapAtWorldPos( player.transform.position ) );
 		}
 

@@ -137,6 +137,10 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 		return Tile.UUID( tileMap.MidgroundLayer.Tiles[ localX + localY * tileMapTileSize.width ] );
 	}
 
+	public Vector2 TilePosToWorldPos( Vector2i tilePos ) {
+		return new Vector2( (float)tilePos.x * Constants.TILE_SIZE_UNITS, (float)tilePos.y * Constants.TILE_SIZE_UNITS );
+	}
+
 	// TODO: Move this somewhere
 	public Vector2i WorldPosToTilePos( Vector2 pos ) {
 		return new Vector2i( Mathf.FloorToInt( ( pos.x * Constants.PIXELS_PER_UNIT ) / Constants.TILE_SIZE ),
