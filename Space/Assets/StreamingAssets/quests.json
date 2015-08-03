@@ -1,13 +1,13 @@
 {
 	"main_quest_01": {
 		"title": "Rebirth",
-		"desc": "I woke up on a space rock with some computer lady. I can't recall what's going on, but I do recall having a gun.",
+		"desc": "I woke up on a space rock with some computer lady. I can't recall what's going on, but I do recall having a drill.",
 		"start_convo": "main_quest_01",
 		"objectives": [
 			{
-				"title": "Find my gun",
+				"title": "Find my drill",
 				"objective_type": "GetItem",
-				"item_type": "Gun",
+				"item_type": "Drill",
 				"amount": 1,
 				"end_convo": "main_quest_02",
 				"sub_objectives": [

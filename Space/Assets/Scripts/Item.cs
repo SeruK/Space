@@ -10,6 +10,7 @@ public static class Item {
 		Compass,
 		AlienMeat,
 		DataDisc,
+		Drill,
 		TILE = 256
 	}
 
@@ -57,5 +58,12 @@ public static class Item {
 
 	public static ItemType ItemFromTileUUID( System.UInt32 uuid ) {
 		return (ItemType)( uuid + (uint)ItemType.TILE );
+	}
+
+	public static int StackAmount( ItemType itemType ) {
+		if( IsTile( itemType ) ) {
+			return 255;
+		}
+		return 1;
 	}
 }

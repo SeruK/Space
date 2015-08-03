@@ -41,7 +41,7 @@ public class Inventory : MonoBehaviour {
 		for( int y = 0; y < items.Length; ++y ) {
 			for( int x = 0; x < items.GetLength( y ); ++x ) {
 				InventoryItem invItem = items[ y, x ];
-				if( invItem.ItemType == item && ( (int)invItem.Amount + (int)amount ) < short.MaxValue ) {
+				if( invItem.ItemType == item && ( (int)invItem.Amount + (int)amount ) < Item.StackAmount( invItem.ItemType ) ) {
 					items[ y, x ] = new InventoryItem( item, (short)( invItem.Amount + amount ) );
 					return true;
 				} else if( invItem.ItemType == ItemType.None ) {

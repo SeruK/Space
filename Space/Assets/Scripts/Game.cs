@@ -536,7 +536,11 @@ public class Game : MonoBehaviour {
 				
 				string itemName = "";
 				if( invItem.ItemType != ItemType.None ) {
-					itemName = string.Format( "{0} x {1}", invItem.Amount, GetItemName( invItem.ItemType ) );
+					if( Item.StackAmount( invItem.ItemType ) == 1 ) {
+						itemName = GetItemName( invItem.ItemType );
+					} else {
+						itemName = string.Format( "{0} x {1}", invItem.Amount, GetItemName( invItem.ItemType ) );
+					}
 				}
 				GUILayout.Label( itemName, inventoryStyle, GUILayout.Width( lastRect.width ) );
 				
