@@ -20,10 +20,13 @@ namespace SA {
 
 		public string String { get { return fullString; } }
 		public int    Count { get { return indices.Length + 1; } }
-		public override string ToString () {
-			return string.Join( "·", GetSyllables() );
+		public string SyllabalizedString {
+			get { return string.Join( "·", GetSyllables() ); }
 		}
 
+		public override string ToString () {
+			return SyllabalizedString;
+		}
 		public string this[ int i ] {
 			get { return GetSyllable( i ); }
 		} 
@@ -62,24 +65,9 @@ namespace SA {
 			this.database = db;
 		}
 
-		public SyllabalizedWord[] SyllabalizeString( string str ) {
-			string[] words = str.Trim().Split( ' ' );
-			var syllabalizedList = new List<SyllabalizedWord>();
-
-			foreach( string word in words ) {
-				if( database.ContainsKey( word ) ) {
-					syllabalizedList.Add( database[ word ] );
-				} else {
-					// Resolve by rules
-				}
-			}
-
-			return syllabalizedList.ToArray();
-		}
-
 		public static Syllabificator CreateFromFile( string absolutePath ) {
 			var database = new Dictionary<string, SyllabalizedWord>();
-
+			
 			using( var reader = new StreamReader( absolutePath ) ) {
 				string line = null;
 				while( ( line = reader.ReadLine() ) != null ) {
@@ -88,41 +76,140 @@ namespace SA {
 					DebugUtil.Assert( items.Length == 2 );
 					string fullString = items[ 0 ];
 					string syllabalizedString = items[ 1 ];
-
-					// res = scan - found
-					//
-					//       a · ban · don
-					// scan  0 1 234 5 678
-					// found 0 0 111 1 222
-					// res     1     4
-					//
-					// indices position in full string:
-					// a[b]an[d]on
-					int[] indices = new int[ syllabalizedString.CountOccurrencesOf( '·' ) ];
-					int scan = 0;
-					int found = 0;
-					while( scan < syllabalizedString.Length ) {
-						if( syllabalizedString[ scan ] == '·' ) {
-							indices[ found ] = scan - found;
-							++found;
-						} 
-						++scan;
-					}
-
-					database[ fullString ] = new SyllabalizedWord( fullString, indices );
+					
+					database[ fullString ] = ResolveSyllabalizedWord( fullString, syllabalizedString );
 				}
 			}
-
+			
 			return new Syllabificator( database );
 		}
 
-		private SyllabalizedWord ResolveByRules( string word ) {
+		private static SyllabalizedWord ResolveSyllabalizedWord( string fullString, string syllabalizedString ) {
+			// res = scan - found
+			//
+			//       a · ban · don
+			// scan  0 1 234 5 678
+			// found 0 0 111 1 222
+			// res     1     4
+			//
+			// indices position in full string:
+			// a[b]an[d]on
+			int[] indices = new int[ syllabalizedString.CountOccurrencesOf( '·' ) ];
+			int scan = 0;
+			int found = 0;
+			while( scan < syllabalizedString.Length ) {
+				if( syllabalizedString[ scan ] == '·' ) {
+					indices[ found ] = scan - found;
+					++found;
+				} 
+				++scan;
+			}
+			
+			return new SyllabalizedWord( fullString, indices );
+		}
 
+		public SyllabalizedWord[] SyllabalizeString( string str ) {
+			string[] words = str.Trim().Split( ' ' );
+			var syllabalizedList = new List<SyllabalizedWord>();
+
+			foreach( string word in words ) {
+				if( database.ContainsKey( word ) ) {
+					syllabalizedList.Add( database[ word ] );
+				} else {
+					SyllabalizedWord resolved = ResolveByRules( word );
+					if( resolved != null ) {
+						syllabalizedList.Add( resolved );
+					} else {
+						DebugUtil.Log( "Unable to resolve word: \"" + word + "\", adding as-is" );
+						syllabalizedList.Add( new SyllabalizedWord( word, null ) );
+					}
+				}
+			}
+
+			return syllabalizedList.ToArray();
+		}
+
+		// RULES
+		// determines if a prefix or suffix could be
+		// replaced to create a word (f.ex. "dicks"
+		// would use the same syllabification)
+		// the rules are returned in pairs of
+		// "replaceWith" / "reinsertAfter" strings.
+
+		private SyllabalizedWord ResolveByRules( string word ) {
+			bool isPrefix = true;
+			// Try to match prefixes
+			for( int prefixLen = 2; ( prefixLen < 3 && prefixLen < word.Length ); ++prefixLen ) {
+				string prefix = word.Substring( 0, prefixLen );
+				string[] rules = GetPrefixRules( prefix );
+				var resolvedWord = TryResolveWithRules( word, rules, isPrefix, prefix );
+				if( resolvedWord != null ) {
+					return resolvedWord;
+				}
+			}
+
+			isPrefix = false;
+			// Try to match suffixes
+			for( int suffixLen = 1; ( suffixLen < 5 && suffixLen < word.Length ); ++suffixLen ) {
+				string suffix = word.Substring( word.Length - 1 - suffixLen );
+				string[] rules = GetSuffixRules( suffix );
+				var resolvedWord = TryResolveWithRules( word, rules, isPrefix, suffix );
+				if( resolvedWord != null ) {
+					return resolvedWord;
+				}
+			}
 
 			return null;
 		}
 
-		private string[] MatchSuffix( string suffix ) {
+		private SyllabalizedWord TryResolveWithRules( string word, string[] rules, bool isPrefix, string toReplace ) {
+			if( rules == null ) {
+				return null;
+			}
+			for( int i = 0; i < rules.Length; i += 2 ) {
+				string replaceWith = rules[ i ];
+				string reinsert    = rules[ i + 1 ];
+				SyllabalizedWord resolvedWord = TryResolveWithRule( word, isPrefix, toReplace, replaceWith, reinsert );
+				if( resolvedWord != null ) {
+					return resolvedWord;
+				}
+			}
+			return null;
+		}
+
+		private SyllabalizedWord TryResolveWithRule( string word, bool isPrefix, string toReplace, string replaceWith, string reinsert ) {
+			string key = null;
+			if( isPrefix ) {
+				key = string.Format( "{0}{1}", replaceWith, word.Remove( 0, toReplace.Length ) );
+			} else {
+				key = string.Format( "{0}{1}", word.Remove( word.Length - toReplace.Length ), replaceWith ); 
+			}
+			if( !database.ContainsKey( key ) ) {
+				return null;
+			}
+			SyllabalizedWord existingWord = database[ key ];
+			// TODO: Cache? Rules are to avoid wasting memory, but common words might be worthwhile
+			SyllabalizedWord newWord = ResolveSyllabalizedWord( existingWord.String, existingWord.SyllabalizedString );
+
+			return newWord;
+		}
+
+		private string[] GetPrefixRules( string prefix ) {
+			switch( prefix ) {
+			case "co": return new string[] { "", "co·" };
+			case "by": return new string[] { "", "bi·" };
+			case "de": return new string[] { "", "de·" };
+			case "non": return new string[] { "", "non·" };
+			case "un": return new string[] { "", "un·" };
+			case "up": return new string[] { "", "up·" };
+			case "pre": return new string[] { "", "pre·" };
+			case "mis": return new string[] { "", "mis·" };
+			case "re": return new string[] { "", "re·" };
+			}
+			return null;
+		}
+
+		private string[] GetSuffixRules( string suffix ) {
 			switch( suffix ) {
 				// Plural
 			case "ses": return new string[]{ "se", "s·es", "sis", "ses" };
@@ -228,22 +315,6 @@ namespace SA {
 				};
 			case "l": return new string[]{ "", "·l" };
 			case "x": return new string[]{ "", "·x" };
-			}
-
-			return null;
-		}
-
-		private string[] MatchPrefix( string prefix ) {
-			switch( prefix ) {
-			case "co": return new string[] { "", "co·" };
-			case "by": return new string[] { "", "bi·" };
-			case "de": return new string[] { "", "de·" };
-			case "non": return new string[] { "", "non·" };
-			case "un": return new string[] { "", "un·" };
-			case "up": return new string[] { "", "up·" };
-			case "pre": return new string[] { "", "pre·" };
-			case "mis": return new string[] { "", "mis·" };
-			case "re": return new string[] { "", "re·" };
 			}
 			return null;
 		}
