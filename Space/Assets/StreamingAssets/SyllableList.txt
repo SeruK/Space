@@ -41464,3 +41464,4 @@ zucchini=zuc·chi·ni
 zwieback=zwie·back
 zygote=zy·gote
 zygotic=zy·got·ic
+heart-ache=heart·-ache

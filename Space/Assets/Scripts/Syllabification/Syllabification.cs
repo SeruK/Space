@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
+// TODO: Case-insensitive
 namespace SA {
 	public static class SyllabificationStringExtensions {
-		public static int CountOccurrencesOf( this System.String str, char c ) {
+		public static int CountOccurrencesOf( this String str, char c ) {
 			int count = 0, length = str.Length;
 			for( int i = 0; i < length; ++i ) {
 				if( str[ i ] == c ) ++count;
@@ -17,9 +19,11 @@ namespace SA {
 	public class SyllabalizedWord {
 		private string fullString;
 		private int[]  indices;
+		private bool   isCharacter;
 
 		public string String { get { return fullString; } }
 		public int    Count { get { return indices.Length + 1; } }
+		public bool   IsCharacter { get { return isCharacter; } }
 		public string SyllabalizedString {
 			get { return string.Join( "·", GetSyllables() ); }
 		}
@@ -31,11 +35,14 @@ namespace SA {
 			get { return GetSyllable( i ); }
 		} 
 
-		public SyllabalizedWord( string fullString, int[] indices ) {
+		public SyllabalizedWord( string fullString, int[] indices ) : this( fullString, indices, false ) {}
+	
+		public SyllabalizedWord( string fullString, int[] indices, bool isCharacter ) {
 			// An empty string has no syllables or reason for existing
 			DebugUtil.Assert( !string.IsNullOrEmpty( fullString ) );
-			this.fullString = fullString;
-			this.indices    = indices ?? new int[ 0 ];
+			this.fullString  = fullString;
+			this.indices     = indices ?? new int[ 0 ];
+			this.isCharacter = isCharacter;
 		}
 
 		public string GetSyllable( int i ) {
@@ -84,6 +91,76 @@ namespace SA {
 			return new Syllabificator( database );
 		}
 
+		public SyllabalizedWord[] SyllabalizeString( string str ) {
+			string[] words = str.Trim().Split( ' ' );
+			var syllabalizedList = new List<SyllabalizedWord>();
+
+			for( int i = 0; i < words.Length; ++i ) {
+				string word = words[ i ];
+				string[] tokens = TokenizeLettersNonLetters( word );
+				var postWords = new List<SyllabalizedWord>();
+				if( tokens.Length > 1 ) {
+					word = "";
+					foreach( string token in tokens ) {
+						bool tokenIsWord = char.IsLetter( token[ 0 ] );
+						if( tokenIsWord ) {
+							word += token; 
+						} else {
+							// Haven't found word yet, add character token as word
+							if( word == "" ) {
+								syllabalizedList.Add( new SyllabalizedWord( token, null, true ) );
+							} else {
+								// Special case
+								if( token == "-" || token == "'" ) {
+									word += token;
+								} else {
+									postWords.Add( new SyllabalizedWord( token, null, true ) );
+								}
+							}
+						}
+					}
+				}
+
+				if( database.ContainsKey( word ) ) {
+					syllabalizedList.Add( database[ word ] );
+				} else {
+					SyllabalizedWord resolved = ResolveByRules( word );
+					if( resolved != null ) {
+						syllabalizedList.Add( resolved );
+					} else {
+						DebugUtil.Log( "Unable to resolve word: \"" + word + "\", adding as-is" );
+						syllabalizedList.Add( new SyllabalizedWord( word, null ) );
+					}
+				}
+
+				foreach( var postWord in postWords ) {
+					syllabalizedList.Add( postWord );
+				}
+			}
+
+			return syllabalizedList.ToArray();
+		}
+
+		private static string[] TokenizeLettersNonLetters( string str ) {
+			DebugUtil.Assert( !string.IsNullOrEmpty( str ) );
+			var list = new List<string>();
+			int start = 0;
+			bool isWord = char.IsLetter( str[ 0 ] );
+			for( int i = 1; i < str.Length; ++i ) {
+				if( isWord && !char.IsLetter( str[ i ] ) ) {
+					list.Add( str.Substring( start, i - start ) );
+					start = i;
+					isWord = false;
+				} else if( !isWord && char.IsLetter( str[ i ] ) ) {
+					list.Add( str.Substring( start, i - start ) );
+					start = i;
+					isWord = true;
+				}
+			}
+			list.Add( str.Substring( start, str.Length - start ) );
+			return list.ToArray();
+		}
+
 		private static SyllabalizedWord ResolveSyllabalizedWord( string fullString, string syllabalizedString ) {
 			// res = scan - found
 			//
@@ -108,27 +185,6 @@ namespace SA {
 			return new SyllabalizedWord( fullString, indices );
 		}
 
-		public SyllabalizedWord[] SyllabalizeString( string str ) {
-			string[] words = str.Trim().Split( ' ' );
-			var syllabalizedList = new List<SyllabalizedWord>();
-
-			foreach( string word in words ) {
-				if( database.ContainsKey( word ) ) {
-					syllabalizedList.Add( database[ word ] );
-				} else {
-					SyllabalizedWord resolved = ResolveByRules( word );
-					if( resolved != null ) {
-						syllabalizedList.Add( resolved );
-					} else {
-						DebugUtil.Log( "Unable to resolve word: \"" + word + "\", adding as-is" );
-						syllabalizedList.Add( new SyllabalizedWord( word, null ) );
-					}
-				}
-			}
-
-			return syllabalizedList.ToArray();
-		}
-
 		// RULES
 		// determines if a prefix or suffix could be
 		// replaced to create a word (f.ex. "dicks"
@@ -150,7 +206,7 @@ namespace SA {
 
 			isPrefix = false;
 			// Try to match suffixes
-			for( int suffixLen = 1; ( suffixLen < 5 && suffixLen < word.Length ); ++suffixLen ) {
+			for( int suffixLen = 1; ( suffixLen <= 5 && suffixLen < word.Length ); ++suffixLen ) {
 				string suffix = word.Substring( word.Length - 1 - suffixLen );
 				string[] rules = GetSuffixRules( suffix );
 				var resolvedWord = TryResolveWithRules( word, rules, isPrefix, suffix );
@@ -189,7 +245,13 @@ namespace SA {
 			}
 			SyllabalizedWord existingWord = database[ key ];
 			// TODO: Cache? Rules are to avoid wasting memory, but common words might be worthwhile
-			SyllabalizedWord newWord = ResolveSyllabalizedWord( existingWord.String, existingWord.SyllabalizedString );
+			string syllabalizedString = existingWord.SyllabalizedString;
+			if( isPrefix ) {
+				syllabalizedString = string.Format( "{0}{1}", reinsert, syllabalizedString.Remove( replaceWith.Length ) );
+			} else {
+				syllabalizedString = string.Format( "{0}{1}", syllabalizedString.Remove( syllabalizedString.Length - replaceWith.Length ), reinsert );
+			}
+			SyllabalizedWord newWord = ResolveSyllabalizedWord( word, syllabalizedString );
 
 			return newWord;
 		}
@@ -211,6 +273,10 @@ namespace SA {
 
 		private string[] GetSuffixRules( string suffix ) {
 			switch( suffix ) {
+				// Ownership
+			case "'s": return new string[]{ "", "'s" };
+			case "'re": return new string[]{ "", "'re" };
+			case "s'": return new string[]{ "", "s'" };
 				// Plural
 			case "ses": return new string[]{ "se", "s·es", "sis", "ses" };
 			case "zes": return new string[]{ "ze", "z·es" };
