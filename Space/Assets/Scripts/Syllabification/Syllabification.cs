@@ -17,13 +17,13 @@ namespace SA {
 	// abandon = a·ban·don
 	// indices describes: a[b]an[d]on
 	public class SyllabalizedWord {
-		private string fullString;
-		private int[]  indices;
-		private bool   isCharacter;
+		private readonly string fullString;
+		private readonly int[]  indices;
+		private readonly bool   isSymbol;
 
 		public string String { get { return fullString; } }
 		public int    Count { get { return indices.Length + 1; } }
-		public bool   IsCharacter { get { return isCharacter; } }
+		public bool   IsSymbol { get { return isSymbol; } }
 		public string SyllabalizedString {
 			get { return string.Join( "·", GetSyllables() ); }
 		}
@@ -37,13 +37,15 @@ namespace SA {
 
 		public SyllabalizedWord( string fullString, int[] indices ) : this( fullString, indices, false ) {}
 	
-		public SyllabalizedWord( string fullString, int[] indices, bool isCharacter ) {
+		public SyllabalizedWord( string fullString, int[] indices, bool isSymbol ) {
 			// An empty string has no syllables or reason for existing
 			DebugUtil.Assert( !string.IsNullOrEmpty( fullString ) );
 			this.fullString  = fullString;
-			this.indices     = indices ?? new int[ 0 ];
-			this.isCharacter = isCharacter;
+			this.indices     = indices == null ? new int[ 0 ] : (int[])indices.Clone();
+			this.isSymbol    = isSymbol;
 		}
+
+		public SyllabalizedWord( SyllabalizedWord word, string fullString ) : this( fullString, word.indices, word.isSymbol )  {}
 
 		public string GetSyllable( int i ) {
 			DebugUtil.Assert( i < Count );
@@ -108,9 +110,14 @@ namespace SA {
 						} else {
 							// Haven't found word yet, add character token as word
 							if( word == "" ) {
-								syllabalizedList.Add( new SyllabalizedWord( token, null, true ) );
+								// Special case: 'tis
+								if( token == "'" ) {
+									word += token;
+								} else {
+									syllabalizedList.Add( new SyllabalizedWord( token, null, true ) );
+								}
 							} else {
-								// Special case
+								// Special cases: heart-ache, it's
 								if( token == "-" || token == "'" ) {
 									word += token;
 								} else {
@@ -120,9 +127,9 @@ namespace SA {
 						}
 					}
 				}
-
-				if( database.ContainsKey( word ) ) {
-					syllabalizedList.Add( database[ word ] );
+				string key = word.ToLower();
+				if( database.ContainsKey( key ) ) {
+					syllabalizedList.Add( new SyllabalizedWord( database[ key ], word ) );
 				} else {
 					SyllabalizedWord resolved = ResolveByRules( word );
 					if( resolved != null ) {
@@ -195,7 +202,7 @@ namespace SA {
 		private SyllabalizedWord ResolveByRules( string word ) {
 			bool isPrefix = true;
 			// Try to match prefixes
-			for( int prefixLen = 2; ( prefixLen < 3 && prefixLen < word.Length ); ++prefixLen ) {
+			for( int prefixLen = 1; ( prefixLen <= 3 && prefixLen < word.Length ); ++prefixLen ) {
 				string prefix = word.Substring( 0, prefixLen );
 				string[] rules = GetPrefixRules( prefix );
 				var resolvedWord = TryResolveWithRules( word, rules, isPrefix, prefix );
@@ -207,7 +214,7 @@ namespace SA {
 			isPrefix = false;
 			// Try to match suffixes
 			for( int suffixLen = 1; ( suffixLen <= 5 && suffixLen < word.Length ); ++suffixLen ) {
-				string suffix = word.Substring( word.Length - 1 - suffixLen );
+				string suffix = word.Substring( word.Length - suffixLen );
 				string[] rules = GetSuffixRules( suffix );
 				var resolvedWord = TryResolveWithRules( word, rules, isPrefix, suffix );
 				if( resolvedWord != null ) {
@@ -240,6 +247,7 @@ namespace SA {
 			} else {
 				key = string.Format( "{0}{1}", word.Remove( word.Length - toReplace.Length ), replaceWith ); 
 			}
+			key = key.ToLower();
 			if( !database.ContainsKey( key ) ) {
 				return null;
 			}
@@ -247,9 +255,15 @@ namespace SA {
 			// TODO: Cache? Rules are to avoid wasting memory, but common words might be worthwhile
 			string syllabalizedString = existingWord.SyllabalizedString;
 			if( isPrefix ) {
-				syllabalizedString = string.Format( "{0}{1}", reinsert, syllabalizedString.Remove( replaceWith.Length ) );
+				if( replaceWith.Length != 0 ) {
+					syllabalizedString =  syllabalizedString.Remove( replaceWith.Length );
+				}
+				syllabalizedString = reinsert + syllabalizedString;
 			} else {
-				syllabalizedString = string.Format( "{0}{1}", syllabalizedString.Remove( syllabalizedString.Length - replaceWith.Length ), reinsert );
+				if( replaceWith.Length != 0 ) {
+					syllabalizedString = syllabalizedString.Remove( syllabalizedString.Length - replaceWith.Length );
+				}
+				syllabalizedString += reinsert;
 			}
 			SyllabalizedWord newWord = ResolveSyllabalizedWord( word, syllabalizedString );
 
@@ -258,6 +272,7 @@ namespace SA {
 
 		private string[] GetPrefixRules( string prefix ) {
 			switch( prefix ) {
+			case "'": return new string[] { "", "'" };
 			case "co": return new string[] { "", "co·" };
 			case "by": return new string[] { "", "bi·" };
 			case "de": return new string[] { "", "de·" };
