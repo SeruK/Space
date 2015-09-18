@@ -16,6 +16,8 @@ public class SyllabificationTest : MonoBehaviour {
 	[SerializeField]
 	private float colonDelay;
 	[SerializeField]
+	private float eolDelay;
+	[SerializeField]
 	private int normalTextSize;
 	[SerializeField]
 	private int bigTextSize;
@@ -61,7 +63,51 @@ public class SyllabificationTest : MonoBehaviour {
 
 		boxText = "";
 
-		return WritePerSyllable( lines );
+		return WritePerLine( lines );
+	}
+
+	IEnumerator WritePerLine( List<SyllabalizedWord[]> lines ) {
+		foreach( SyllabalizedWord[] line in lines ) {
+			for( int y = 0; y < line.Length; ++y ) {
+				var word = line[ y ];
+
+				if( word.IsSymbol ) {
+					float delay = letterDelay;
+					if( word.String == "," ) {
+						delay = commaDelay;
+					} else if( word.String == "." || word.String == "?" || word.String == "!" ) {
+						delay = punctuationDelay;
+					} else if( word.String == ":" || word.String == ";" ) {
+						delay = commaDelay;
+					}
+					yield return new WaitForSeconds( delay );
+					continue;
+				}
+
+				int x = 0;
+				foreach( string syllable in word ) {
+					textBox.text = LineWithBold( line, new Vector2i( x++, y ) );
+					yield return new WaitForSeconds( letterDelay * (float)syllable.Length );
+				}
+			}
+			yield return new WaitForSeconds( eolDelay );
+		}
+	}
+
+	string LineWithBold( SyllabalizedWord[] line, Vector2i boldened ) {
+		string str = "";
+		for( int y = 0; y < line.Length; ++y ) {
+			var word = line[ y ];
+			if( !word.IsSymbol ) {
+				str += " ";
+			}
+			for( int x = 0; x < word.Count; ++x ) {
+				string syllable = word[ x ];
+				bool isBoldened = x == boldened.x && y == boldened.y;
+				str += isBoldened ? string.Format( "{0}{1}{2}", openElement, syllable, closeElement ): syllable;
+			}
+		}
+		return str;
 	}
 
 	IEnumerator WritePerSyllable( List<SyllabalizedWord[]> lines ) {
@@ -89,27 +135,21 @@ public class SyllabificationTest : MonoBehaviour {
 					yield return new WaitForSeconds( letterDelay * (float)syllable.Length );
 				}
 			}
+			yield return new WaitForSeconds( eolDelay );
 			AppendGUIText( "\n", false );
 		}
 	}
 
 	string openElement =
-		"<color=aqua>"
-			//"<b>"
+		"<color=#680000>"
+//			"<b>"
 			//string.Format( "<size={0}>", bigTextSize )
 			;
 	string closeElement =
+//		"</b>"
+		//"</size>"
 		"</color>"
-			//"</b>";
-			//"</size>"
 			;
-
-	void ReplaceGUIText( string oldStr, string newStr ) {
-		int old = boxText.LastIndexOf( oldStr );
-		boxText = boxText.Remove( old );
-		boxText += newStr;
-		textBox.text = boxText;
-	}
 
 	void AppendGUIText( string str, bool bold ) {
 		boxText = boxText.Replace( openElement, "" );

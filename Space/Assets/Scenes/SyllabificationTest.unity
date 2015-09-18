@@ -118,6 +118,7 @@ MonoBehaviour:
   commaDelay: .400000006
   punctuationDelay: 1
   colonDelay: 1
+  eolDelay: 0
   normalTextSize: 20
   bigTextSize: 22
 --- !u!4 &346134343
@@ -140,9 +141,7 @@ GUIText:
   m_GameObject: {fileID: 346134341}
   m_Enabled: 1
   serializedVersion: 3
-  m_Text: '
-
-'
+  m_Text: 
   m_Anchor: 1
   m_Alignment: 1
   m_PixelOffset: {x: 20, y: 251}

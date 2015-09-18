@@ -209,6 +209,7 @@ namespace SA {
 		// would use the same syllabification)
 		// the rules are returned in pairs of
 		// "replaceWith" / "reinsertAfter" strings.
+		// TODO: Test with both prefix and suffix
 
 		private SyllabalizedWord ResolveByRules( string word ) {
 			bool isPrefix = true;
