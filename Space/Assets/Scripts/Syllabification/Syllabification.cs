@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -16,7 +17,7 @@ namespace SA {
 
 	// abandon = a·ban·don
 	// indices describes: a[b]an[d]on
-	public class SyllabalizedWord {
+	public class SyllabalizedWord : IEnumerable<string> {
 		private readonly string fullString;
 		private readonly int[]  indices;
 		private readonly bool   isSymbol;
@@ -64,6 +65,16 @@ namespace SA {
 				ret[ i ] = GetSyllable( i );
 			}
 			return ret;
+		}
+
+		public IEnumerator<string> GetEnumerator() {
+			for( int i = 0; i < Count; ++i ) {
+				yield return GetSyllable( i );
+			}
+		}
+
+		IEnumerator IEnumerable.GetEnumerator() {
+			return GetEnumerator();
 		}
 	}
 

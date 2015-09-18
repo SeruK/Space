@@ -94,6 +94,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 346134343}
   - 114: {fileID: 346134342}
+  - 132: {fileID: 346134344}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -112,6 +113,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b86c5e9fe4357284db12b81a2a9fceaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textBox: {fileID: 346134344}
+  letterDelay: .0500000007
+  commaDelay: .400000006
+  punctuationDelay: 1
+  colonDelay: 1
+  normalTextSize: 20
+  bigTextSize: 22
 --- !u!4 &346134343
 Transform:
   m_ObjectHideFlags: 0
@@ -119,11 +127,36 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 346134341}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 104.010162, y: 95.7837296, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
+--- !u!132 &346134344
+GUIText:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 346134341}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Text: '
+
+'
+  m_Anchor: 1
+  m_Alignment: 1
+  m_PixelOffset: {x: 20, y: 251}
+  m_LineSpacing: 1
+  m_TabSize: 4
+  m_Font: {fileID: 12800000, guid: f9f49555b1b21ea4b8e04a3f014826d8, type: 3}
+  m_Material: {fileID: 2100000, guid: f9f49555b1b21ea4b8e04a3f014826d8, type: 3}
+  m_FontSize: 30
+  m_FontStyle: 0
+  m_Color:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_PixelCorrect: 1
+  m_RichText: 1
 --- !u!1 &1910039622
 GameObject:
   m_ObjectHideFlags: 0
@@ -173,7 +206,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: .192156866, g: .301960796, b: .474509805, a: .0196078438}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: .0196078438}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
