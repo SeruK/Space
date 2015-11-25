@@ -15,7 +15,7 @@ public class EntityManager : MonoBehaviour {
 	private GameObject SpikePrefab;
 
 	public EntityCollisionHandler OnEntityCollided;
-	public Dictionary<int, Obstacle>.ValueCollection Obstacles {
+	public IEnumerable<Obstacle> Obstacles {
 		get { return obstacles.Values; }
 	}
 
@@ -43,12 +43,19 @@ public class EntityManager : MonoBehaviour {
 
 		T obj = InstantiateObject<T>( prefab );
 		if( obj != null ) {
-			RespawnObject( obj );
+			RespawnObject( obj, name );
 		}
 		return obj;
 	}
 
-	private void RespawnObject( Component obj ) {
+	private void RespawnObject( Component obj, string name=null ) {
+		if( name != null ) {
+			var ent = obj as BaseEntity;
+			if( ent != null ) {
+				ent.EntityName = name;
+			}
+		}
+		
 		var obstacle = obj as Obstacle;
 		if( obstacle != null ) {
 			RespawnObstacle( obstacle );

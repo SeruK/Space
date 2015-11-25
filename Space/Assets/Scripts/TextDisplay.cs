@@ -78,6 +78,12 @@ public class TextDisplay : MonoBehaviour
 		}
 	}
 
+	protected void OnDisable() {
+		if( guiText != null ) {
+			guiText.material = displayTextNormalMaterial;
+		}
+	}
+
 	protected void Update() {
 		if( guiText == null ) {
 			return;

@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using SA;
+using System;
+using System.IO;
 
 public class WorldGenerator {
 	// TODO: Not this
-	private static readonly System.UInt32[] DIRT_TILES = new System.UInt32[] { 16u, 10u, 15u };
-	private static readonly System.UInt32[] DIRT_WEIGHTS = new uint[] { 8, 1, 1 };
+	private static readonly UInt32[] DIRT_TILES = new UInt32[] { 16u, 10u, 15u };
+	private static readonly UInt32[] DIRT_WEIGHTS = new uint[] { 8, 1, 1 };
 
 	private RandomizerXor128 randomizer;
 
@@ -26,11 +28,11 @@ public class WorldGenerator {
 
 	public void GenerateTileGrid() {
 		// TODO: Not this!
-		string tmxFilePath = System.IO.Path.Combine( Util.ResourcesPath, "test.tmx" );
+		string tmxFilePath = Path.Combine( Util.ResourcesPath, "test.tmx" );
 		TileMap tileMap = SA.TileMapTMXReader.ParseTMXFileAtPath( tmxFilePath, tilesetLookup );
 
 		var midgroundTiles = tileMap.MidgroundLayer.Tiles;
-		var backgroundTiles = System.Array.Find( tileMap.TileLayers, ( TileLayer layer ) => { return layer.Name == "Background"; } ).Tiles;
+		var backgroundTiles = Array.Find( tileMap.TileLayers, ( TileLayer layer ) => { return layer.Name == "Background"; } ).Tiles;
 		GenerateMountainTiles( ref midgroundTiles, ref backgroundTiles, 3, 3, 30, 30 );
 		SetTileMapAt( tileMap, 3, 3 );
 		GenerateTileMapAt( 1, 3 );
@@ -52,8 +54,8 @@ public class WorldGenerator {
 	
 	private void GenerateTileMapAt( int gridX, int gridY ) {
 		int w = 30; int h = 30;
-		var tiles = new System.UInt32[ w * h ];
-		var bgTiles = new System.UInt32[ w * h ];
+		var tiles = new UInt32[ w * h ];
+		var bgTiles = new UInt32[ w * h ];
 		
 		if( gridY < 3 ) {
 			GenerateDungeonTiles( ref tiles, ref bgTiles, gridX, gridY, w, h );
@@ -68,15 +70,15 @@ public class WorldGenerator {
 		SetTileMapAt( tileMap, gridX, gridY );
 	}
 
-	private System.UInt32 RandomDirtTile() {
-		System.UInt32 tile = SA.Random.WeightedInArray( DIRT_TILES, DIRT_WEIGHTS, randomizer.GetNext );
+	private UInt32 RandomDirtTile() {
+		UInt32 tile = SA.Random.WeightedInArray( DIRT_TILES, DIRT_WEIGHTS, randomizer.GetNext );
 		Tile.SetFlippedDiag( ref tile, SA.Random.CoinToss( randomizer.GetNext ) );
 		Tile.SetFlippedHori( ref tile, SA.Random.CoinToss( randomizer.GetNext ) );
 		Tile.SetFlippedVert( ref tile, SA.Random.CoinToss( randomizer.GetNext ) );
 		return tile;
 	}
 
-	private void GenerateMountainTiles( ref System.UInt32[] tiles, ref System.UInt32[] bgTiles, int gridX, int gridY, int w, int h ) {
+	private void GenerateMountainTiles( ref UInt32[] tiles, ref UInt32[] bgTiles, int gridX, int gridY, int w, int h ) {
 		float freq = 0.1f;
 		int octaves = 5;
 		float lacunarity = 2.0f;//range(2.0f, 3.0f);
@@ -106,7 +108,7 @@ public class WorldGenerator {
 		}
 	}
 	
-	private void GenerateDungeonTiles( ref System.UInt32[] tiles, ref System.UInt32[] bgTiles, int gridX, int gridY, int w, int h ) {
+	private void GenerateDungeonTiles( ref UInt32[] tiles, ref UInt32[] bgTiles, int gridX, int gridY, int w, int h ) {
 		for( int i = 0; i < w * h; ++i ) {
 			bgTiles[ i ] = 14u;
 		}
@@ -163,8 +165,9 @@ public class WorldGenerator {
 				
 				if( layerObject.ObjectType == "Spike" ) {
 					var obstacle = entityManager.Spawn<Obstacle>( "Spike" );
+					var tileLock = tileMapGrid.WorldPosToTilePos( worldPos ) + new Vector2i( 0, -1 );
 					obstacle.transform.position = worldPos;
-					obstacle.LockToTiles( tileMapGrid.WorldPosToTilePos( worldPos ) + new Vector2i( 0, -1 )  );
+					obstacle.LockToTiles( tileLock );
 				}
 			}
 		}

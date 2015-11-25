@@ -3,6 +3,7 @@ using SA;
 using System.Collections.Generic;
 using OngoingQuest = Quests.OngoingQuest;
 using ItemType = Item.ItemType;
+using System.Linq;
 
 [RequireComponent( typeof(EntityManager) )]
 [RequireComponent( typeof(TileMapGrid) )]
@@ -48,6 +49,8 @@ public class Game : MonoBehaviour {
 	private Vector2i mouseTilePos;
 	private float currentDigDamage;
 	private Vector2i currentDigTile;
+
+	private string currentDebugString;
 
 	private EntityManager entityManager;
 	private Entity player;
@@ -168,8 +171,16 @@ public class Game : MonoBehaviour {
 			}
 		}
 
-		tileDamageSprite.transform.position = tileMapGrid.TilePosToWorldPos( currentDigTile );
-		tileDamageSprite.color = new Color( 1, 1, 1, currentDigDamage / 1.0f );
+		int numSteps = 4;
+		int step = (int)( currentDigDamage / ( 1.0f / (float)numSteps ) );
+		float alpha = step * ( 1.0f / (float)numSteps );
+
+		Vector3 damagePos = tileMapGrid.TilePosToWorldPos( currentDigTile ) + new Vector2( Constants.TILE_SIZE_UNITS, Constants.TILE_SIZE_UNITS ) / 2.0f;
+		tileDamageSprite.transform.parent.position = damagePos;
+
+		tileDamageSprite.color = new Color( 1, 1, 1, currentDigDamage > 0.0f ? 1.0f : 0.0f );
+		tileDamageSprite.transform.parent.localScale = new Vector2( 1.0f, 1.0f ) * Mathf.SmoothStep( 0.3f, 1.0f, alpha );
+		
 	}
 
 	private bool TryDig( Vector2i digPos ) {
@@ -193,13 +204,16 @@ public class Game : MonoBehaviour {
 			}
 
 			SetTile( tileMapVisual, digPos, 0u );
-			var pickup = entityManager.Spawn<Pickup>( "Pickup" );
-			pickup.GetComponent<SpriteRenderer>().sprite = tilesetLookup.Tiles[ (int)tileAtDigPos ].TileSprite;
-			pickup.ItemType = Item.ItemType.TILE;
-			pickup.TileUUID = tileAtDigPos;
-			pickup.noPickupTimer = 0.5f;
-			pickup.transform.position = TilePosToPos( digPos ) + new Vector2( 0.0f, 0.5f );
-			pickup.transform.localScale = new Vector2( 0.7f, 0.7f );
+			ItemType tileDrop = Item.TileDrops( tileAtDigPos );
+			if( tileDrop != ItemType.None ) {
+				var pickup = entityManager.Spawn<Pickup>( "Pickup" );
+				pickup.GetComponentInChildren<SpriteRenderer>().sprite = tilesetLookup.Tiles[ (int)tileAtDigPos ].TileSprite;
+				pickup.ItemType = tileDrop;
+				pickup.TileUUID = Item.IsTile( tileDrop ) ? Item.TileUUIDFromItem( tileDrop ) : 0u;
+				pickup.noPickupTimer = 0.5f;
+				pickup.transform.position = TilePosToPos( digPos ) + new Vector2( 0.0f, 0.5f );
+				pickup.transform.localScale = new Vector2( 0.7f, 0.7f );
+			}
 
 			currentDigDamage = 0.0f;
 
@@ -226,12 +240,10 @@ public class Game : MonoBehaviour {
 
 	private void SetTile( TileMapVisual tileMapVisual, Vector2i tilePos, System.UInt32 tile ) {
 		if( tile == 0u ) {
-			var obstaclesToRemove = new List<Obstacle>();
-			foreach( Obstacle obstacle in entityManager.Obstacles ) {
-				if( System.Array.IndexOf( obstacle.LockedToTiles, tilePos ) != -1 ) {
-					obstaclesToRemove.Add( obstacle );
-				}
-			}
+			var obstaclesToRemove = ( from Obstacle obstacle in entityManager.Obstacles
+			                          where obstacle.LockedToTiles.Contains( tilePos )
+			                          select obstacle ).ToArray();
+
 			foreach( Obstacle obstacle in obstaclesToRemove ) {
 				entityManager.RemoveEntity( obstacle );
 			}
@@ -245,6 +257,21 @@ public class Game : MonoBehaviour {
 
 	protected void UpdateInput() {
 		mouseTilePos = tileMapGrid.WorldPosToTilePos( Camera.main.ScreenToWorldPoint( Input.mousePosition ) );
+
+		{
+			currentDebugString = null;
+			RaycastHit2D hit = Camera.main.ScreenPointToRay2D( Input.mousePosition );
+			if( hit.collider != null ) {
+				var ent = hit.collider.GetComponent<BaseEntity>();
+				if( ent != null ) {
+					currentDebugString = ent.DebugInfo;
+				}
+			}
+		}
+
+		if( Input.GetKeyDown( KeyCode.Tab ) ) {
+			guiState.Show = !guiState.Show;
+		}
 
 		if( Input.GetKeyDown( KeyCode.Home ) ) {
 			guiState.ShowDebug = !guiState.ShowDebug;
@@ -265,7 +292,8 @@ public class Game : MonoBehaviour {
 				if( Input.GetKeyDown( KeyCode.Space ) ) {
 					waitForSpaceUp = true;
 					convoGUI.ForwardCurrentEntry();
-				} else if( Input.GetKeyDown( KeyCode.Escape ) ) {
+				}
+				else if( Input.GetKeyDown( KeyCode.Escape ) ) {
 					convoGUI.EndConvo();
 				}
 				return;
@@ -289,10 +317,10 @@ public class Game : MonoBehaviour {
 			return;
 		}
 
-		bool left  = Input.GetKey( KeyCode.LeftArrow );
+		bool left = Input.GetKey( KeyCode.LeftArrow );
 		bool right = Input.GetKey( KeyCode.RightArrow );
-		bool up    = Input.GetKey( KeyCode.UpArrow );
-		bool down  = Input.GetKey( KeyCode.DownArrow );
+		bool up = Input.GetKey( KeyCode.UpArrow );
+		bool down = Input.GetKey( KeyCode.DownArrow );
 		requestedDig = Input.GetKey( KeyCode.W );
 
 		aimVector.Set( left ? -1 : right ? 1 : 0, down ? -1 : up ? 1 : 0 );
@@ -311,7 +339,8 @@ public class Game : MonoBehaviour {
 			if( !spacePressed ) {
 				waitForSpaceUp = false;
 			}
-		} else {
+		}
+		else {
 			player.RequestedJump = spacePressed;
 		}
 		if( CameraController != null ) {
@@ -449,9 +478,10 @@ public class Game : MonoBehaviour {
 
 	// TODO: Temp
 	private class GUIState {
+		public bool Show = true;
 		public bool ShowInventory;
 		public Vector2i SelectedItem;
-		public bool ShowDebug;
+		public bool ShowDebug = true;
 	}
 
 	GUIState guiState = new GUIState();
@@ -520,6 +550,23 @@ public class Game : MonoBehaviour {
 			if( convoGUI.CurrentConvo != null ) {
 				return;
 			}
+		}
+
+		if( !string.IsNullOrEmpty( currentDebugString ) ) {
+			float w = 200.0f;
+			float h = GUI.skin.label.CalcHeight( new GUIContent( currentDebugString ), w );
+			Vector3 offset = new Vector3( 10.0f, 0.0f );
+			Rect rect = new Rect( Util.ScreenPointToGUI( Input.mousePosition ) + offset, new Vector2( w, h ) );
+			if( !Util.ScreenRect.Contains( rect.max ) ) {
+				rect.position -= new Vector2( offset.x * 2.0f + rect.width, 0.0f );
+			}
+			GUI.color = Color.red;
+			GUI.Label( rect, currentDebugString );
+			GUI.color = Color.white;
+		}
+
+		if( !guiState.Show ) {
+			return;
 		}
 
 		if( GUILayout.Button( "Inventory" ) ) {
