@@ -248,10 +248,12 @@ public class MeshTiles : MonoBehaviour
 			}
 		}
 
-		float minX = meshSize*x;
-		float minY = meshSize*y;
-		float maxX = minX + meshSize;
-		float maxY = minY + meshSize;
+		// Make quads overlap slightly to avoid stitch gaps
+		const float expand = 0.0003f;
+		float minX = meshSize * x + expand;
+		float minY = meshSize * y + expand;
+		float maxX = minX + meshSize + expand;
+		float maxY = minY + meshSize + expand;
 		
 		uint vertexIndex = index * 4u;
 		

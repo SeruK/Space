@@ -171,12 +171,13 @@ public class Game : MonoBehaviour {
 			}
 		}
 
-		int numSteps = 4;
-		int step = (int)( currentDigDamage / ( 1.0f / (float)numSteps ) );
+		int numSteps = 2;
+		int step = Mathf.CeilToInt( ( currentDigDamage / ( 1.0f / (float)numSteps ) ) );
 		float alpha = step * ( 1.0f / (float)numSteps );
 
 		Vector3 damagePos = tileMapGrid.TilePosToWorldPos( currentDigTile ) + new Vector2( Constants.TILE_SIZE_UNITS, Constants.TILE_SIZE_UNITS ) / 2.0f;
 		tileDamageSprite.transform.parent.position = damagePos;
+
 
 		tileDamageSprite.color = new Color( 1, 1, 1, currentDigDamage > 0.0f ? 1.0f : 0.0f );
 		tileDamageSprite.transform.parent.localScale = new Vector2( 1.0f, 1.0f ) * Mathf.SmoothStep( 0.3f, 1.0f, alpha );

@@ -251,10 +251,10 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 		uint radius = (uint)Mathf.Max( lightRadius, 1 );
 		Vector2i lightOrigin = new Vector2i( lightX, lightY );
 		Vector2  lightOriginFloat = new Vector2( position.x, position.y );
-		
-		byte r = (byte)(lightColor.r * 255.0f * lightColor.a);
-		byte g = (byte)(lightColor.g * 255.0f * lightColor.a);
-		byte b = (byte)(lightColor.b * 255.0f * lightColor.a);
+
+		byte r = (byte)( lightColor.r * 255.0f );
+		byte g = (byte)( lightColor.g * 255.0f );
+		byte b = (byte)( lightColor.b * 255.0f );
 
 		for( int gridIndex = 0; gridIndex < grid.Length; ++gridIndex) {
 			TileMapVisual tileMapVisual = grid[ gridIndex ];
@@ -316,6 +316,9 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			byte b2 = b;
 			byte a = 255;
 			
+			// TODO: Temp
+			f = 0.0f;
+
 			if( tileSolid ) {
 				colors[ localIndex ] = Color32.Lerp(new Color32( r2, g2, b2, a ), new Color32( 0, 0, 0, 255 ), f );
 			} else {

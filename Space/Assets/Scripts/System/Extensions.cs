@@ -11,3 +11,13 @@ public static class CameraExtensions {
 		return Physics2D.Raycast( cam.ScreenToWorldPoint( position), Vector2.zero );
 	}
 }
+
+public static class RectExtensions {
+	public static Rect Inset( this Rect rect, float amount ) {
+		rect.xMin += amount;
+		rect.yMin += amount;
+		rect.xMin -= amount;
+		rect.xMax -= amount;
+		return rect;
+	}
+}
