@@ -5,7 +5,6 @@ using OngoingQuest = Quests.OngoingQuest;
 using ItemType = Item.ItemType;
 using System.Linq;
 
-[RequireComponent( typeof(EntityManager) )]
 [RequireComponent( typeof(TileMapGrid) )]
 [RequireComponent( typeof(PrefabDatabase) )]
 public class Game : MonoBehaviour {
@@ -86,9 +85,9 @@ public class Game : MonoBehaviour {
 		prefabDatabase.Reinitialize();
 
 		if( entityManager == null ) {
-			entityManager = gameObject.GetComponent<EntityManager>();
+			entityManager = new EntityManager();
 		}
-		entityManager.Reinitialize();
+		entityManager.Reinitialize( prefabDatabase );
 		entityManager.OnEntityCollided += OnEntityCollided;
 
 		player = entityManager.Spawn<Entity>( "Player" );
@@ -113,6 +112,18 @@ public class Game : MonoBehaviour {
 	}
 
 	protected void OnDisable() {
+		DebugUtil.Log( "Game.OnDisable()" );
+		Shutdown();
+	}
+
+	protected void OnApplicationQuit() {
+		DebugUtil.Log( "Game.OnApplicationQuit()" );
+		Shutdown();
+	}
+
+	private void Shutdown() {
+		DebugUtil.Log( "Game.Shutdown()" );
+
 		if( Camera.main ) {
 			var cameraScript = Camera.main.GetComponent<SmoothFollow>();
 			if( cameraScript != null ) {

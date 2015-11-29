@@ -2,22 +2,15 @@
 using System.Collections.Generic;
 using SA;
 
-public class EntityManager : MonoBehaviour {
+public class EntityManager {
 	public delegate void EntityCollisionHandler( Entity collidingEntity, RaycastHit2D hit );
-
-	[SerializeField]
-	private GameObject PlayerPrefab;
-	[SerializeField]
-	private GameObject PickupPrefab;
-	[SerializeField]
-	private GameObject GoombaPrefab;
-	[SerializeField]
-	private GameObject SpikePrefab;
 
 	public EntityCollisionHandler OnEntityCollided;
 	public IEnumerable<Obstacle> Obstacles {
 		get { return obstacles.Values; }
 	}
+
+	private PrefabDatabase prefabDatabase;
 
 	private int currentEntityId;
 	private Dictionary<int, BaseEntity> entities;
@@ -25,9 +18,11 @@ public class EntityManager : MonoBehaviour {
 
 	protected void OnDisable() {
 		RemoveAllEntities();
+		prefabDatabase = null;
 	}
 
-	public void Reinitialize() {
+	public void Reinitialize( PrefabDatabase prefabDatabase ) {
+		this.prefabDatabase = prefabDatabase;
 		RemoveAllEntities();
 		currentEntityId = 0;
 		entities = new Dictionary<int, BaseEntity>();
@@ -35,11 +30,7 @@ public class EntityManager : MonoBehaviour {
 	}
 
 	public T Spawn<T>( string name ) where T : Component {
-		GameObject prefab =
-			name == "Player" ? PlayerPrefab :
-			name == "Goomba" ? GoombaPrefab :
-			name == "Pickup" ? PickupPrefab : 
-			name == "Spike" ? SpikePrefab : null;
+		GameObject prefab = prefabDatabase[ name ];
 
 		T obj = InstantiateObject<T>( prefab );
 		if( obj != null ) {
@@ -164,7 +155,7 @@ public class EntityManager : MonoBehaviour {
 		}
 		entity.SetEntityId( -1 );
 		if( entity ) {
-			Destroy( entity.gameObject );
+			GameObject.Destroy( entity.gameObject );
 		}
 	}
 
@@ -176,7 +167,7 @@ public class EntityManager : MonoBehaviour {
 		if( go != null ) {
 			comp = go.GetComponent<T>();
 			if( comp == null ) {
-				Destroy( go );
+				GameObject.Destroy( go );
 				return null;
 			}
 		}
