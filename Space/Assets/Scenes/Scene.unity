@@ -306,3 +306,27 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0
+--- !u!1 &1211445359 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
+  m_PrefabInternal: {fileID: 419086246}
+--- !u!114 &1211445368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1211445359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb674c1d8480d9e4690de73ee4eb51ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  keyValuePairs:
+  - Key: Player
+    Value: {fileID: 100000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
+  - Key: Player
+    Value: {fileID: 100000, guid: f1208f32ee1b6624fa0f46d763cdd13f, type: 2}
+  - Key: Goomba
+    Value: {fileID: 167524, guid: 309db16e91a625140abaad8ca0e58ca2, type: 2}
+  - Key: Spike
+    Value: {fileID: 100002, guid: 28024fa8e660e6149a38564742f42a9b, type: 2}

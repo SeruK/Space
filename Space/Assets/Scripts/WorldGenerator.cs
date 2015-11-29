@@ -168,6 +168,7 @@ public class WorldGenerator {
 					var tileLock = tileMapGrid.WorldPosToTilePos( worldPos ) + new Vector2i( 0, -1 );
 					obstacle.transform.position = worldPos;
 					obstacle.LockToTiles( tileLock );
+					
 				}
 			}
 		}

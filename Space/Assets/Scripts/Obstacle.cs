@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using SA;
+using System;
 using System.Linq;
 
 public class Obstacle : BaseEntity {
@@ -9,6 +10,8 @@ public class Obstacle : BaseEntity {
 	private float knockForce;
 	[SerializeField]
 	private Vector2i[] lockedToTiles;
+	[SerializeField]
+	private UInt32 lockedTileUUID;
 
 	public float Damage {
 		get { return damage; }
@@ -18,6 +21,10 @@ public class Obstacle : BaseEntity {
 	}
 	public Vector2i[] LockedToTiles {
 		get { return lockedToTiles; }
+	}
+
+	public UInt32 LockedTileUUID {
+		get { return lockedTileUUID; }
 	}
 
 	public void LockToTiles( params Vector2i[] tiles ) {

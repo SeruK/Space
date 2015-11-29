@@ -7,6 +7,7 @@ using System.Linq;
 
 [RequireComponent( typeof(EntityManager) )]
 [RequireComponent( typeof(TileMapGrid) )]
+[RequireComponent( typeof(PrefabDatabase) )]
 public class Game : MonoBehaviour {
 	[SerializeField]
 	private GUISkin guiSkin;
@@ -24,9 +25,6 @@ public class Game : MonoBehaviour {
 	private ConversationGUI convoGUI;
 	[SerializeField]
 	private SpriteRenderer tileDamageSprite;
-
-	[SerializeField]
-	private GameObject TileMapVisualPrefab;
 	
 	public SmoothFollow CameraController;
 	public TextDisplay TextDisplay;
@@ -53,6 +51,7 @@ public class Game : MonoBehaviour {
 	private string currentDebugString;
 
 	private EntityManager entityManager;
+	private PrefabDatabase prefabDatabase;
 	private Entity player;
 	private Unit playerUnit;
 
@@ -80,6 +79,11 @@ public class Game : MonoBehaviour {
 			conversations = new Conversations();
 		}
 		conversations.Load( localization );
+
+		if( prefabDatabase == null ) {
+			prefabDatabase = gameObject.GetComponent<PrefabDatabase>();
+		}
+		prefabDatabase.Reinitialize();
 
 		if( entityManager == null ) {
 			entityManager = gameObject.GetComponent<EntityManager>();
