@@ -78,6 +78,12 @@ namespace SA
 		{
 			return this.width.GetHashCode() ^ this.height.GetHashCode() << 2;
 		}
+
+		public static Size2i Parse( string str )
+		{
+			string[] vals = str.Split( ',' );
+			return new Size2i( int.Parse( vals[ 0 ] ), int.Parse( vals[ 1 ] ) );
+		}
 	}
 	
 	[System.Serializable]
@@ -164,6 +170,11 @@ namespace SA
 		public override int GetHashCode()
 		{
 			return this.x.GetHashCode() ^ this.y.GetHashCode() << 2;
+		}
+
+		public static Vector2i Parse( string str ) {
+			string[] vals = str.Split( ',' );
+			return new Vector2i( int.Parse( vals[ 0 ] ), int.Parse( vals[ 1 ] ) );
 		}
 	}
 	
