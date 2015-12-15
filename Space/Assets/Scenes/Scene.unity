@@ -291,10 +291,6 @@ Prefab:
       propertyPath: CameraController
       value: 
       objectReference: {fileID: 190974038}
-    - target: {fileID: 11400002, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: debugStringStyle.m_Overflow.m_Bottom
-      value: 10
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0
