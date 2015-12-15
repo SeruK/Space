@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using SA;
 
-public class MeshTiles : MonoBehaviour 
+public class MeshTiles : SA.Behaviour 
 {
 	public struct SpriteData {
 		public readonly Sprite Sprite;
@@ -98,7 +99,9 @@ public class MeshTiles : MonoBehaviour
 	private IEnumerator generateMeshes()
 	{
 		if( SpriteAt == null ) {
-			Debug.LogWarning( "SpriteAt was not set, unable to generate meshes." ); 
+			((UnityEngine.Object)this).DebugLog("");
+			DebugLogWarn( "SpriteAt was not set, unable to generate meshes." );
+//			Debug.LogWarning( "SpriteAt was not set, unable to generate meshes." ); 
 			yield break;
 		}
 		
@@ -140,6 +143,7 @@ public class MeshTiles : MonoBehaviour
 		} while( baseSprite == null && p.x < width && p.y < height );
 
 		if( baseSprite == null ) {
+
 			DebugUtil.LogWarn( "Empty tile layer" );
 			yield break;
 		}

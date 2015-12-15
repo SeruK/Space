@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Text;
+using SA;
 
 public static class Util {
 	public static MemoryStream StringToMemoryStream( string s ) {

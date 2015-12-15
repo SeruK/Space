@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ItemType = Item.ItemType;
 using SimpleJSON;
 using System.IO;
+using SA;
 
 public class Objective {
 	public enum ObjType {

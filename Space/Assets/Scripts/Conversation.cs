@@ -2,6 +2,7 @@
 using SimpleJSON;
 using System.Collections.Generic;
 using System.IO;
+using SA;
 
 public class ConversationCharacter {
 	public readonly string Id;

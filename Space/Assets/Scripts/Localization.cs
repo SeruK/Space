@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using SA;
 
 public class Localization {
 	private Dictionary<string, string> lines;
@@ -60,7 +61,7 @@ public class Localization {
 		val = val.Substring( 1, val.Length - 2 );
 		val = val.Replace( "\\n", System.Environment.NewLine );
 
-		DebugUtil.Log( string.Format( "Read Line: [{0}] = \"{1}\" ({2})", id, val, comment == null ? "No comment" : comment) );
+		DebugUtil.Log( "Read Line: [{0}] = \"{1}\" ({2})", id, val, comment == null ? "No comment" : comment );
 
 		return true;
 	}

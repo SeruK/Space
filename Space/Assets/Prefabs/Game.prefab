@@ -12,9 +12,9 @@ GameObject:
   - 132: {fileID: 13200000}
   - 114: {fileID: 11400000}
   - 114: {fileID: 11420576}
-  - 114: {fileID: 11467286}
   - 114: {fileID: 11413340}
   - 114: {fileID: 11432820}
+  - 114: {fileID: 11469982}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -185,7 +185,6 @@ MonoBehaviour:
   spaceRenderer: {fileID: 0}
   convoGUI: {fileID: 11432820}
   tileDamageSprite: {fileID: 21279264}
-  TileMapVisualPrefab: {fileID: 114972, guid: 3eb65c6956d30ad46a2126cc4b506621, type: 2}
   CameraController: {fileID: 0}
   TextDisplay: {fileID: 11400000}
   Inventory: {fileID: 11420576}
@@ -241,7 +240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   textDisplay: {fileID: 11400000}
---- !u!114 &11467286
+--- !u!114 &11469982
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -249,13 +248,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 100000}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01a81cdbc936ee64797cb0b6e16cb1a1, type: 3}
+  m_Script: {fileID: 11500000, guid: cb674c1d8480d9e4690de73ee4eb51ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerPrefab: {fileID: 100000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
-  PickupPrefab: {fileID: 100000, guid: f1208f32ee1b6624fa0f46d763cdd13f, type: 2}
-  GoombaPrefab: {fileID: 167524, guid: 309db16e91a625140abaad8ca0e58ca2, type: 2}
-  SpikePrefab: {fileID: 100002, guid: 28024fa8e660e6149a38564742f42a9b, type: 2}
+  keyValuePairs:
+  - Key: Player
+    Value: {fileID: 100000, guid: ae85e76a43b0183429bfdf69f8e3046b, type: 2}
+  - Key: Pickup
+    Value: {fileID: 100000, guid: f1208f32ee1b6624fa0f46d763cdd13f, type: 2}
+  - Key: Goomba
+    Value: {fileID: 167524, guid: 309db16e91a625140abaad8ca0e58ca2, type: 2}
+  - Key: Spike
+    Value: {fileID: 100002, guid: 28024fa8e660e6149a38564742f42a9b, type: 2}
 --- !u!132 &13200000
 GUIText:
   m_ObjectHideFlags: 1
