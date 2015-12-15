@@ -39,6 +39,12 @@ namespace SA {
 			DebugUtil.LogErrorIf( cond, fmt, args );
 		}
 		#endregion
+
+		#region DebugInfo
+		public virtual string DebugInfo {
+			get { return string.Format( "{0} ({1})", name, GetType().Name ); }
+		}
+		#endregion
 	}
 }
 

@@ -14,6 +14,8 @@ public class Game : SA.Behaviour {
 	[SerializeField]
 	private GUIStyle inventoryStyle;
 	[SerializeField]
+	private GUIStyle debugStringStyle;
+	[SerializeField]
 	private float lightRadius; //TODO: TEMP
 	[SerializeField]
 	private Easing.Algorithm lightAlgo;
@@ -59,6 +61,10 @@ public class Game : SA.Behaviour {
 
 	protected void OnEnable() {
 		try {
+			if( debugStringStyle == null && guiSkin != null ) {
+				debugStringStyle = guiSkin.label;
+			}
+
 			if( spaceRenderer != null ) {
 				spaceRenderer.material.renderQueue = 1000;
 			}
@@ -583,9 +589,7 @@ public class Game : SA.Behaviour {
 			if( !Util.ScreenRect.Contains( rect.max ) ) {
 				rect.position -= new Vector2( offset.x * 2.0f + rect.width, 0.0f );
 			}
-			GUI.color = Color.red;
-			GUI.Label( rect, currentDebugString );
-			GUI.color = Color.white;
+			GUI.Label( rect, currentDebugString, debugStringStyle );
 		}
 
 		if( !guiState.Show ) {
