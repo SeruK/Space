@@ -40,7 +40,7 @@ namespace SA {
 	
 		public SyllabalizedWord( string fullString, int[] indices, bool isSymbol ) {
 			// An empty string has no syllables or reason for existing
-			DebugUtil.Assert( !string.IsNullOrEmpty( fullString ) );
+			SA.Debug.Assert( !string.IsNullOrEmpty( fullString ) );
 			this.fullString  = fullString;
 			this.indices     = indices == null ? new int[ 0 ] : (int[])indices.Clone();
 			this.isSymbol    = isSymbol;
@@ -49,7 +49,7 @@ namespace SA {
 		public SyllabalizedWord( SyllabalizedWord word, string fullString ) : this( fullString, word.indices, word.isSymbol )  {}
 
 		public string GetSyllable( int i ) {
-			DebugUtil.Assert( i < Count );
+			SA.Debug.Assert( i < Count );
 			// i == 1
 			// a [b] a n [d] o n
 			//   1        4
@@ -93,7 +93,7 @@ namespace SA {
 				while( ( line = reader.ReadLine() ) != null ) {
 					// abandon=a·ban·don
 					string[] items = line.Split( '=' );
-					DebugUtil.Assert( items.Length == 2 );
+					SA.Debug.Assert( items.Length == 2 );
 					string fullString = items[ 0 ];
 					string syllabalizedString = items[ 1 ];
 					
@@ -146,7 +146,7 @@ namespace SA {
 					if( resolved != null ) {
 						syllabalizedList.Add( resolved );
 					} else {
-						DebugUtil.Log( "Unable to resolve word: \"" + word + "\", adding as-is" );
+						SA.Debug.Log( "Unable to resolve word: \"" + word + "\", adding as-is" );
 						syllabalizedList.Add( new SyllabalizedWord( word, null ) );
 					}
 				}
@@ -160,7 +160,7 @@ namespace SA {
 		}
 
 		private static string[] TokenizeLettersNonLetters( string str ) {
-			DebugUtil.Assert( !string.IsNullOrEmpty( str ) );
+			SA.Debug.Assert( !string.IsNullOrEmpty( str ) );
 			var list = new List<string>();
 			int start = 0;
 			bool isWord = char.IsLetter( str[ 0 ] );
