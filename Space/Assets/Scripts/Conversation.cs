@@ -37,8 +37,9 @@ public class Conversation {
 public class Conversations {
 	private static readonly string UNKNOWN_TALKER_ID = "char_unknown";
 
-	private Dictionary<string, ConversationCharacter> characters;
 	public Dictionary<string, Conversation> Convos;
+	private Dictionary<string, ConversationCharacter> characters;
+	private Dictionary<string, ConversationEntry> tagToEntry;
 
 	public void Load( Localization localization ) {
 		characters = new Dictionary<string, ConversationCharacter>();
@@ -46,6 +47,7 @@ public class Conversations {
 		characters.Add( UNKNOWN_TALKER_ID, new ConversationCharacter( UNKNOWN_TALKER_ID, Color.white ) );
 
 		Convos = new Dictionary<string, Conversation>();
+		tagToEntry = new Dictionary<string, ConversationEntry>();
 
 		var filePath = Path.Combine( Application.streamingAssetsPath, "conversations.json" );
 		using( var file = new StreamReader( filePath ) ) {
@@ -79,8 +81,16 @@ public class Conversations {
 				JSONArray jsonEntries = jsonConvo[ "entries" ].AsArray;
 				int entryCounter = 0;
 				foreach( JSONNode jsonEntry in jsonEntries ) {
+					ConversationCharacter talker = null;
+					string generatedId = null;
+					string tag = null;
+
 					foreach( KeyValuePair<string, JSONNode> entryKvp in jsonEntry.AsObject ) {
-						ConversationCharacter talker = null;
+						if( entryKvp.Key == "tag" ) {
+							tag = entryKvp.Value;
+							continue;
+						}
+
 						if( aliases.ContainsKey( entryKvp.Key ) ) {
 							talker = aliases[ entryKvp.Key ];
 						} else if( characters.ContainsKey( entryKvp.Key ) ) {
@@ -90,13 +100,24 @@ public class Conversations {
 							talker = characters[ UNKNOWN_TALKER_ID ];
 						}
 
-						string generatedId = string.Format( "conv_{0}_{1}",  convoId, entryCounter.ToString().PadLeft( 4, '0' ) );
+						generatedId = string.Format( "conv_{0}_{1}",  convoId, entryCounter.ToString().PadLeft( 4, '0' ) );
 
 						localization.Set( generatedId, entryKvp.Value );
 
-						entriesList.Add( new ConversationEntry( talker, generatedId ) );
 						++entryCounter;
 					}
+
+					var entry = new ConversationEntry( talker, generatedId );
+
+					if( !string.IsNullOrEmpty( tag ) ) {
+						if( tagToEntry.ContainsKey( tag ) ) {
+							SA.Debug.LogError( "Duplicate tag {0} in {1}", tag, convoId );
+						}
+						SA.Debug.Log( "Tagging {0} as {1}", generatedId, tag );
+						tagToEntry[ tag ] = entry;
+					}
+
+					entriesList.Add( entry );
 				}
 
 				Convos.Add( convoId, new Conversation( entriesList.ToArray(), pauses ) );
