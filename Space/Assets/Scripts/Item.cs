@@ -20,7 +20,7 @@ public static class Item {
 		try {
 			itemType = (ItemType)Enum.Parse( typeof(ItemType), str );
 		} catch( Exception e ) {
-			DebugUtil.LogWarn( "Invalid item type: " + str + "\n" + e );
+			SA.Debug.LogWarn( "Invalid item type: " + str + "\n" + e );
 		}
 		return itemType;
 	}
@@ -57,7 +57,7 @@ public static class Item {
 	}
 
 	public static UInt32 TileUUIDFromItem( ItemType itemType ) {
-		DebugUtil.Assert( IsTile( itemType ) );
+		SA.Debug.Assert( IsTile( itemType ) );
 		return (uint)itemType - (uint)ItemType.TILE;
 	}
 

@@ -99,7 +99,7 @@ public class MeshTiles : SA.Behaviour
 	private IEnumerator generateMeshes()
 	{
 		if( SpriteAt == null ) {
-			((UnityEngine.Object)this).DebugLog("");
+			DebugLog("");
 			DebugLogWarn( "SpriteAt was not set, unable to generate meshes." );
 //			Debug.LogWarning( "SpriteAt was not set, unable to generate meshes." ); 
 			yield break;
@@ -144,7 +144,7 @@ public class MeshTiles : SA.Behaviour
 
 		if( baseSprite == null ) {
 
-			DebugUtil.LogWarn( "Empty tile layer" );
+			SA.Debug.LogWarn( "Empty tile layer" );
 			yield break;
 		}
 
@@ -166,7 +166,7 @@ public class MeshTiles : SA.Behaviour
 		
 		if(numVertices > kMaxVerticesInMesh)
 		{
-			Debug.LogError("Could not generate mesh, too many vertices. "+numVertices+"/"+kMaxVerticesInMesh);
+			DebugLogError("Could not generate mesh, too many vertices. "+numVertices+"/"+kMaxVerticesInMesh);
 			yield break;
 		}
 		
@@ -354,8 +354,8 @@ public class MeshTiles : SA.Behaviour
 		
 		if((uint)tileColors.Length*4u != numVertices)
 		{
-			Debug.LogWarning("Tile colors len * 4 ("+(tileColors.Length*4)+") != num vertices ("+numVertices+")");
-			return;	
+			DebugLogWarn("Tile colors len * 4 ("+(tileColors.Length*4)+") != num vertices ("+numVertices+")");
+			return;
 		}
 		
 		for(int i = 0; i < numVertices; i+= 4)

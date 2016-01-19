@@ -47,7 +47,7 @@ public class ConversationGUI : MonoBehaviour {
 			return;
 		}
 
-		DebugUtil.Log( "Conversation complete" );
+		SA.Debug.Log( "Conversation complete" );
 		textDisplay.ResetText();
 		SetConvo( null );
 	}

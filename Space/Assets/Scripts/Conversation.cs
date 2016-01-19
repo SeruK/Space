@@ -86,7 +86,7 @@ public class Conversations {
 						} else if( characters.ContainsKey( entryKvp.Key ) ) {
 							talker = characters[ entryKvp.Key ];
 						} else {
-							DebugUtil.LogWarn( "Unknown conversation talker @" + convoId + "[" + entryCounter + "] : " + entryKvp.Key );
+							SA.Debug.LogWarn( "Unknown conversation talker @" + convoId + "[" + entryCounter + "] : " + entryKvp.Key );
 							talker = characters[ UNKNOWN_TALKER_ID ];
 						}
 

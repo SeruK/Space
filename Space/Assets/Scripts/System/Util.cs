@@ -38,7 +38,7 @@ public static class Util {
 			green = Convert.ToUInt16( colorString.Substring( 3, 2 ), 16 );
 			blue  = Convert.ToUInt16( colorString.Substring( 5, 2 ), 16 );
 		} catch( System.Exception e ) {
-			DebugUtil.LogError( "Invalid color string: " + colorString + " || " + e );
+			SA.Debug.LogError( "Invalid color string: " + colorString + " || " + e );
 			return def;
 		}
 		

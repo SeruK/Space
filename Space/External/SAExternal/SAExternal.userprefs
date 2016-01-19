@@ -1,13 +1,6 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="SAExternal\Behaviour.cs">
-    <Files>
-      <File FileName="..\..\Assets\Scripts\Game.cs" Line="294" Column="55" />
-      <File FileName="..\..\Assets\Scripts\TileMapGrid.cs" Line="197" Column="1" />
-      <File FileName="..\..\Assets\Scripts\BaseEntity.cs" Line="15" Column="3" />
-      <File FileName="SAExternal\Behaviour.cs" Line="19" Column="18" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

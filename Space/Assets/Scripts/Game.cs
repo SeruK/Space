@@ -118,7 +118,7 @@ public class Game : SA.Behaviour {
 
 			quests.StartQuest( "main_quest_01" );
 		} catch( Exception exc ) {
-			Debug.LogException( exc );
+			DebugLogException( exc );
 			DebugLog( "Setup failed, disabling." );
 			gameObject.SetActive( false );
 		}

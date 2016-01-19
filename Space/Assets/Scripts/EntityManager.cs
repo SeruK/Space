@@ -150,7 +150,7 @@ public class EntityManager {
 
 	private void RemoveEntityInternal( BaseEntity entity ) {
 		if( entity == null ) {
-			DebugUtil.LogWarn( "Entity was already null when attempting to remove it." );
+			SA.Debug.LogWarn( "Entity was already null when attempting to remove it." );
 			return;
 		}
 		entity.SetEntityId( -1 );

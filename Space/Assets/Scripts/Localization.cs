@@ -22,7 +22,7 @@ public class Localization {
 			}
 		}
 
-		DebugUtil.Log( "Read " + lines.Count + " localization line(s)" );
+		SA.Debug.Log( "Read " + lines.Count + " localization line(s)" );
 	}
 
 	private bool ReadCSVLine( string source, out string id, out string val ) {
@@ -42,7 +42,7 @@ public class Localization {
 		var tokens = source.Split( '\t' );
 
 		if( tokens.Length < 2 ) {
-			DebugUtil.LogWarn( "Invalid localization line (\"" + source + "\")" );
+			SA.Debug.LogWarn( "Invalid localization line (\"" + source + "\")" );
 			return false;
 		}
 
@@ -54,21 +54,21 @@ public class Localization {
 		}
 
 		if( val.Length < 2 || ( val[ 0 ] != '"' || val[ val.Length - 1 ] != '"' ) ) {
-			DebugUtil.LogWarn( "Invalid localization line [" + id + "]. Should begin and end with \"" );
+			SA.Debug.LogWarn( "Invalid localization line [" + id + "]. Should begin and end with \"" );
 			return false;
 		}
 
 		val = val.Substring( 1, val.Length - 2 );
 		val = val.Replace( "\\n", System.Environment.NewLine );
 
-		DebugUtil.Log( "Read Line: [{0}] = \"{1}\" ({2})", id, val, comment == null ? "No comment" : comment );
+		SA.Debug.Log( "Read Line: [{0}] = \"{1}\" ({2})", id, val, comment == null ? "No comment" : comment );
 
 		return true;
 	}
 
 	public string Get( string id ) {
 		if( lines == null ) {
-			DebugUtil.LogError( "Localization not loaded" );
+			SA.Debug.LogError( "Localization not loaded" );
 			return null;
 		}
 
@@ -86,20 +86,20 @@ public class Localization {
 
 	public void Set( string id, string value ) {
 		if( lines == null ) {
-			DebugUtil.LogError( "Localization not loaded" );
+			SA.Debug.LogError( "Localization not loaded" );
 			return;
 		}
 
 		if( string.IsNullOrEmpty( id ) || value == null ) {
-			DebugUtil.LogError( "Invalid id or value" );
+			SA.Debug.LogError( "Invalid id or value" );
 			return;
 		}
 
 		if( lines.ContainsKey( id ) ) {
-			DebugUtil.LogWarn( "Localization id already existed: " + id + ", overwriting" );
+			SA.Debug.LogWarn( "Localization id already existed: " + id + ", overwriting" );
 		}
 
-		DebugUtil.Log( string.Format( "Adding Line: [{0}] = \"{1}\"", id, value ) );
+		SA.Debug.Log( string.Format( "Adding Line: [{0}] = \"{1}\"", id, value ) );
 		lines[ id ] = value;
 	}
 }
