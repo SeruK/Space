@@ -185,22 +185,6 @@ public class TextDisplay : SA.Behaviour
 					}
 				}
 			}
-
-			if( word.IsSymbol ) {
-				if( word.String == "," ) {
-					// Remove last whitespace
-					if( text.Length > 1 ) {
-						text.Remove( text.Length - 2, 1 );
-					}
-				} else {
-					if( text.Length > 1 ) {
-						text.Remove( text.Length - 2, 1 );
-					}
-					continue;
-				}
-			}
-
-			text.Append( " " );
 		}
 
 		if( checkTime && clearTextTimer > 0.0f ) {

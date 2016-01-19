@@ -114,32 +114,28 @@ namespace SA {
 		}
 
 		public SyllabalizedWord[] SyllabalizeString( string str ) {
-			string[] words = str.Trim().Split( ' ' );
 			var syllabalizedList = new List<SyllabalizedWord>();
+			str = str.Trim();
+			string[] allTokens = TokenizeLettersNonLetters( str );
 
-			for( int i = 0; i < words.Length; ++i ) {
-				string fullWord = words[ i ];
-				string[] tokens = TokenizeLettersNonLetters( fullWord );
-
-				foreach( string token in tokens ) {
-					bool tokenIsWord = char.IsLetter( token[ 0 ] );
-					SyllabalizedWord resolved = null;
-					if( tokenIsWord ) {
-						string key = token.ToLower();
-						if( database.ContainsKey( key ) ) {
-							resolved = new SyllabalizedWord( database[ key ], token );
-						} else {
-							resolved = ResolveByRules( token );
-							if( resolved == null ) {
-								SA.Debug.Log( "Unable to resolve word: \" {0} \", adding as-is", token );
-								resolved = new SyllabalizedWord( fullWord, indices: null );
-							}
-						}
+			foreach( string token in allTokens ) {
+				bool tokenIsWord = char.IsLetter( token[ 0 ] );
+				SyllabalizedWord resolved = null;
+				if( !tokenIsWord ) {
+					resolved = new SyllabalizedWord( token, indices: null, isSymbol: true );
+				} else {
+					string key = token.ToLower();
+					if( database.ContainsKey( key ) ) {
+						resolved = new SyllabalizedWord( database[ key ], token );
 					} else {
-						resolved = new SyllabalizedWord( token, indices: null, isSymbol: true );
+						resolved = ResolveByRules( token );
+						if( resolved == null ) {
+							SA.Debug.Log( "Unable to resolve word: \"{0}\", adding as-is", token );
+							resolved = new SyllabalizedWord( token, indices: null );
+						}
 					}
-					syllabalizedList.Add( resolved );
 				}
+				syllabalizedList.Add( resolved );
 			}
 
 			return syllabalizedList.ToArray();
