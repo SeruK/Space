@@ -54,6 +54,7 @@ public class Game : SA.Behaviour {
 
 	private EntityManager entityManager;
 	private PrefabDatabase prefabDatabase;
+	private Syllabificator syllabificator;
 	private Entity player;
 	private Unit playerUnit;
 
@@ -86,6 +87,9 @@ public class Game : SA.Behaviour {
 				conversations = new Conversations();
 			}
 			conversations.Load( localization );
+
+			syllabificator = Syllabificator.CreateFromFile( Application.streamingAssetsPath + "/SyllableList.txt" );
+			TextDisplay.Reinitialize( syllabificator );
 
 			if( prefabDatabase == null ) {
 				prefabDatabase = gameObject.GetComponent<PrefabDatabase>();

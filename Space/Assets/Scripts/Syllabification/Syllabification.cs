@@ -49,6 +49,11 @@ namespace SA {
 		public SyllabalizedWord( SyllabalizedWord word, string fullString ) : this( fullString, word.indices, word.isSymbol )  {}
 
 		public string GetSyllable( int i ) {
+			if( Count == 0 ) {
+				SA.Debug.Assert( i == 0 );
+				return fullString;
+			}
+
 			SA.Debug.Assert( i < Count );
 			// i == 1
 			// a [b] a n [d] o n
@@ -60,6 +65,10 @@ namespace SA {
 		}
 
 		public string[] GetSyllables() {
+			if( Count == 0 ) {
+				return new string[] { fullString };
+			}
+
 			var ret = new string[ Count ];
 			for( int i = 0; i < Count; ++i ) {
 				ret[ i ] = GetSyllable( i );
@@ -109,50 +118,27 @@ namespace SA {
 			var syllabalizedList = new List<SyllabalizedWord>();
 
 			for( int i = 0; i < words.Length; ++i ) {
-				string word = words[ i ];
-				string[] tokens = TokenizeLettersNonLetters( word );
-				var postWords = new List<SyllabalizedWord>();
-				if( tokens.Length > 1 ) {
-					word = "";
-					foreach( string token in tokens ) {
-						bool tokenIsWord = char.IsLetter( token[ 0 ] );
-						if( tokenIsWord ) {
-							word += token; 
+				string fullWord = words[ i ];
+				string[] tokens = TokenizeLettersNonLetters( fullWord );
+
+				foreach( string token in tokens ) {
+					bool tokenIsWord = char.IsLetter( token[ 0 ] );
+					SyllabalizedWord resolved = null;
+					if( tokenIsWord ) {
+						string key = token.ToLower();
+						if( database.ContainsKey( key ) ) {
+							resolved = new SyllabalizedWord( database[ key ], token );
 						} else {
-							// Haven't found word yet, add character token as word
-							if( word == "" ) {
-								// Special case: 'tis
-								if( token == "'" ) {
-									word += token;
-								} else {
-									syllabalizedList.Add( new SyllabalizedWord( token, null, true ) );
-								}
-							} else {
-								// Special cases: heart-ache, it's
-								if( token == "-" || token == "'" ) {
-									word += token;
-								} else {
-									postWords.Add( new SyllabalizedWord( token, null, true ) );
-								}
+							resolved = ResolveByRules( token );
+							if( resolved == null ) {
+								SA.Debug.Log( "Unable to resolve word: \" {0} \", adding as-is", token );
+								resolved = new SyllabalizedWord( fullWord, indices: null );
 							}
 						}
-					}
-				}
-				string key = word.ToLower();
-				if( database.ContainsKey( key ) ) {
-					syllabalizedList.Add( new SyllabalizedWord( database[ key ], word ) );
-				} else {
-					SyllabalizedWord resolved = ResolveByRules( word );
-					if( resolved != null ) {
-						syllabalizedList.Add( resolved );
 					} else {
-						SA.Debug.Log( "Unable to resolve word: \"" + word + "\", adding as-is" );
-						syllabalizedList.Add( new SyllabalizedWord( word, null ) );
+						resolved = new SyllabalizedWord( token, indices: null, isSymbol: true );
 					}
-				}
-
-				foreach( var postWord in postWords ) {
-					syllabalizedList.Add( postWord );
+					syllabalizedList.Add( resolved );
 				}
 			}
 

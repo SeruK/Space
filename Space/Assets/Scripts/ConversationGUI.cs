@@ -79,7 +79,6 @@ public class ConversationGUI : MonoBehaviour {
 		string content = localization.Get( entry.ContentId );
 		string text = string.Format( "{0}:\n{1}", talker, content );
 		float displayFor = currentConvo.Pauses ? -1.0f : 3.0f;
-		int startIndex = talker.Length + 2;
-		textDisplay.TypeTextThenDisplayFor( text, displayFor, entry.Talker.TextColor, startIndex );
+		textDisplay.TypeTextThenDisplayFor( text, displayFor, entry.Talker.TextColor, syllabalize: true );
 	}
 }
