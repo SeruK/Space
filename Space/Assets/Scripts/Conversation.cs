@@ -14,13 +14,25 @@ public class ConversationCharacter {
 	}
 }
 
+public class ConversationAnswer {
+	public readonly string ContentId;
+	public readonly string Destination;
+
+	public ConversationAnswer( string contentId, string destination ) {
+		this.ContentId = contentId;
+		this.Destination = destination;
+	}
+}
+
 public class ConversationEntry {
 	public readonly ConversationCharacter Talker;
 	public readonly string ContentId;
+	public readonly ConversationAnswer[] Answers;
 
-	public ConversationEntry( ConversationCharacter talker, string contentId ) {
+	public ConversationEntry( ConversationCharacter talker, string contentId, ConversationAnswer[] answers ) {
 		this.Talker = talker;
 		this.ContentId = contentId;
+		this.Answers = answers;
 	}
 }
 
@@ -84,10 +96,15 @@ public class Conversations {
 					ConversationCharacter talker = null;
 					string generatedId = null;
 					string tag = null;
+					List<ConversationAnswer> answers = new List<ConversationAnswer>();
+					JSONArray answersNode = null;
 
 					foreach( KeyValuePair<string, JSONNode> entryKvp in jsonEntry.AsObject ) {
 						if( entryKvp.Key == "tag" ) {
 							tag = entryKvp.Value;
+							continue;
+						} else if( entryKvp.Key == "answers" ) {
+							answersNode = entryKvp.Value.AsArray;
 							continue;
 						}
 
@@ -107,7 +124,29 @@ public class Conversations {
 						++entryCounter;
 					}
 
-					var entry = new ConversationEntry( talker, generatedId );
+					if( answersNode != null ) {
+						int answerId = 0;
+						foreach( JSONNode node in answersNode ) {
+							string answerContentId = string.Format( "{0}_ans_{1}", generatedId, answerId );
+							string content = null;
+							string dest = null;
+
+							JSONArray answerArray = node.AsArray;
+							if( answerArray == null ) {
+								// No destination
+								content = node;
+							} else {
+								content = answerArray[ 0 ];
+								dest = answerArray[ 1 ];
+							}
+
+							localization.Set( answerContentId, content );
+							answers.Add( new ConversationAnswer( answerContentId, dest ) );
+							++answerId;
+						}
+					}
+
+					var entry = new ConversationEntry( talker, generatedId, answers.ToArray() );
 
 					if( !string.IsNullOrEmpty( tag ) ) {
 						if( tagToEntry.ContainsKey( tag ) ) {
