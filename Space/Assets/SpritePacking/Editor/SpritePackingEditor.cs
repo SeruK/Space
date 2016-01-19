@@ -6,7 +6,7 @@ using System.Collections;
 using System.Diagnostics;
 
 public static class SpritePackingEditor {
-	[MenuItem( "Assets/Sprite Packing/Generate" )]
+	[MenuItem( "Assets/Custom/Pack Sprites" )]
 	private static void MenuGenerate() {
 		Generate();
 	}
@@ -19,7 +19,7 @@ public static class SpritePackingEditor {
 		GenerateDirectory( inRootDir: "{0}/{1}".Fmt( SPRITE_PACKING_ROOT, "Tilesets" ),
 		                   outRootDir: "Resources/Tilesets",
 		                   createSubdirs: true,
-						   label: "Tileset" );
+		                   label: "Tileset" );
 	}
 
 	private static void GenerateDirectory( string inRootDir, string outRootDir, bool createSubdirs, string label ) {

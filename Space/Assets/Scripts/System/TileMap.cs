@@ -1,8 +1,10 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 using System.IO;
+using System.Linq;
 using Ionic.Zlib;
 
 // Modeled after TMX-format
@@ -10,36 +12,36 @@ using Ionic.Zlib;
 
 namespace SA {
 	public static class Tile {
-		public static readonly System.UInt32 FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
-		public static readonly System.UInt32 FLIPPED_VERTICALLY_FLAG   = 0x40000000;
-		public static readonly System.UInt32 FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
-		public static readonly System.UInt32 FLIP_MASK = FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG;
+		public static readonly UInt32 FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+		public static readonly UInt32 FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+		public static readonly UInt32 FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+		public static readonly UInt32 FLIP_MASK = FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG | FLIPPED_DIAGONALLY_FLAG;
 				
-		public static System.UInt32 UUID( System.UInt32 tile ) {
+		public static UInt32 UUID( UInt32 tile ) {
 			return tile & ( ~FLIP_MASK );
 		}
 
-		public static bool FlippedHori( System.UInt32 tile ) {
+		public static bool FlippedHori( UInt32 tile ) {
 			return ( tile & FLIPPED_HORIZONTALLY_FLAG) != 0;
 		}
 
-		public static void SetFlippedHori( ref System.UInt32 tile, bool flipped ) {
+		public static void SetFlippedHori( ref UInt32 tile, bool flipped ) {
 			tile = flipped ? ( tile | FLIPPED_HORIZONTALLY_FLAG ) : ( tile & ( ~FLIPPED_HORIZONTALLY_FLAG ) );
 		}
 
-		public static bool FlippedVert( System.UInt32 tile ) {
+		public static bool FlippedVert( UInt32 tile ) {
 			return ( tile & FLIPPED_VERTICALLY_FLAG ) != 0;
 		}
 
-		public static void SetFlippedVert( ref System.UInt32 tile, bool flipped ) {
+		public static void SetFlippedVert( ref UInt32 tile, bool flipped ) {
 			tile = flipped ? ( tile | FLIPPED_VERTICALLY_FLAG ) : ( tile & ( ~FLIPPED_VERTICALLY_FLAG ) );
 		}
 
-		public static bool FlippedDiag( System.UInt32 tile ) {
+		public static bool FlippedDiag( UInt32 tile ) {
 			return ( tile & FLIPPED_DIAGONALLY_FLAG ) != 0;
 		}
 
-		public static void SetFlippedDiag( ref System.UInt32 tile, bool flipped ) {
+		public static void SetFlippedDiag( ref UInt32 tile, bool flipped ) {
 			tile = flipped ? ( tile | FLIPPED_DIAGONALLY_FLAG ) : ( tile & ( ~FLIPPED_DIAGONALLY_FLAG ) );
 		}
 
@@ -68,6 +70,8 @@ namespace SA {
 		}
 	}
 
+	public class TileMapProperties : Dictionary<string, string> {}
+
 	public class TileMapObject {
 		// Omitted features:
 		// rotation
@@ -82,7 +86,7 @@ namespace SA {
 		private Rect    bounds;
 		private bool    visible;
 
-		private Dictionary<string, string> properties;
+		private TileMapProperties properties;
 
 		public uint ID {
 			get { return id; }
@@ -105,11 +109,11 @@ namespace SA {
 		public bool Visible {
 			get { return visible; }
 		}
-		public Dictionary<string, string> Properties {
+		public TileMapProperties Properties {
 			get { return properties; }
 		}
 
-		public TileMapObject( uint id, string name, string objectType, Rect bounds, bool visible, Dictionary<string,string> properties ) {
+		public TileMapObject( uint id, string name, string objectType, Rect bounds, bool visible, TileMapProperties properties ) {
 			this.id = id;
 			this.name = name;
 			this.objectType = objectType;
@@ -132,9 +136,10 @@ namespace SA {
 		private Size2i tileSize;
 		// Relative image path (from .tmx or .tsx file)
 		private string imagePath;
-		private Dictionary<string, string> properties;
+		private TileMapProperties properties;
 		// TODO: Do this some other way?
-		private System.UInt32[] uuids;
+		private UInt32[] uuids;
+		private Dictionary<UInt32, TileMapProperties> tileProperties;
 
 		public string Name {
 			get { return name; }
@@ -145,26 +150,34 @@ namespace SA {
 		public string ImagePath {
 			get { return imagePath; }
 		}
-		public Dictionary<string, string> Properties {
+		public TileMapProperties Properties {
 			get { return properties; }
 		}
-		public System.UInt32[] UUIDs {
+		public UInt32[] UUIDs {
 			get { return uuids; }
 			set { uuids = value; }
 		}
 
-		public Tileset( string name, Size2i tileSize, string imagePath, Dictionary<string, string> properties ) {
+		public TileMapProperties GetTileProperties( UInt32 uuid ) {
+			if( tileProperties.ContainsKey( uuid ) ) {
+				return tileProperties[ uuid ];
+			}
+			return null;
+		}
+
+		public Tileset( string name, Size2i tileSize, string imagePath, TileMapProperties properties, Dictionary<UInt32, TileMapProperties> tileProperties ) {
 			this.name = name;
 			this.tileSize = tileSize;
 			this.imagePath = imagePath;
 			this.properties = properties;
+			this.tileProperties = tileProperties;
 		}
 	}
 
 	public class TilesetRef {
 		// The global ID that maps to the first tile
 		// in this tileset (in a tilemap)
-		private System.UInt32 firstGID;
+		private UInt32 firstGID;
 		private Tileset tileset;
 
 		public uint FirstGID {
@@ -195,7 +208,7 @@ namespace SA {
 		// Is layer shown or hidden
 		protected bool   visible;
 		// Properties associated with this layer
-		protected Dictionary<string, string> properties;
+		protected TileMapProperties properties;
 		
 		public string Name {
 			get { return name; }
@@ -206,20 +219,20 @@ namespace SA {
 		public bool Visible {
 			get { return visible; }
 		}
-		public Dictionary<string, string> Properties {
+		public TileMapProperties Properties {
 			get { return properties; }
 		}
 	}
 
 	public class TileLayer : Layer {
 		// Tile data
-		private System.UInt32[] tiles;
+		private UInt32[] tiles;
 
-		public System.UInt32[] Tiles {
+		public UInt32[] Tiles {
 			get { return tiles; }
 		}
 
-		public TileLayer( string name, float opacity, bool visible, Dictionary<string, string> properties, System.UInt32[] tiles ) {
+		public TileLayer( string name, float opacity, bool visible, TileMapProperties properties, UInt32[] tiles ) {
 			this.name = name;
 			this.opacity = opacity;
 			this.visible = visible;
@@ -236,7 +249,7 @@ namespace SA {
 			get { return objects; }
 		}
 
-		public ObjectLayer( string name, float opacity, bool visible, Dictionary<string, string> properties, TileMapObject[] objects ) {
+		public ObjectLayer( string name, float opacity, bool visible, TileMapProperties properties, TileMapObject[] objects ) {
 			this.name = name;
 			this.opacity = opacity;
 			this.visible = visible;
@@ -260,7 +273,7 @@ namespace SA {
 
 		private TilesetRef[]      tilesets;
 		private TileLayer[]       tileLayers;
-		private Dictionary<string, string> properties;
+		private TileMapProperties properties;
 		private ObjectLayer[]     objectLayers;
 
 		private int midgroundIndex;
@@ -280,7 +293,7 @@ namespace SA {
 		public TileLayer[] TileLayers {
 			get { return tileLayers; }
 		}
-		public Dictionary<string, string> Properties {
+		public TileMapProperties Properties {
 			get { return properties; }
 		}
 		public ObjectLayer[] ObjectLayers {
@@ -294,7 +307,7 @@ namespace SA {
 		}
 
 		public TileMap( Size2i size, Size2i tileSize, Color bgColor,
-		                TilesetRef[] tilesets, Dictionary<string, string> properties,
+		                TilesetRef[] tilesets, TileMapProperties properties,
 		                TileLayer[] tileLayers, ObjectLayer[] objectLayers,
 		                int midgroundIndex ) {
 			this.size            = size;
@@ -316,6 +329,25 @@ namespace SA {
 			}
 		}
 
+		public static Tileset ParseTSXFileAtPath( string filePath ) {
+			using( XmlReader reader = XmlReader.Create( new StreamReader( filePath ) ) ) {
+				var tileset = XElement.Load( reader );
+				return ParseTileset( tileset );
+			}
+		}
+
+		public static TilesetRef AddTSXFileAtPath( string filePath, uint firstGID, TilesetLookup tilesetLookup ) {
+			var existingTileset = tilesetLookup.GetTilesetByFilePath( filePath );
+			if( existingTileset != null ) {
+				return new TilesetRef( firstGID, existingTileset );
+			}
+
+			using( XmlReader reader = XmlReader.Create( new StreamReader( filePath ) ) ) {
+				var tileset = XElement.Load( reader );
+				return ParseTilesetRef( tileset, firstGID, tilesetLookup, filePath );
+			}
+		}
+
 		private static TileMap ParseTileMap( XElement map, TilesetLookup tilesetLookup, string filePath ) {
 			// Assume orthogonal orientation and right-down renderorder
 			var size = new Size2i( (int)map.Attribute( "width" ), (int)map.Attribute( "height" ) );
@@ -325,7 +357,7 @@ namespace SA {
 			var bgColor = ParseColorString( (string)map.Attribute( "backgroundcolor" ), defaultColor );
 
 			var tilesets = new List<TilesetRef>();
-			Dictionary<string, string> properties = null;
+			TileMapProperties properties = null;
 			var tileLayers = new List<TileLayer>();
 			var objectLayers = new List<ObjectLayer>();
 			int midgroundIndex = 0;
@@ -358,25 +390,23 @@ namespace SA {
 			string filePath = basePath;
 
 			if( !string.IsNullOrEmpty( externalSource ) ) {
-				filePath = Path.Combine( Path.GetDirectoryName( filePath ), externalSource );
+				filePath = Path.Combine( Path.GetDirectoryName( basePath ), externalSource );
 
-				var existingTileset = tilesetLookup.GetTilesetByFilePath( filePath );
-				if( existingTileset != null ) {
-					return new TilesetRef( firstGID, existingTileset );
-				}
-
-				using( XmlReader reader = XmlReader.Create( new StreamReader( filePath ) ) ) {
-					var externalTileset = XElement.Load( reader );
-					return ParseTileset( externalTileset, firstGID, tilesetLookup, filePath );
-				}
+				return AddTSXFileAtPath( filePath, firstGID, tilesetLookup );
 			}
 
-			filePath = Path.Combine( filePath, tileset.Name + ".embedded" );
+			filePath = Path.Combine( basePath, tileset.Name + ".embedded" );
 
-			return ParseTileset( tileset, firstGID, tilesetLookup, filePath );
+			return ParseTilesetRef( tileset, firstGID, tilesetLookup, filePath );
 		}
 
-		private static TilesetRef ParseTileset( XElement tileset, uint firstGID, TilesetLookup tilesetLookup, string externalFilePath ) {
+		private static TilesetRef ParseTilesetRef( XElement tileset, uint firstGID, TilesetLookup tilesetLookup, string externalFilePath ) {
+			Tileset t = ParseTileset( tileset );
+			tilesetLookup.AddTileset( t, externalFilePath );
+			return new TilesetRef( firstGID, t );
+		}
+
+		private static Tileset ParseTileset( XElement tileset ) {
 			string name = (string)tileset.Attribute( "name" );
 			
 			int w = (int) tileset.Attribute( "tilewidth" );
@@ -387,21 +417,30 @@ namespace SA {
 			
 			var properties = ParseProperties( tileset.Element( "properties" ) );
 			
-			var t = new Tileset( name, tileSize, imagePath, properties );
-			tilesetLookup.AddTileset( t, externalFilePath );
-			return new TilesetRef( firstGID, t );
+			var tiles = tileset.Elements( "tile" );
+			Dictionary<UInt32, TileMapProperties> tilePropertiesDict = null;
+			if( tiles != null ) {
+				int tileCount = tiles.Count();
+				tilePropertiesDict = new Dictionary<uint, TileMapProperties>();
+				foreach( XElement tile in tiles ) {
+					UInt32 id = UInt32.Parse( tile.Attribute( "id" ).Value );
+					tilePropertiesDict[ id ] = ParseProperties( tile.Element( "properties" ) );
+				}
+			}
+			
+			return new Tileset( name, tileSize, imagePath, properties, tilePropertiesDict );
 		}
 
 		private static TileLayer ParseTileLayer( XElement tileLayer, Size2i mapSize, List<TilesetRef> tilesets, TilesetLookup tilesetLookup ) {
 			string name;
 			float  opacity;
 			bool   visible;
-			Dictionary<string, string> properties;
+			TileMapProperties properties;
 			ParseLayerAttributes( tileLayer, out name, out opacity, out visible, out properties );
 
 			var dataElement = tileLayer.Element( "data" );
 			// Check encoding etc
-			System.UInt32[] tiles = DecompressTiles( dataElement.Value, mapSize );
+			UInt32[] tiles = DecompressTiles( dataElement.Value, mapSize );
 			tiles = ResolveTiles( tiles, mapSize, tilesets, tilesetLookup );
 
 			return new TileLayer( name, opacity, visible, properties, tiles );
@@ -411,7 +450,7 @@ namespace SA {
 			string name;
 			float  opacity;
 			bool   visible;
-			Dictionary<string, string> properties;
+			TileMapProperties properties;
 			ParseLayerAttributes( objectLayer, out name, out opacity, out visible, out properties );
 
 			var objectsList = new List<TileMapObject>();
@@ -441,15 +480,15 @@ namespace SA {
 		}
 
 		private static void ParseLayerAttributes( XElement layer, out string name, out float opacity,
-		                                          out bool visible, out Dictionary<string, string> properties ) {
+		                                          out bool visible, out TileMapProperties properties ) {
 			name = (string)layer.Attribute( "name" );
 			opacity = ( (float?)layer.Attribute( "opacity" ) ) ?? 1.0f;
 			visible = ( (bool?)layer.Attribute( "visible" ) ) ?? true;
 			properties = ParseProperties( layer.Element( "properties" ) );
 		}
 
-		private static Dictionary<string,string> ParseProperties( XElement properties ) {
-			var ret = new Dictionary<string, string>();
+		private static TileMapProperties ParseProperties( XElement properties ) {
+			var ret = new TileMapProperties();
 			if( properties == null ) {
 				return ret;
 			}
@@ -472,12 +511,12 @@ namespace SA {
 
 			// Could be done much faster by converting to int and bitshifting
 			// Format: #ffaaff
-			System.UInt16 red, green, blue;
+			UInt16 red, green, blue;
 			try {
-				red   = System.Convert.ToUInt16( colorString.Substring( 1, 2 ), 16 );
-				green = System.Convert.ToUInt16( colorString.Substring( 3, 2 ), 16 );
-				blue  = System.Convert.ToUInt16( colorString.Substring( 5, 2 ), 16 );
-			} catch( System.Exception e ) {
+				red   = Convert.ToUInt16( colorString.Substring( 1, 2 ), 16 );
+				green = Convert.ToUInt16( colorString.Substring( 3, 2 ), 16 );
+				blue  = Convert.ToUInt16( colorString.Substring( 5, 2 ), 16 );
+			} catch( Exception e ) {
 				DebugUtil.LogError( "Invalid color string: " + colorString + " || " + e );
 				return def;
 			}
@@ -485,9 +524,9 @@ namespace SA {
 			return new Color( red / 255.0f, green / 255.0f, blue / 255.0f );
 		}
 
-		private static System.UInt32[] DecompressTiles( string base64EncodedTiles, Size2i expectedSize ) {
+		private static UInt32[] DecompressTiles( string base64EncodedTiles, Size2i expectedSize ) {
 			// TODO: This nicer probably
-			byte[] compressedData = System.Convert.FromBase64String( base64EncodedTiles );
+			byte[] compressedData = Convert.FromBase64String( base64EncodedTiles );
 			
 			var compressedDataStream = new MemoryStream( compressedData );
 			var decompressedDataStream = new MemoryStream();
@@ -505,7 +544,7 @@ namespace SA {
 				return null;
 			}
 
-			var tiles = new System.UInt32[ expectedSize.width * expectedSize.height ];
+			var tiles = new UInt32[ expectedSize.width * expectedSize.height ];
 			var binaryReader = new BinaryReader( decompressedDataStream );
 			binaryReader.BaseStream.Position = 0;
 			for( int i = 0; i < expectedSize.width * expectedSize.height; ++i ) {
@@ -515,13 +554,13 @@ namespace SA {
 			return tiles;
 		}
 
-		private static System.UInt32[] ResolveTiles( System.UInt32[] tiles, Size2i mapSize, List<TilesetRef> tilesets, TilesetLookup tilesetLookup ) {
+		private static UInt32[] ResolveTiles( UInt32[] tiles, Size2i mapSize, List<TilesetRef> tilesets, TilesetLookup tilesetLookup ) {
 			// TODO: If double buffers proves an issue flip y somehow else
-			var resolvedTiles = new System.UInt32[ tiles.Length ];
+			var resolvedTiles = new UInt32[ tiles.Length ];
 
 			for( int tileIndex = 0; tileIndex < tiles.Length; ++tileIndex ) {
-				System.UInt32 tileGID = tiles[ tileIndex ];
-				System.UInt32 flipMask = tileGID & Tile.FLIP_MASK;
+				UInt32 tileGID = tiles[ tileIndex ];
+				UInt32 flipMask = tileGID & Tile.FLIP_MASK;
 				// Clear flags; works with GIDs as well
 				tileGID = Tile.UUID( tileGID );
 
@@ -536,13 +575,13 @@ namespace SA {
 						y = ( mapSize.height - 1 ) - y;
 						int resolvedTileIndex = x + y * mapSize.width;
 
-						System.UInt32 localGID = tileGID - tilesetRef.FirstGID;
+						UInt32 localGID = tileGID - tilesetRef.FirstGID;
 						if( localGID >= tilesetRef.Value.UUIDs.Length ) {
 //							Debug.LogWarning( "Tile at " + new SA.Vector2i( tileIndex % mapSize.width, tileIndex / mapSize.width ) + " has GID (" + localGID + ") > Assigned UUIDs (" + tilesetRef.Value.UUIDs.Length + ")" );
 							resolvedTiles[ resolvedTileIndex ] = 0u;
 							break;
 						}
-						System.UInt32 uuid = tilesetRef.Value.UUIDs[ localGID ];
+						UInt32 uuid = tilesetRef.Value.UUIDs[ localGID ];
 						uuid |= flipMask;
 						resolvedTiles[ resolvedTileIndex ] = uuid;
 						break;
@@ -556,11 +595,13 @@ namespace SA {
 	
 	public struct TileInfo {
 		public readonly Sprite TileSprite;
-		public readonly System.UInt32 UUID;
+		public readonly UInt32 UUID;
+		public readonly TileMapProperties Properties;
 
-		public TileInfo( Sprite tileSprite, System.UInt32 UUID ) {
+		public TileInfo( Sprite tileSprite, UInt32 UUID, TileMapProperties properties ) {
 			this.TileSprite = tileSprite;
 			this.UUID = UUID;
+			this.Properties = properties;
 		}
 	}
 
@@ -578,7 +619,7 @@ namespace SA {
 			spritesByFilePath = new Dictionary<string, Sprite[]>();
 			tiles = new List<TileInfo>();
 			// Reserve 0
-			tiles.Add( new TileInfo( null, 0 ) );
+			tiles.Add( new TileInfo( null, 0, null ) );
 		}
 
 		// Absolute file path
@@ -604,11 +645,11 @@ namespace SA {
 			}
 
 			var tileSprites = LoadSpritesIfNecessary( tileset, filePath );
-			tileset.UUIDs = new System.UInt32[ tileSprites.Length ];
+			tileset.UUIDs = new UInt32[ tileSprites.Length ];
 			for( int i = 0; i < tileSprites.Length; ++i ) {
-				System.UInt32 uuid = (System.UInt32) tiles.Count;
+				UInt32 uuid = (UInt32) tiles.Count;
 				tileset.UUIDs[ i ] = uuid;
-				tiles.Add( new TileInfo( tileSprites[ i ], uuid ) );
+				tiles.Add( new TileInfo( tileSprites[ i ], uuid, tileset.GetTileProperties( uuid ) ) );
 			}
 		}
 
@@ -646,7 +687,7 @@ namespace SA {
 
 				// Ensure that sprites are ordered by their position in
 				// the atlas (messy, tired)
-				System.Array.Sort( sprites, ( Sprite a, Sprite b ) => {
+				Array.Sort( sprites, ( Sprite a, Sprite b ) => {
 					var apos = a.textureRect.position;
 					var bpos = b.textureRect.position;
 					float w = a.textureRect.width;

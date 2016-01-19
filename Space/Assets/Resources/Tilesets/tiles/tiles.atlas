@@ -1,0 +1,195 @@
+
+tiles.png
+size: 128,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+BACKGROUND
+  rotate: false
+  xy: 0, 100
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+BACKGROUND_s07
+  rotate: false
+  xy: 0, 80
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+BACKGROUND_s08
+  rotate: false
+  xy: 20, 100
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+BACKGROUND_s09
+  rotate: false
+  xy: 0, 60
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+CAVERN
+  rotate: false
+  xy: 20, 80
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+CAVERN_s02
+  rotate: false
+  xy: 40, 100
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+CAVERN_s03
+  rotate: false
+  xy: 0, 40
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+CAVERN_s04
+  rotate: false
+  xy: 20, 60
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+CAVERN_s05
+  rotate: false
+  xy: 40, 80
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+s01
+  rotate: false
+  xy: 60, 100
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+s02
+  rotate: false
+  xy: 0, 20
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+s03
+  rotate: false
+  xy: 20, 40
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+s04
+  rotate: false
+  xy: 40, 60
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+s05
+  rotate: false
+  xy: 60, 80
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+s06
+  rotate: false
+  xy: 80, 100
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+s07
+  rotate: false
+  xy: 0, 0
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+s08
+  rotate: false
+  xy: 20, 20
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_1
+  rotate: false
+  xy: 40, 40
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_10
+  rotate: false
+  xy: 40, 0
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_2
+  rotate: false
+  xy: 60, 60
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_3
+  rotate: false
+  xy: 80, 80
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_4
+  rotate: false
+  xy: 100, 100
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_5
+  rotate: false
+  xy: 20, 0
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_6
+  rotate: false
+  xy: 40, 20
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_7
+  rotate: false
+  xy: 60, 40
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_8
+  rotate: false
+  xy: 80, 60
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
+ship_9
+  rotate: false
+  xy: 100, 80
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: -1
