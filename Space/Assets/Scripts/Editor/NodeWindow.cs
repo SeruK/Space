@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using SA;
 
-public class NodeWindow {
+public abstract class NodeWindow {
 	public readonly int id;
 	public Rect Rect { get; set; }
 	public virtual string title { get; set; }

@@ -6,24 +6,19 @@ using System.Collections.Generic;
 using SA;
 
 // Based on: http://forum.unity3d.com/threads/simple-node-editor.189230/
-public class NodeEditorWindow : EditorWindow {
+public abstract class NodeEditorWindow : EditorWindow {
 	private static readonly float MIN_SIZE = 300.0f;
 
 	private Dictionary<int, NodeWindow> windows;
 	private List<NodeConnection> connections;
-   
-	[MenuItem("Window/Node editor")]
-	static void ShowEditor() {
-		var editor = EditorWindow.GetWindow<NodeEditorWindow>( "Node Editor" );
-	}
 
 	public void OnEnable() {
 		minSize = new Vector2( MIN_SIZE, MIN_SIZE );
 		windows = new Dictionary<int, NodeWindow>();
 		connections = new List<NodeConnection>();
-		AddWindow( new NodeWindow( 0, "First", new Rect( 10, 10, 100, 100 ) ) );
-		AddWindow( new NodeWindow( 1, "Second", new Rect( 210, 210, 100, 100 ) ) );
-		AddConnection( 0, 1 );
+		//AddWindow( new NodeWindow( 0, "First", new Rect( 10, 10, 100, 100 ) ) );
+		//AddWindow( new NodeWindow( 1, "Second", new Rect( 210, 210, 100, 100 ) ) );
+		//AddConnection( 0, 1 );
 	}
 
 	public virtual void AddWindow( NodeWindow window ) {
@@ -31,7 +26,7 @@ public class NodeEditorWindow : EditorWindow {
 	}
 
 	public virtual void AddConnection( int from, int to ) {
-		connections.Add( new NodeConnection { from = from, to = to } );
+		//connections.Add( new NodeConnection { from = from, to = to } );
 	}
    
 	void OnGUI() {
