@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="20" tileheight="20" backgroundcolor="#aa00ff" nextobjectid="27">
- <tileset firstgid="1" source="Tilesets/tiles.tsx"/>
+ <tileset firstgid="1" source="Tilesets/tiles/tiles.tsx"/>
  <layer name="Background" width="30" height="30">
   <data encoding="base64" compression="zlib">
    eJztzlsKgDAMRNGuoB/d/2JFUCgySZO+sRO4H0rMMQQOZ49JT713rbdK96x790SQdi+Bd9KOx0RuyUHPXtNqS2nfW1z0Dx5X8j3uW42b2zVmi9ujFaZmjzbp/t/92rPM3J5tMsbO6QJh/CUl
   </data>
  </layer>
- <layer name="Midground" width="30" height="30" visible="0">
+ <layer name="Midground" width="30" height="30">
   <data encoding="base64" compression="zlib">
    eJztkD0OgDAIRnHtgoOrd/NoHsWj2cGhoaANCi7fS760oT+PlggAAN4zGfMIT5s7n9yXgdbf16xNpDcC+SbLswQ7NXd1bte4e12zM9V5eM/KlMFaZDQfGzVW1qL7LQ9+T1i5f+QPkD70o9dLts/TAwAZnOUvEoc=
   </data>
  </layer>
- <layer name="Foreground" width="30" height="30" visible="0">
+ <layer name="Foreground" width="30" height="30">
   <data encoding="base64" compression="zlib">
    eJztwQEBAAAAgiD/r25IQAEAAPBoDhAAAQ==
   </data>
