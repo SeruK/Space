@@ -14,6 +14,10 @@ public class TextDisplay : SA.Behaviour
 	[SerializeField]
 	private float    timePerCharacter = 0.1f;
 	[SerializeField]
+	private float    commaTime;
+	[SerializeField]
+	private float    colonTime;
+	[SerializeField]
 	private Material glitchMaterial;
 	[SerializeField]
 	private float    glitchDuration = 0.05f;
@@ -175,7 +179,14 @@ public class TextDisplay : SA.Behaviour
 
 			if( word.IsSymbol ) {
 				text.Append( word.String );
-				++i;
+				if( ++i == currentSyllLength ) {
+					string symbol = word.String.Trim();
+					if( symbol == "," ) {
+						nextSyllTimer = commaTime;
+					} else if( symbol == ":" || symbol == ";" ) {
+						nextSyllTimer = colonTime;
+					}
+				}
 			} else {
 				foreach( string syllable in word ) {
 					text.Append( syllable );

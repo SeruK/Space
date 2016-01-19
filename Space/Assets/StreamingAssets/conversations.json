@@ -9,13 +9,23 @@
 		"main_quest_01": {
 			"pause": true,
 			"entries": [
-				{ "a": "Awaken agent, sweetest agent-child" },
-				{ "a": "Your rebirth beckons Golden Age anew" },
-				{ "a": "He calls, Astraeus, 'pon his Maiden pure" },
-				{ "a": "Your quest forever bless'd; your coming boded" },
-				{ "a": "Go forth: bring Jupiter his reign once more", "tag": "thisatag",
+				{ "a": "Awaken agent, sweetest agent-child", "tag": "first" },
+				{ "a": "Your rebirth beckons Golden Age anew",
 					"answers": [
-						[ "Repeat", "thisatag" ],
+						"what?"
+					]
+				},
+				{ "a": "He calls, Astraeus, 'pon his Maiden pure",
+					"answers": [
+						["ok", "boded"]
+						"who?"
+					]
+				},
+				{ "a": "Why you of course my sweetest friend" },
+				{ "a": "Your quest forever bless'd; your coming boded", "tag": "boded" },
+				{ "a": "Go forth: bring Jupiter his reign once more",
+					"answers": [
+						[ "Repeat", "first" ],
 						"No"
 					]
 				}

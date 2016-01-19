@@ -203,6 +203,8 @@ MonoBehaviour:
   guiText: {fileID: 11433776}
   guiBg: {fileID: 11436092}
   timePerCharacter: .0399999991
+  commaTime: .300000012
+  colonTime: .600000024
   glitchMaterial: {fileID: 2100000, guid: 11f28d708f0a1054f9c3f566ab8c128b, type: 3}
   glitchDuration: .0500000007
   glitchInterval: {x: .5, y: 1.5}
