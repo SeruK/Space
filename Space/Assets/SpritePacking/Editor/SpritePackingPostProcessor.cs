@@ -10,7 +10,7 @@ namespace SA {
 	public class SpritePackingPostProcessor : AssetPostprocessor {
 		private static void OnPostprocessAllAssets( string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths ) {
 			var atlases = from asset in importedAssets where asset.IndexOf( ".atlas" ) != -1 select asset;
-			//Debug.LogFormat( "ASSET POSTPROCESS FOUND {0} ATLASES", atlases.Count() );
+//			SA.Debug.Log( "ASSET POSTPROCESS FOUND {0} ATLASES", atlases.Count() );
 			foreach( var atlas in atlases ) {
 				ProcessSpriteSheet( atlas );
 			}

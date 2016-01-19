@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using SA;
 
-public class MeshTiles : MonoBehaviour 
+public class MeshTiles : SA.Behaviour 
 {
 	public struct SpriteData {
 		public readonly Sprite Sprite;
@@ -98,7 +99,9 @@ public class MeshTiles : MonoBehaviour
 	private IEnumerator generateMeshes()
 	{
 		if( SpriteAt == null ) {
-			Debug.LogWarning( "SpriteAt was not set, unable to generate meshes." ); 
+			DebugLog("");
+			DebugLogWarn( "SpriteAt was not set, unable to generate meshes." );
+//			Debug.LogWarning( "SpriteAt was not set, unable to generate meshes." ); 
 			yield break;
 		}
 		
@@ -140,7 +143,8 @@ public class MeshTiles : MonoBehaviour
 		} while( baseSprite == null && p.x < width && p.y < height );
 
 		if( baseSprite == null ) {
-			DebugUtil.LogWarn( "Empty tile layer" );
+
+			SA.Debug.LogWarn( "Empty tile layer" );
 			yield break;
 		}
 
@@ -162,7 +166,7 @@ public class MeshTiles : MonoBehaviour
 		
 		if(numVertices > kMaxVerticesInMesh)
 		{
-			Debug.LogError("Could not generate mesh, too many vertices. "+numVertices+"/"+kMaxVerticesInMesh);
+			DebugLogError("Could not generate mesh, too many vertices. "+numVertices+"/"+kMaxVerticesInMesh);
 			yield break;
 		}
 		
@@ -350,8 +354,8 @@ public class MeshTiles : MonoBehaviour
 		
 		if((uint)tileColors.Length*4u != numVertices)
 		{
-			Debug.LogWarning("Tile colors len * 4 ("+(tileColors.Length*4)+") != num vertices ("+numVertices+")");
-			return;	
+			DebugLogWarn("Tile colors len * 4 ("+(tileColors.Length*4)+") != num vertices ("+numVertices+")");
+			return;
 		}
 		
 		for(int i = 0; i < numVertices; i+= 4)

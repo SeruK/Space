@@ -1,12 +1,22 @@
 ﻿using UnityEngine;
+using UE = UnityEngine;
+using System;
+using System.Text;
 using System.Collections;
+using SA;
 
-public class TextDisplay : MonoBehaviour
+public class TextDisplay : SA.Behaviour
 {
 	[SerializeField]
-	new private GUIText  guiText;
+	new private UE.UI.Text  guiText;
+	[SerializeField]
+	private UE.UI.Image     guiBg;
 	[SerializeField]
 	private float    timePerCharacter = 0.1f;
+	[SerializeField]
+	private float    commaTime;
+	[SerializeField]
+	private float    colonTime;
 	[SerializeField]
 	private Material glitchMaterial;
 	[SerializeField]
@@ -18,7 +28,8 @@ public class TextDisplay : MonoBehaviour
 
 	public bool TextFullyWritten {
 		get {
-			return textToDisplay == null ? true : currentTextLength == textToDisplay.Length;
+			return syllabalizedString != null ? currentSyllLength == syllCount :
+			       textToDisplay == null ? true : currentTextLength == textToDisplay.Length;
 		}
 	}
 
@@ -29,17 +40,27 @@ public class TextDisplay : MonoBehaviour
 	}
 
 	private string textToDisplay;
+	private string speaker;
+	private SyllabalizedWord[] syllabalizedString;
+	private int syllCount;
+	private Syllabificator syllabificator;
+	private int currentSyllLength;
+	private float nextSyllTimer;
+
 	private float  textClearTime = 5.0f;
 	// Time until text is cleared
 	private float  clearTextTimer;
 
-//	private string lastTextToDisplay;
 	private int currentTextLength;
 	private float nextTextCharIn;
 	private Material displayTextNormalMaterial;
 	private float nextTextGlitchIn;
 	private float currentTextGlitchTimer;
 	private Vector2 currentTextGlitchOffset;
+
+	public void Reinitialize( Syllabificator syllabificator ) {
+		this.syllabificator = syllabificator;
+	}
 
 	public void TypeText( string text, Color textColor ) {
 		TypeTextThenDisplayFor( text, -1.0f, textColor );
@@ -50,15 +71,32 @@ public class TextDisplay : MonoBehaviour
 	}
 
 	public void TypeTextThenDisplayFor( string text, float displayFor, Color textColor ) {
-		TypeTextThenDisplayFor( text, displayFor, textColor, 0 );
+		TypeTextThenDisplayFor( text, displayFor, textColor, syllabalize: false );
 	}
 
-	public void TypeTextThenDisplayFor( string text, float displayFor, Color textColor, int startIndex ) {
+	public void TypeTextThenDisplayFor( string text, float displayFor, Color textColor, bool syllabalize ) {
+		int speakerIndex = text.IndexOf( ':' );
+		if( speakerIndex != -1 ) {
+			speaker = text.Substring( 0, speakerIndex );
+			text = text.Substring( speakerIndex + 1 ).Trim( ' ', '\t', '\n' );
+		}
 		textToDisplay = text;
+
+		if( !syllabalize ) {
+			syllabalizedString = null;
+		} else  {
+			syllabalizedString = syllabificator.SyllabalizeString( text );
+			syllCount = 0;
+			currentSyllLength = 0;
+			foreach( SyllabalizedWord word in syllabalizedString ) {
+				syllCount += word.Count;
+			}
+		}
+
 		textClearTime = displayFor;
 		clearTextTimer = -1.0f;
 		guiText.color = textColor;
-		currentTextLength = startIndex;
+		currentTextLength = 0;
 	}
 
 	public void ForceFinishCurrentText() {
@@ -66,10 +104,16 @@ public class TextDisplay : MonoBehaviour
 			guiText.text = textToDisplay;
 			currentTextLength = textToDisplay.Length;
 		}
+		if( syllabalizedString != null ) {
+			nextSyllTimer = 0.0f;
+			currentSyllLength = syllCount;
+			guiText.text = DoWordAdvancement( checkTime: false );
+		}
 	}
 
 	public void ResetText() {
 		textToDisplay = "";
+		syllabalizedString = null;
 	}
 
 	protected void OnEnable() {
@@ -88,26 +132,81 @@ public class TextDisplay : MonoBehaviour
 		if( guiText == null ) {
 			return;
 		}
-		
-		guiText.pixelOffset = new Vector2( Screen.width / 2.0f, Screen.height - 40.0f ) + currentTextGlitchOffset;
-		
-//		if( lastTextToDisplay != textToDisplay ) {
-//			currentTextLength = 0;
-//		}
-		
-//		lastTextToDisplay = textToDisplay;
-		
+
+
+
 		if( glitchMaterial != null ) {
 			DoGlitching();
 		} else {
 			guiText.material = displayTextNormalMaterial;
 		}
-		
-		if( string.IsNullOrEmpty( textToDisplay ) ) {
-			guiText.text = "";
+
+		if( syllabalizedString == null ) {
+			if( string.IsNullOrEmpty( textToDisplay ) ) {
+				guiText.text = "";
+			} else {
+				DoTextAdvancement();
+			}
 		} else {
-			DoTextAdvancement();
+			guiText.text = DoWordAdvancement( checkTime: true );
 		}
+
+		if( guiBg != null ) {
+			guiBg.enabled = !string.IsNullOrEmpty( guiText.text );
+		}
+	}
+
+	private string DoWordAdvancement( bool checkTime ) {
+		if( nextSyllTimer > 0.0f ) {
+			nextSyllTimer -= Time.deltaTime;
+			return guiText.text;
+		}
+
+		System.Text.StringBuilder text = new StringBuilder( "" );
+		if( !string.IsNullOrEmpty( speaker ) ) {
+			text.AppendFormat( "{0}:\n", speaker );
+		}
+
+		if( currentSyllLength < syllCount ) {
+			++currentSyllLength;
+		}
+
+		int i = 0;
+		foreach( SyllabalizedWord word in syllabalizedString ) {
+			if( i == currentSyllLength ) {
+				break;
+			}
+
+			if( word.IsSymbol ) {
+				text.Append( word.String );
+				if( ++i == currentSyllLength ) {
+					string symbol = word.String.Trim();
+					if( symbol == "," ) {
+						nextSyllTimer = commaTime;
+					} else if( symbol == ":" || symbol == ";" ) {
+						nextSyllTimer = colonTime;
+					}
+				}
+			} else {
+				foreach( string syllable in word ) {
+					text.Append( syllable );
+					if( ++i == currentSyllLength ) {
+						nextSyllTimer = syllable.Length * timePerCharacter;
+						break;
+					}
+				}
+			}
+		}
+
+		if( checkTime && clearTextTimer > 0.0f ) {
+			clearTextTimer -= Time.deltaTime;
+			if( clearTextTimer <= 0.0f ) {
+				ResetText();
+				return "";
+			}
+		}
+
+		return text.ToString();
 	}
 
 	private void DoGlitching() {
@@ -123,7 +222,7 @@ public class TextDisplay : MonoBehaviour
 			guiText.material = displayTextNormalMaterial;
 			
 			if( nextTextGlitchIn <= 0.0f ) {
-				nextTextGlitchIn = Random.Range( glitchInterval.x, glitchInterval.y );
+				nextTextGlitchIn = UE.Random.Range( glitchInterval.x, glitchInterval.y );
 			}
 			
 			if( nextTextGlitchIn > 0.0f ) {
@@ -132,7 +231,7 @@ public class TextDisplay : MonoBehaviour
 				if( nextTextGlitchIn < 0.0f ) {
 					currentTextGlitchTimer = glitchDuration;
 					guiText.material = glitchMaterial;
-					currentTextGlitchOffset = Random.insideUnitCircle * glitchTextOffset;
+					currentTextGlitchOffset = UE.Random.insideUnitCircle * glitchTextOffset;
 				}
 			}
 		}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ItemType = Item.ItemType;
 using SimpleJSON;
 using System.IO;
+using SA;
 
 public class Objective {
 	public enum ObjType {
@@ -89,11 +90,11 @@ public class Quests {
 
 	public void StartQuest( string id ) {
 		if( !quests.ContainsKey( id ) ) {
-			DebugUtil.LogWarn( "No quest called " + id + " exists" );
+			SA.Debug.LogWarn( "No quest called " + id + " exists" );
 			return;
 		}
 
-		DebugUtil.Log( "Starting quest: " + id );
+		SA.Debug.Log( "Starting quest: " + id );
 		var newQuest = new OngoingQuest( id, quests[ id ] );
 		currentQuests.Add( newQuest );
 		if( OnQuestStarted != null ) {
@@ -121,7 +122,7 @@ public class Quests {
 	private bool TryCompleteQuest( OngoingQuest quest, System.Func<Objective, bool> didCompleteObjective ) {
 		bool objectivesLeft = FindIncompleteObjectives( quest, quest.Quest.Objectives, ( Objective foundObjective ) => {
 			if( didCompleteObjective( foundObjective ) ) {
-				DebugUtil.Log( "Finished objective: " + foundObjective.Id );
+				SA.Debug.Log( "Finished objective: " + foundObjective.Id );
 				quest.CompletedObjectivesIds.Add( foundObjective.Id );
 				if( OnObjectiveCompleted != null ) {
 					OnObjectiveCompleted( quest, foundObjective );
@@ -169,7 +170,7 @@ public class Quests {
 	}
 
 	private void QuestCompleted( OngoingQuest quest ) {
-		DebugUtil.Log( "Completed quest: " + quest.QuestId );
+		SA.Debug.Log( "Completed quest: " + quest.QuestId );
 
 		string nextId = quest.Quest.NextQuestId;
 		currentQuests.Remove( quest );
@@ -193,7 +194,7 @@ public class Quests {
 				string questId = kvp.Key;
 
 				if( quests.ContainsKey( questId ) ) {
-					DebugUtil.LogWarn( "Quest " + questId + " already existed" );
+					SA.Debug.LogWarn( "Quest " + questId + " already existed" );
 					continue;
 				}
 

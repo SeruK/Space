@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using SA;
+using System;
 using System.Collections.Generic;
 using OngoingQuest = Quests.OngoingQuest;
 using ItemType = Item.ItemType;
@@ -7,11 +8,13 @@ using System.Linq;
 
 [RequireComponent( typeof(TileMapGrid) )]
 [RequireComponent( typeof(PrefabDatabase) )]
-public class Game : MonoBehaviour {
+public class Game : SA.Behaviour {
 	[SerializeField]
 	private GUISkin guiSkin;
 	[SerializeField]
 	private GUIStyle inventoryStyle;
+	[SerializeField]
+	private GUIStyle debugStringStyle;
 	[SerializeField]
 	private float lightRadius; //TODO: TEMP
 	[SerializeField]
@@ -51,78 +54,92 @@ public class Game : MonoBehaviour {
 
 	private EntityManager entityManager;
 	private PrefabDatabase prefabDatabase;
+	private Syllabificator syllabificator;
 	private Entity player;
 	private Unit playerUnit;
 
 	private TilesetLookup tilesetLookup;
 
 	protected void OnEnable() {
-		if( spaceRenderer != null ) {
-			spaceRenderer.material.renderQueue = 1000;
+		try {
+			if( debugStringStyle == null && guiSkin != null ) {
+				debugStringStyle = guiSkin.label;
+			}
+
+			if( spaceRenderer != null ) {
+				spaceRenderer.material.renderQueue = 1000;
+			}
+
+			if( localization == null ) {
+				localization = new Localization();
+			}
+			localization.Load();
+
+			if( quests == null ) {
+				quests = new Quests();
+			}
+			quests.Load( localization );
+			quests.OnQuestStarted += OnQuestStarted;
+			quests.OnObjectiveCompleted += OnObjectiveCompleted;
+			quests.OnQuestCompleted += OnQuestCompleted;
+
+			if( conversations == null ) {
+				conversations = new Conversations();
+			}
+			conversations.Load( localization );
+
+			syllabificator = Syllabificator.CreateFromFile( Application.streamingAssetsPath + "/SyllableList.txt" );
+			TextDisplay.Reinitialize( syllabificator );
+
+			if( prefabDatabase == null ) {
+				prefabDatabase = gameObject.GetComponent<PrefabDatabase>();
+			}
+			prefabDatabase.Reinitialize();
+
+			if( entityManager == null ) {
+				entityManager = new EntityManager();
+			}
+			entityManager.Reinitialize( prefabDatabase );
+			entityManager.OnEntityCollided += OnEntityCollided;
+
+			player = entityManager.Spawn<Entity>( "Player" );
+			if( player != null ) {
+				Camera.main.GetComponent<SmoothFollow>().target = player.CharController.transform;
+				playerUnit = player.GetComponent<Unit>();
+			}
+
+			tileMapGrid.CreateGrid();
+			tilesetLookup = new SA.TilesetLookup();
+			var worldGen = new WorldGenerator( tileMapGrid, tilesetLookup, entityManager );
+			worldGen.GenerateTileGrid();
+			spawnPos = worldGen.SpawnPos;
+
+			RespawnPlayer( spawnPos );
+
+			if( convoGUI != null ) {
+				convoGUI.Reinitialize( localization, conversations );
+			}
+
+			quests.StartQuest( "main_quest_01" );
+		} catch( Exception exc ) {
+			DebugLogException( exc );
+			DebugLog( "Setup failed, disabling." );
+			gameObject.SetActive( false );
 		}
-
-		if( localization == null ) {
-			localization = new Localization();
-		}
-		localization.Load();
-
-		if( quests == null ) {
-			quests = new Quests();
-		}
-		quests.Load( localization );
-		quests.OnQuestStarted += OnQuestStarted;
-		quests.OnObjectiveCompleted += OnObjectiveCompleted;
-		quests.OnQuestCompleted += OnQuestCompleted;
-
-		if( conversations == null ) {
-			conversations = new Conversations();
-		}
-		conversations.Load( localization );
-
-		if( prefabDatabase == null ) {
-			prefabDatabase = gameObject.GetComponent<PrefabDatabase>();
-		}
-		prefabDatabase.Reinitialize();
-
-		if( entityManager == null ) {
-			entityManager = new EntityManager();
-		}
-		entityManager.Reinitialize( prefabDatabase );
-		entityManager.OnEntityCollided += OnEntityCollided;
-
-		player = entityManager.Spawn<Entity>( "Player" );
-		if( player != null ) {
-			Camera.main.GetComponent<SmoothFollow>().target = player.CharController.transform;
-			playerUnit = player.GetComponent<Unit>();
-		}
-
-		tileMapGrid.CreateGrid();
-		tilesetLookup = new SA.TilesetLookup();
-		var worldGen = new WorldGenerator( tileMapGrid, tilesetLookup, entityManager );
-		worldGen.GenerateTileGrid();
-		spawnPos = worldGen.SpawnPos;
-
-		RespawnPlayer( spawnPos );
-
-		if( convoGUI != null ) {
-			convoGUI.Reinitialize( localization );
-		}
-
-		quests.StartQuest( "main_quest_01" );
 	}
 
 	protected void OnDisable() {
-		DebugUtil.Log( "Game.OnDisable()" );
+		DebugLog( "Game.OnDisable()" );
 		Shutdown();
 	}
 
 	protected void OnApplicationQuit() {
-		DebugUtil.Log( "Game.OnApplicationQuit()" );
+		DebugLog( "Game.OnApplicationQuit()" );
 		Shutdown();
 	}
 
 	private void Shutdown() {
-		DebugUtil.Log( "Game.Shutdown()" );
+		DebugLog( "Game.Shutdown()" );
 
 		if( Camera.main ) {
 			var cameraScript = Camera.main.GetComponent<SmoothFollow>();
@@ -576,9 +593,7 @@ public class Game : MonoBehaviour {
 			if( !Util.ScreenRect.Contains( rect.max ) ) {
 				rect.position -= new Vector2( offset.x * 2.0f + rect.width, 0.0f );
 			}
-			GUI.color = Color.red;
-			GUI.Label( rect, currentDebugString );
-			GUI.color = Color.white;
+			GUI.Label( rect, currentDebugString, debugStringStyle );
 		}
 
 		if( !guiState.Show ) {

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public abstract class BaseEntity : MonoBehaviour {
+public abstract class BaseEntity : SA.Behaviour {
 	private int entityId = -1;
 	protected string entityName;
 
@@ -24,7 +24,7 @@ public abstract class BaseEntity : MonoBehaviour {
 		}
 	}
 
-	public virtual string DebugInfo {
+	public override string DebugInfo {
 		get { return "{0} ({1})\n- Id: {2}".Fmt( entityName, GetType().Name, entityId ); }
 	}
 }

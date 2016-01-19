@@ -517,7 +517,7 @@ namespace SA {
 				green = Convert.ToUInt16( colorString.Substring( 3, 2 ), 16 );
 				blue  = Convert.ToUInt16( colorString.Substring( 5, 2 ), 16 );
 			} catch( Exception e ) {
-				DebugUtil.LogError( "Invalid color string: " + colorString + " || " + e );
+				SA.Debug.LogError( "Invalid color string: " + colorString + " || " + e );
 				return def;
 			}
 
@@ -535,12 +535,12 @@ namespace SA {
 			zLibStream.Close();
 
 			if( decompressedDataStream.Length != ( expectedSize.width * expectedSize.height ) * 4 ) {
-				DebugUtil.LogError( "Decompressed tiles longer than expected!" );
+				SA.Debug.LogError( "Decompressed tiles longer than expected!" );
 				return null;
 			}
 
 			if( ( decompressedDataStream.Length % 4 ) != 0 ) {
-				DebugUtil.LogError( "Decompressed tiles not 32bit" );
+				SA.Debug.LogError( "Decompressed tiles not 32bit" );
 				return null;
 			}
 
@@ -634,12 +634,12 @@ namespace SA {
 		// Absolute file path
 		public void AddTileset( Tileset tileset, string filePath ) {
 			if( string.IsNullOrEmpty( tileset.Name ) || string.IsNullOrEmpty( filePath ) ) {
-				DebugUtil.Log( "Must have name and file path" );
+				SA.Debug.Log( "Must have name and file path" );
 				return;
 			}
 
 			if( tilesetsByFilePath.ContainsKey( filePath ) ) {
-				DebugUtil.LogError( "Duplicate tilesets: " + filePath );
+				SA.Debug.LogError( "Duplicate tilesets: " + filePath );
 			} else {
 				tilesetsByFilePath[ filePath ] = tileset;
 			}
@@ -667,7 +667,7 @@ namespace SA {
 				return spritesByFilePath[ imagePath ];
 			}
 
-			DebugUtil.Log( "Will load sprites at: " + imagePath );
+			SA.Debug.Log( "Will load sprites at: " + imagePath );
 
 			// TODO: Support sprites located other places than resources?
 			if( imagePath.StartsWith( Util.ResourcesPath ) ) {
@@ -679,11 +679,11 @@ namespace SA {
 					relativeResourcesPath = relativeResourcesPath.Remove( 0, 1 );
 				}
 				relativeResourcesPath = relativeResourcesPath.Replace( Path.GetExtension( relativeResourcesPath ), "" );
-				DebugUtil.Log( "Texture resource path: " + relativeResourcesPath );
+				SA.Debug.Log( "Texture resource path: " + relativeResourcesPath );
 				object loadedObj = Resources.Load( relativeResourcesPath );
-				DebugUtil.Log( "Loaded object: " + loadedObj );
+				SA.Debug.Log( "Loaded object: " + loadedObj );
 				Sprite[] sprites = Resources.LoadAll<Sprite>( relativeResourcesPath );
-				DebugUtil.Log( "Loaded sprites: " + sprites );
+				SA.Debug.Log( "Loaded sprites: " + sprites );
 
 				// Ensure that sprites are ordered by their position in
 				// the atlas (messy, tired)
@@ -702,7 +702,7 @@ namespace SA {
 				return sprites;
 			}
 
-			DebugUtil.Assert( false, "Unable to load sprites" );
+			SA.Debug.Assert( false, "Unable to load sprites" );
 
 			return null;
 		}

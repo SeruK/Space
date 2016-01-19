@@ -2,6 +2,7 @@
 using SimpleJSON;
 using System.Collections.Generic;
 using System.IO;
+using SA;
 
 public class ConversationCharacter {
 	public readonly string Id;
@@ -13,13 +14,27 @@ public class ConversationCharacter {
 	}
 }
 
+public class ConversationAnswer {
+	public readonly string ContentId;
+	public readonly string Destination;
+
+	public ConversationAnswer( string contentId, string destination ) {
+		this.ContentId = contentId;
+		this.Destination = destination;
+	}
+}
+
 public class ConversationEntry {
+	public readonly string ConversationId;
 	public readonly ConversationCharacter Talker;
 	public readonly string ContentId;
+	public readonly ConversationAnswer[] Answers;
 
-	public ConversationEntry( ConversationCharacter talker, string contentId ) {
+	public ConversationEntry( string conversationId, ConversationCharacter talker, string contentId, ConversationAnswer[] answers ) {
+		this.ConversationId = conversationId;
 		this.Talker = talker;
 		this.ContentId = contentId;
+		this.Answers = answers;
 	}
 }
 
@@ -31,13 +46,43 @@ public class Conversation {
 		this.Entries = entries;
 		this.Pauses = pauses;
 	}
+
+	public int IndexOf( ConversationEntry toFind ) {
+		if( toFind == null ) {
+			return -1;
+		}
+
+		for( int i = 0; i < Entries.Length; ++i ) {
+			ConversationEntry entry = Entries[ i ];
+			if( entry.ContentId == toFind.ContentId ) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
 }
 
 public class Conversations {
 	private static readonly string UNKNOWN_TALKER_ID = "char_unknown";
 
-	private Dictionary<string, ConversationCharacter> characters;
 	public Dictionary<string, Conversation> Convos;
+	private Dictionary<string, ConversationCharacter> characters;
+	private Dictionary<string, ConversationEntry> tagToEntry;
+
+	public bool ResolveTag( string tag, out Conversation convo, out int entryIndex ) {
+		convo = null;
+		entryIndex = -1;
+		if( !tagToEntry.ContainsKey( tag ) ) {
+			return false;
+		}
+
+		ConversationEntry entry = tagToEntry[ tag ];
+		convo = Convos[ entry.ConversationId ];
+		entryIndex = convo.IndexOf( entry );
+
+		return true;
+	}
 
 	public void Load( Localization localization ) {
 		characters = new Dictionary<string, ConversationCharacter>();
@@ -45,6 +90,7 @@ public class Conversations {
 		characters.Add( UNKNOWN_TALKER_ID, new ConversationCharacter( UNKNOWN_TALKER_ID, Color.white ) );
 
 		Convos = new Dictionary<string, Conversation>();
+		tagToEntry = new Dictionary<string, ConversationEntry>();
 
 		var filePath = Path.Combine( Application.streamingAssetsPath, "conversations.json" );
 		using( var file = new StreamReader( filePath ) ) {
@@ -78,24 +124,70 @@ public class Conversations {
 				JSONArray jsonEntries = jsonConvo[ "entries" ].AsArray;
 				int entryCounter = 0;
 				foreach( JSONNode jsonEntry in jsonEntries ) {
+					ConversationCharacter talker = null;
+					string generatedId = null;
+					string tag = null;
+					List<ConversationAnswer> answers = new List<ConversationAnswer>();
+					JSONArray answersNode = null;
+
 					foreach( KeyValuePair<string, JSONNode> entryKvp in jsonEntry.AsObject ) {
-						ConversationCharacter talker = null;
+						if( entryKvp.Key == "tag" ) {
+							tag = entryKvp.Value;
+							continue;
+						} else if( entryKvp.Key == "answers" ) {
+							answersNode = entryKvp.Value.AsArray;
+							continue;
+						}
+
 						if( aliases.ContainsKey( entryKvp.Key ) ) {
 							talker = aliases[ entryKvp.Key ];
 						} else if( characters.ContainsKey( entryKvp.Key ) ) {
 							talker = characters[ entryKvp.Key ];
 						} else {
-							DebugUtil.LogWarn( "Unknown conversation talker @" + convoId + "[" + entryCounter + "] : " + entryKvp.Key );
+							SA.Debug.LogWarn( "Unknown conversation talker @" + convoId + "[" + entryCounter + "] : " + entryKvp.Key );
 							talker = characters[ UNKNOWN_TALKER_ID ];
 						}
 
-						string generatedId = string.Format( "conv_{0}_{1}",  convoId, entryCounter.ToString().PadLeft( 4, '0' ) );
+						generatedId = string.Format( "conv_{0}_{1}",  convoId, entryCounter.ToString().PadLeft( 4, '0' ) );
 
 						localization.Set( generatedId, entryKvp.Value );
 
-						entriesList.Add( new ConversationEntry( talker, generatedId ) );
 						++entryCounter;
 					}
+
+					if( answersNode != null ) {
+						int answerId = 0;
+						foreach( JSONNode node in answersNode ) {
+							string answerContentId = string.Format( "{0}_ans_{1}", generatedId, answerId );
+							string content = null;
+							string dest = null;
+
+							JSONArray answerArray = node.AsArray;
+							if( answerArray == null ) {
+								// No destination
+								content = node;
+							} else {
+								content = answerArray[ 0 ];
+								dest = answerArray[ 1 ];
+							}
+
+							localization.Set( answerContentId, content );
+							answers.Add( new ConversationAnswer( answerContentId, dest ) );
+							++answerId;
+						}
+					}
+
+					var entry = new ConversationEntry( convoId, talker, generatedId, answers.ToArray() );
+
+					if( !string.IsNullOrEmpty( tag ) ) {
+						if( tagToEntry.ContainsKey( tag ) ) {
+							SA.Debug.LogError( "Duplicate tag {0} in {1}", tag, convoId );
+						}
+						SA.Debug.Log( "Tagging {0} as {1}", generatedId, tag );
+						tagToEntry[ tag ] = entry;
+					}
+
+					entriesList.Add( entry );
 				}
 
 				Convos.Add( convoId, new Conversation( entriesList.ToArray(), pauses ) );

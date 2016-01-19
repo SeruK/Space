@@ -12,6 +12,10 @@ Space/*.userprefs
 Space/*.csproj
 Space/*.unityproj
 Space/*.sln
+Space/.vs
+Space/External/SAExternal/Temp
+Space/External/SAExternal/.vs
+Space/External/SAExternal/SAExternal/obj
 
 #############
 ## Blender crap

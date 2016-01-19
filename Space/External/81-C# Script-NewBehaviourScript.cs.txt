@@ -1,0 +1,9 @@
+﻿using UnityEngine;
+using UE = UnityEngine;
+using System;
+using System.Collections.Generic;
+using SA;
+
+public class #SCRIPTNAME# : SA.Behaviour {
+
+}

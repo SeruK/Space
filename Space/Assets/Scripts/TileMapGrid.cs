@@ -48,12 +48,12 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 
 	public void SetTileMapAt( TileMap tileMap, TilesetLookup tilesetLookup, int x, int y ) {
 		if( x < 0 || x >= size.width || y < 0 || y >= size.height ) {
-			DebugUtil.LogError( "Trying to set tilemap outside bounds: " + size );
+			SA.Debug.LogError( "Trying to set tilemap outside bounds: " + size );
 			return;
 		}
 
 		if( tileMap.Size != tileMapTileSize ) {
-			DebugUtil.LogError( "Tilemap.Size " + tileMap.Size + " != tileMapSize " + tileMapTileSize );
+			SA.Debug.LogError( "Tilemap.Size " + tileMap.Size + " != tileMapSize " + tileMapTileSize );
 			return;
 		}
 
