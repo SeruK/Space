@@ -5,6 +5,8 @@ using SA;
 using System;
 
 public class ConversationGUI : SA.Behaviour {
+	private static ConversationAnswer[] DUMMY_ANSWERS = { new ConversationAnswer( "convo_continue", destination: null ) };
+	
 	[SerializeField]
 	private TextDisplay textDisplay;
 	[SerializeField]
@@ -102,6 +104,12 @@ public class ConversationGUI : SA.Behaviour {
 
 	private void OnAnswerSelected( int index ) {
 		ConversationAnswer[] answers = currentConvo.Entries[ currentConvoEntryIndex ].Answers;
+
+		if( answers.Length == 0 ) {
+			NextConvoEntry();
+			return;
+		}
+		
 		UE.Debug.Assert( index >= 0 && index < answers.Length, "Answer index {0} out of range", index );
 		ConversationAnswer answer = answers[ index ];
 		if( string.IsNullOrEmpty( answer.Destination ) ) {
@@ -137,7 +145,7 @@ public class ConversationGUI : SA.Behaviour {
 		string text = string.Format( "{0}:\n{1}", talker, content );
 		float displayFor = currentConvo.Pauses ? -1.0f : 3.0f;
 		textDisplay.TypeTextThenDisplayFor( text, displayFor, entry.Talker.TextColor, syllabalize: true );
-		SetButtons( entry.Answers );
+		SetButtons( entry.Answers.Length > 0 ? entry.Answers : DUMMY_ANSWERS );
 	}
 
 	private void SetButtons( ConversationAnswer[] answers ) {

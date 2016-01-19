@@ -322,11 +322,7 @@ public class Game : SA.Behaviour {
 
 		if( convoGUI != null ) {
 			if( convoGUI.CurrentConvo != null && convoGUI.CurrentConvo.Pauses ) {
-				if( Input.GetKeyDown( KeyCode.Space ) ) {
-					waitForSpaceUp = true;
-					convoGUI.ForwardCurrentEntry();
-				}
-				else if( Input.GetKeyDown( KeyCode.Escape ) ) {
+				if( Input.GetKeyDown( KeyCode.Escape ) ) {
 					convoGUI.EndConvo();
 				}
 				return;
