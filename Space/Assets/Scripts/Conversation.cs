@@ -25,11 +25,13 @@ public class ConversationAnswer {
 }
 
 public class ConversationEntry {
+	public readonly string ConversationId;
 	public readonly ConversationCharacter Talker;
 	public readonly string ContentId;
 	public readonly ConversationAnswer[] Answers;
 
-	public ConversationEntry( ConversationCharacter talker, string contentId, ConversationAnswer[] answers ) {
+	public ConversationEntry( string conversationId, ConversationCharacter talker, string contentId, ConversationAnswer[] answers ) {
+		this.ConversationId = conversationId;
 		this.Talker = talker;
 		this.ContentId = contentId;
 		this.Answers = answers;
@@ -44,6 +46,21 @@ public class Conversation {
 		this.Entries = entries;
 		this.Pauses = pauses;
 	}
+
+	public int IndexOf( ConversationEntry toFind ) {
+		if( toFind == null ) {
+			return -1;
+		}
+
+		for( int i = 0; i < Entries.Length; ++i ) {
+			ConversationEntry entry = Entries[ i ];
+			if( entry.ContentId == toFind.ContentId ) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
 }
 
 public class Conversations {
@@ -52,6 +69,20 @@ public class Conversations {
 	public Dictionary<string, Conversation> Convos;
 	private Dictionary<string, ConversationCharacter> characters;
 	private Dictionary<string, ConversationEntry> tagToEntry;
+
+	public bool ResolveTag( string tag, out Conversation convo, out int entryIndex ) {
+		convo = null;
+		entryIndex = -1;
+		if( !tagToEntry.ContainsKey( tag ) ) {
+			return false;
+		}
+
+		ConversationEntry entry = tagToEntry[ tag ];
+		convo = Convos[ entry.ConversationId ];
+		entryIndex = convo.IndexOf( entry );
+
+		return true;
+	}
 
 	public void Load( Localization localization ) {
 		characters = new Dictionary<string, ConversationCharacter>();
@@ -146,7 +177,7 @@ public class Conversations {
 						}
 					}
 
-					var entry = new ConversationEntry( talker, generatedId, answers.ToArray() );
+					var entry = new ConversationEntry( convoId, talker, generatedId, answers.ToArray() );
 
 					if( !string.IsNullOrEmpty( tag ) ) {
 						if( tagToEntry.ContainsKey( tag ) ) {

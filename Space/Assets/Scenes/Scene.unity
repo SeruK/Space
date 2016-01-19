@@ -244,7 +244,7 @@ MonoBehaviour:
   cameraOffset: {x: 0, y: -2, z: 10}
   extraCameraOffset: {x: 0, y: 0, z: 0}
   useFixedUpdate: 0
---- !u!1001 &419086246
+--- !u!1001 &1951569510
 Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -291,22 +291,6 @@ Prefab:
       propertyPath: CameraController
       value: 
       objectReference: {fileID: 190974038}
-    - target: {fileID: 22402342, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 22402342, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: m_SizeDelta.x
-      value: 375.200012
-      objectReference: {fileID: 0}
-    - target: {fileID: 22402342, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: m_AnchoredPosition.y
-      value: -98.4000015
-      objectReference: {fileID: 0}
-    - target: {fileID: 22402342, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
-      propertyPath: m_SizeDelta.y
-      value: 80.8000031
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 50c9165af117f8945ad0fb32e99b2ff0, type: 2}
   m_IsPrefabParent: 0

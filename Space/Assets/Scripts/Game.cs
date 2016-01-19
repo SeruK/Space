@@ -117,7 +117,7 @@ public class Game : SA.Behaviour {
 			RespawnPlayer( spawnPos );
 
 			if( convoGUI != null ) {
-				convoGUI.Reinitialize( localization );
+				convoGUI.Reinitialize( localization, conversations );
 			}
 
 			quests.StartQuest( "main_quest_01" );
