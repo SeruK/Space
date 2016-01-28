@@ -54,6 +54,8 @@ public class MeshTiles : SA.Behaviour
 
 	private float meshSize;
 
+	private Color32[] vertexColors;
+
 	void OnDisable()
 	{
 		stopLoading();
@@ -111,6 +113,8 @@ public class MeshTiles : SA.Behaviour
 		
 		uint width = Width;
 		uint height = Height;
+
+		vertexColors = new Color32[ width * height * 4 ];
 		
 		/* * * * * * * * * * * * * * * * * */
 		
@@ -253,7 +257,7 @@ public class MeshTiles : SA.Behaviour
 		}
 
 		// Make quads overlap slightly to avoid stitch gaps
-		const float expand = 0.0003f;
+		const float expand = 0.0005f;
 		float minX = meshSize * x + expand;
 		float minY = meshSize * y + expand;
 		float maxX = minX + meshSize + expand;
@@ -289,6 +293,8 @@ public class MeshTiles : SA.Behaviour
 			texRect.y /= texHeight;
 			texRect.width /= texWidth;
 			texRect.height /= texHeight;
+
+			texRect = texRect.Inset( 0.01f );
 
 			if( createCollider ) {
 				var collGo = new GameObject( colliderName );
@@ -326,7 +332,7 @@ public class MeshTiles : SA.Behaviour
 			texRect.yMin = yMax;
 			texRect.yMax = yMin;
 		}
-		
+
 		// Since Tiled renders with negative y, flip axis
 		uvs[bottomRightVertex] = new Vector2(texRect.xMax, texRect.yMax);
 		uvs[bottomLeftVertex] = new Vector2(texRect.xMin, texRect.yMax);
@@ -345,12 +351,11 @@ public class MeshTiles : SA.Behaviour
 	
 	private void applyTileColors()
 	{
-		if( meshFilter == null || meshFilter.mesh == null || tileColors == null ) {
+		if( meshFilter == null || meshFilter.mesh == null || tileColors == null || vertexColors == null ) {
 			return;
 		}
 		
 		uint numVertices = Width * Height * 4u;
-		var colors = new Color32[numVertices];
 		
 		if((uint)tileColors.Length*4u != numVertices)
 		{
@@ -360,14 +365,14 @@ public class MeshTiles : SA.Behaviour
 		
 		for(int i = 0; i < numVertices; i+= 4)
 		{
-			var color = tileColors[i/4];
+			Color32 color = tileColors[i/4];
 			for(int z = 0; z < 4; ++z)
 			{
-				colors[i+z] = color;
+				vertexColors[i+z] = color;
 			}
 		}
 		
-		meshFilter.mesh.colors32 = colors;
+		meshFilter.mesh.colors32 = vertexColors;
 		tileColors = null;
 	}
 }
