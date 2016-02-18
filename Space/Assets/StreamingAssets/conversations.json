@@ -17,16 +17,16 @@
 				},
 				{ "a": "He calls, Astraeus, 'pon his Maiden pure",
 					"answers": [
-						["ok", "boded"]
-						"who?"
+						["sure", "boded"]
+						"maiden?"
 					]
 				},
-				{ "a": "Why you of course my sweetest friend" },
+				{ "a": "Why, you of course, my sweetest friend" },
 				{ "a": "Your quest forever bless'd; your coming boded", "tag": "boded" },
 				{ "a": "Go forth: bring Jupiter his reign once more",
 					"answers": [
-						[ "Repeat", "first" ],
-						"No"
+						[ "repeat", "first" ],
+						"sure"
 					]
 				}
 			]

@@ -345,7 +345,7 @@ public class TileMapGrid : MonoBehaviour, IEnumerable<TileMapVisual> {
 			}
 		}
 
-		lightmap.Clear();
+		//lightmap.Clear();
 	}
 
 	private Color32 Blend( Color32 c1, Color32 c2 ) {
