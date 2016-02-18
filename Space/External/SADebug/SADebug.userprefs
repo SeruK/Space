@@ -1,0 +1,27 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="SADebug\Debug.cs">
+    <Files>
+      <File FileName="SADebug\DebugSystem.cs" Line="1" Column="1" />
+      <File FileName="SADebug\DebugContext.cs" Line="1" Column="1" />
+      <File FileName="SADebug\Debug.Logging.cs" Line="1" Column="1" />
+      <File FileName="SADebug\Debug.cs" Line="12" Column="15" />
+      <File FileName="SADebug\Debug.Assertions.cs" Line="1" Column="1" />
+      <File FileName="SADebug\AssemblyInfo.cs" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True" selected="True">
+          <Node name="SADebug" expanded="True">
+            <Node name="References" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <AuthorInfo Name="Sebastian Strand" Email="" Copyright="Sebastian Strand 2016" Company="Sausage Assassins" Trademark="" />
+</Properties>

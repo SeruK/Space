@@ -16,6 +16,10 @@ Space/.vs
 Space/External/SAExternal/Temp
 Space/External/SAExternal/.vs
 Space/External/SAExternal/SAExternal/obj
+Space/External/SADebug/Temp
+Space/External/SADebug/.vs
+Space/External/SADebug/SADebug/obj
+Space/External/SADebug/SADebug/bin
 
 #############
 ## Blender crap
