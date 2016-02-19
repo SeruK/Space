@@ -4,30 +4,31 @@ using UE = UnityEngine;
 using System;
 using System.Collections.Generic;
 
+[InitializeOnLoad]
 public static class DebugPreferences {
 	private static readonly string ASSERTIONS_COMPILE_DEFINE = "DEBUG_ASSERTIONS";
 	private static readonly string LOGGING_COMPILE_DEFINE = "DEBUG_LOGGING";
 
 	private static readonly bool UnityAssertionsEnabled =
-#if UNITY_ASSERTIONS
-		true;
-#else
-		else;
-#endif
+	#if UNITY_ASSERTIONS
+			true;
+	#else
+			else;
+	#endif
 
 	private static readonly bool AssertionsEnabled =
-#if DEBUG_ASSERTIONS
-	true;
-#else
-	false;
-#endif
+	#if DEBUG_ASSERTIONS
+		true;
+	#else
+		false;
+	#endif
 
 	private static readonly bool LoggingEnabled =
-#if DEBUG_ASSERTIONS
-		true;
-#else
-		false;
-#endif
+	#if DEBUG_LOGGING
+			true;
+	#else
+			false;
+	#endif
 
 	static DebugPreferences() {
 		gui_unityAssertions = UnityAssertionsEnabled;
