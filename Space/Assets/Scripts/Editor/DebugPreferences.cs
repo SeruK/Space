@@ -6,40 +6,45 @@ using System.Collections.Generic;
 
 [InitializeOnLoad]
 public static class DebugPreferences {
+	#region Fields
 	private static readonly string ASSERTIONS_COMPILE_DEFINE = "DEBUG_ASSERTIONS";
 	private static readonly string LOGGING_COMPILE_DEFINE = "DEBUG_LOGGING";
 
 	private static readonly bool UnityAssertionsEnabled =
-	#if UNITY_ASSERTIONS
-			true;
-	#else
-			else;
-	#endif
+#if UNITY_ASSERTIONS
+		true;
+#else
+		false;
+#endif
 
 	private static readonly bool AssertionsEnabled =
-	#if DEBUG_ASSERTIONS
+#if DEBUG_ASSERTIONS
 		true;
-	#else
+#else
 		false;
-	#endif
+#endif
 
 	private static readonly bool LoggingEnabled =
-	#if DEBUG_LOGGING
-			true;
-	#else
-			false;
-	#endif
+#if DEBUG_LOGGING
+		true;
+#else
+		false;
+#endif
 
+	private static bool gui_unityAssertions;
+	private static bool gui_assertions;
+	private static bool gui_logging;
+	#endregion
+
+	#region Constructor
 	static DebugPreferences() {
 		gui_unityAssertions = UnityAssertionsEnabled;
 		gui_assertions = AssertionsEnabled;
 		gui_logging = LoggingEnabled;
 	}
+	#endregion
 
-	private static bool gui_unityAssertions;
-	private static bool gui_assertions;
-	private static bool gui_logging;
-
+	#region GUI
 	[PreferenceItem( "Debugging" )]
 	public static void PreferencesGUI() {
 		if( EditorApplication.isPlaying || EditorApplication.isCompiling || EditorApplication.isUpdating ) {
@@ -68,7 +73,9 @@ public static class DebugPreferences {
 		}
 		EditorGUI.EndDisabledGroup();
 	}
+	#endregion
 
+	#region Applying
 	private static void Apply() {
 		if( EditorApplication.isPlaying || EditorApplication.isCompiling || EditorApplication.isUpdating ) {
 			return;
@@ -97,4 +104,5 @@ public static class DebugPreferences {
 		string newDefines = string.Join( ";", defines.ToArray() );
 		PlayerSettings.SetScriptingDefineSymbolsForGroup( activeTargetGroup, newDefines );
 	}
+	#endregion
 }
